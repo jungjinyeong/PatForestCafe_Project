@@ -1,14 +1,12 @@
 ﻿
 
-
-
 namespace Framework.UI
 {
     /// <summary>
     /// 클릭 했을 때 이벤트 델리게이트
     /// </summary>
     public delegate void OnClick();
-
+    
     /// <summary>
     /// 팝업창을 보유한 오브젝트 클릭 했을때 이벤트 델리게이트
     /// </summary>

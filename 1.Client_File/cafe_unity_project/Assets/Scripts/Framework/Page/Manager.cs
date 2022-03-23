@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 
 namespace Framework.Page
 {
@@ -64,8 +65,7 @@ namespace Framework.Page
         /// <param name="ID"></param>
         public void Change(int NextPageID)
         {
-            Coroutine.Run(Processing(NextPageID));
-            
+            MainThreadDispatcher.StartCoroutine(Processing(NextPageID));
         }
 
         protected IEnumerator Processing(int NextPageID)
@@ -80,7 +80,7 @@ namespace Framework.Page
             {
                 activatedPage = nextPage;
 
-                yield return Coroutine.Run(activatedPage.Preprocessing());
+                yield return MainThreadDispatcher.StartCoroutine(activatedPage.Preprocessing());
                 activatedPage.OnEnter();
             }
         }

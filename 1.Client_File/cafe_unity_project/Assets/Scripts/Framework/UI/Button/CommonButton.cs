@@ -9,16 +9,12 @@ namespace Framework.UI
     [RequireComponent(typeof(ClickAudioPlayer))]
     public class CommonButton : Widget
     {
-
-        [SerializeField] AudioClip ClickAudio;
-
         protected UnityEngine.UI.Button button;
         protected OnClick onClick;
 
         protected override void Awake()
         {
-            button = gameObject.GetComponent<UnityEngine.UI.Button>();
-            button.onClick.AddListener(OnClickEvent);
+            Init();
         }
 
         public override void Prepare()
@@ -35,6 +31,12 @@ namespace Framework.UI
 
         }
 
+        protected virtual void Init()
+        {
+            button = gameObject.GetComponent<UnityEngine.UI.Button>();
+            button.onClick.AddListener(OnClickEvent);
+        }
+
         public void SetOnClickEvent(OnClick evt)
         {
             onClick = evt;
@@ -42,11 +44,7 @@ namespace Framework.UI
 
         public void OnClickEvent()
         {
-            if (ClickAudio != null)
-            {                
-            }
-
-            onClick();
+            onClick?.Invoke();
         }
     }
 }

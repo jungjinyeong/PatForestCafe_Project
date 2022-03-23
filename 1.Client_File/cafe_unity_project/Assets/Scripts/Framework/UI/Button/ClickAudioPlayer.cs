@@ -2,10 +2,18 @@
 using UnityEditor;
 
 
-public class ClickAudioPlayer : MonoBehaviour
+namespace Framework.UI
 {
-    public void OnClick()
+    public class ClickAudioPlayer : MonoBehaviour
     {
+        [SerializeField] private AudioClip _audioClip = null;
 
+        public void OnPlayAudio()
+        {
+            if(_audioClip != null)
+            {
+                AudioManager.Instance?.PlayEffect(_audioClip);
+            }
+        }
     }
 }

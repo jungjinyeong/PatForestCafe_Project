@@ -8,6 +8,7 @@ namespace Framework.UI
     {
         protected List<IWidget> widgets;
         protected Dictionary<int, IController> controllers;
+
         public void Initialize()
         {
             widgets = new List<IWidget>();

@@ -36,16 +36,12 @@ namespace Framework.UI
 
         public virtual void InvokeCompletedAppearFuntion()
         {
-            if(onCompletedAppearFuntion != null)
-            {
-                onCompletedAppearFuntion();
-            }
+            onCompletedAppearFuntion?.Invoke();
         }
 
         public virtual void InvokeCompletedDisappearFuntion()
         {
-            if (onCompletedDisappearFuntion != null)
-                onCompletedDisappearFuntion();
+            onCompletedDisappearFuntion?.Invoke();
         }
 
         public virtual void Prepare()
