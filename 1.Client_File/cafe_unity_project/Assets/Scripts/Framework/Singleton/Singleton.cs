@@ -25,11 +25,6 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
     public virtual void Destroy() { }
 
-    public void Awake()
-    {
-        Initialize();
-    }
-
     public void OnDestroy()
     {
         Destroy();
