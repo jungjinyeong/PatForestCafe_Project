@@ -6,7 +6,7 @@ using UniRx;
 using Framework.UI;
 using Framework.Extension;
 
-public class UIRootIntro : UIBase, UIParam<UIRootIntro.Param>
+public class UIRootIntro : UIWndBase, IUIParam<UIRootIntro.Param>
 {
     [SerializeField]
     private Button mBtnStart;
@@ -21,15 +21,12 @@ public class UIRootIntro : UIBase, UIParam<UIRootIntro.Param>
     }
 
     #region override
-    public override eUIType GetUIType()
-    {
-        return eUIType.UIRootIntro;
-    }
+    public override eUIType GetUIType() => eUIType.UIRootIntro;
 
     public override void Init()
     {
         base.Init();
-        mBtnStart?.OnSubscribeOnClick(() =>
+        mBtnStart?.OnSubscribeOnClick(_ =>
         {
             UIMgr.Open<UIRootLobby, UIEmptyParam>(eUIType.UIRootLobby, new UIEmptyParam());
         }).AddTo(this);

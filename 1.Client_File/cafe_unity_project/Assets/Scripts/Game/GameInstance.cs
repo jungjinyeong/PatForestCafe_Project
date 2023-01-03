@@ -18,15 +18,8 @@ public partial class GameInstance : MonoBehaviour
         Init();
     }
 
-    public UIManager UIMgr => UIManager.Instance;
-
     public void Init()
     {
 
-    }
-
-    void Start()
-    {
-        
     }
 }

@@ -6,10 +6,7 @@ using UniRx;
 using Framework.UI;
 using Framework.Extension;
 
-public class UIRootLobby : UIBase
+public class UIRootLobby : UIWndBase
 {
-    public override eUIType GetUIType()
-    {
-        return eUIType.UIRootLobby;
-    }
+    public override eUIType GetUIType() => eUIType.UIRootLobby;
 }

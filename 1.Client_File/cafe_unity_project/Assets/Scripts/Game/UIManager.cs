@@ -4,12 +4,15 @@ using System.Collections;
 using UnityEngine;
 using Framework.UI;
 
+[Serializable]
 public enum eUIType
 {
     Min = 0,
 
     UIRootIntro = eUILayerType.Menu << 0,
     UIRootLobby,
+
+    UIHudController = eUILayerType.OnlyAwaysTop << 0,
 
     Max,
 }
@@ -19,17 +22,19 @@ public enum eUILayerType
     Min = 0,
     Menu,
     Popup,
+    OnlyAwaysTop,
 }
 
 public class UIManager : MonoBehaviour
 {
-    List<UIBase> m_uiStack = new List<UIBase>();
-    Dictionary<eUIType, UIBase> m_uiContains = new Dictionary<eUIType, UIBase>();
+    readonly string UI_PATH_INFO_PATH = "UIPathInfo";
+
+    List<UIWndBase> m_uiStack = new List<UIWndBase>();
+    Dictionary<eUIType, UIWndBase> m_uiContains = new Dictionary<eUIType, UIWndBase>();
     Dictionary<eUIType, string> m_uiPaths;
 
     [SerializeField]
-    Canvas mMainCanvas = null;
-
+    Canvas m_mainCanvas = null;
 
     static UIManager _instance;
     public static UIManager Instance { get { return _instance; } }
@@ -50,6 +55,12 @@ public class UIManager : MonoBehaviour
         SetUIPath();
 
         Open<UIRootIntro, UIRootIntro.Param>(eUIType.UIRootIntro, new UIRootIntro.Param());
+    }
+
+    void SetUIPath()
+    {
+        var uIPathInfo = UnityEngine.Resources.Load<UIPathInfo>(UI_PATH_INFO_PATH);
+        m_uiPaths = uIPathInfo.GetUIPathInfos();
     }
 
     public void Destroy()
@@ -73,9 +84,9 @@ public class UIManager : MonoBehaviour
         m_uiContains?.Clear();
     }
 
-    public T Open<T, T1>(eUIType uiType, T1 param) where T : UIBase
+    public T Open<T, T1>(eUIType uiType, T1 param) where T : UIWndBase
     {
-        UIBase ui = null;
+        UIWndBase ui = null;
         if (m_uiContains != null && m_uiContains.TryGetValue(uiType, out ui))
         {
             m_uiStack.Add(ui);
@@ -87,10 +98,10 @@ public class UIManager : MonoBehaviour
             GameObject uiPrefab = Resources.Load(uiPath) as GameObject;
             if (uiPrefab != null)
             {
-                ui = Instantiate(uiPrefab).GetComponent<UIBase>();
+                ui = Instantiate(uiPrefab).GetComponent<UIWndBase>();
                 DontDestroyOnLoad(ui);
                 RectTransform rect = ui.gameObject.GetComponent<RectTransform>();
-                rect.SetParent(mMainCanvas.gameObject.transform);
+                rect.SetParent(m_mainCanvas.gameObject.transform);
                 rect.offsetMax = Vector2.zero;
                 rect.offsetMin = Vector2.zero;
                 rect.localPosition = Vector3.zero;
@@ -116,15 +127,6 @@ public class UIManager : MonoBehaviour
                 m_uiStack.RemoveAt(i);
             }
         }
-    }
-
-    void SetUIPath()
-    {
-        m_uiPaths = new Dictionary<eUIType, string>()
-        {
-            { eUIType.UIRootIntro, "Prefabs/UI/ui_root_intro"},
-            { eUIType.UIRootLobby, "Prefabs/UI/ui_ingameInfo"},
-        };
     }
 
     string GetUIPath(eUIType uiType)

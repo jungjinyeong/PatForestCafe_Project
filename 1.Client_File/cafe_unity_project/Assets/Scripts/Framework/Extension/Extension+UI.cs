@@ -8,10 +8,12 @@ namespace Framework.Extension
 {
     public static class ExtensionUI
     {
-        public static IDisposable OnSubscribeOnClick(this Button button, UnityAction onClickAction)
+        public static IDisposable OnSubscribeOnClick(this Button button, Action<Unit> onClickAction)
         {
-            button.onClick.AddListener(onClickAction);
-            return button.OnClickAsObservable().Subscribe();
+            return button.OnClickAsObservable().Subscribe(action =>
+            {
+                onClickAction?.Invoke(action);
+            });
         }
     }
 }

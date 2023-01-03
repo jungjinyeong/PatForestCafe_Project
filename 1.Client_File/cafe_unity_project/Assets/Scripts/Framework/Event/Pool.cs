@@ -6,6 +6,7 @@ namespace Framework.Event
     public class Pool
     {
         protected static Dictionary<System.Type, List<IMessage>> storage = new Dictionary<System.Type, List<IMessage>>();
+
         public static void Push(IMessage message)
         {
             storage[message.GetType()].Add(message);

@@ -6,14 +6,14 @@ namespace Framework.UI
     {
     }
 
-    public class UIEmptyParam : UIParam<Param>
+    public struct UIEmptyParam : IUIParam<Param>
     {
         public void Set(Param param)
         {
         }
     }
 
-    public interface UIParam<T> where T : struct
+    public interface IUIParam<T> where T : struct
     {
         public abstract void Set(T param);
     }

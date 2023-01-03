@@ -6,24 +6,14 @@ namespace Framework.UI
 {
     public abstract class UIBase : MonoBehaviour
     {
-        protected UIManager UIMgr => GameInstance.Instance.UIMgr;
-
-        public abstract eUIType GetUIType();
-
-        public virtual void Init() { }
-
-        public virtual void Destroy() { }
-
-        public virtual void Open() 
+        public void Active()
         {
             gameObject.SetActive(true);
         }
 
-        public virtual void Close() { }
-
-        public virtual void SelfClose()
+        public void Deative()
         {
-            UIMgr.Close(GetUIType());
+            gameObject.SetActive(false);
         }
     }
 }
