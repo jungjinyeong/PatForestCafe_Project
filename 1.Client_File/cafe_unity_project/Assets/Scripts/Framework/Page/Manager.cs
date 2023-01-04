@@ -68,6 +68,7 @@ namespace Framework.Page
             MainThreadDispatcher.StartCoroutine(Processing(NextPageID));
         }
 
+
         protected IEnumerator Processing(int NextPageID)
         {
             if (activatedPage != null)

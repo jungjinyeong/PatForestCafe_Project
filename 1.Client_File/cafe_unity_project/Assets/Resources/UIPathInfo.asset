@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: UIPathInfo
   m_EditorClassIdentifier: 
   m_pathInfoDic:
-    m_keys: 0100000002000000
+    m_keys: 0000010001000100
     m_values:
     - Prefabs/UI/ui_root_intro
     - Prefabs/UI/ui_ingameInfo

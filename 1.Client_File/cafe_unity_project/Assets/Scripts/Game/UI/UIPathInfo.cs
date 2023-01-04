@@ -4,16 +4,13 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
-#endif
 
 [CreateAssetMenu(menuName = "UIPathInfo/Create")]
+#endif
 [Serializable]
 public class UIPathInfo : ScriptableObject
 {
-    [SerializeField] UIPathInfoDictionary m_pathInfoDic = new UIPathInfoDictionary();
+    public SerializableDictionary<eUIType, string> m_pathInfoDic = new SerializableDictionary<eUIType, string>();
 
-    public Dictionary<eUIType, string> GetUIPathInfos()
-    {
-        return m_pathInfoDic;
-    }
+    //public SerializableDictionary<eUIType, string> GetUIPathInfos() => m_pathInfoDic;
 }

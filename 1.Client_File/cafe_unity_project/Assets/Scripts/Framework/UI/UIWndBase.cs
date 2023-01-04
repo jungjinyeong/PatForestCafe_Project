@@ -18,7 +18,10 @@ namespace Framework.UI
             Active();
         }
 
-        public virtual void Close() { }
+        public void Close() 
+        {
+            Deative();
+        }
 
         protected void SelfClose()
         {

@@ -16,7 +16,7 @@ public enum eUIHudType
 public class UIHudController : UIWndBase
 {
     [SerializeField]
-    UIHudDictionary m_uiHudDic = new UIHudDictionary();
+    SerializableDictionary<eUIHudType, UIHudBase> m_uiHudDic = new SerializableDictionary<eUIHudType, UIHudBase>();
 
     public override eUIType GetUIType() => eUIType.UIHudController;
 

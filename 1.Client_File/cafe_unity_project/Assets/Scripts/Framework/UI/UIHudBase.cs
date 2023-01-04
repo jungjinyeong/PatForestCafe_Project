@@ -5,6 +5,6 @@ namespace Framework.UI
 {
     public abstract class UIHudBase : UIBase
     {
-        public void OnEvent(IUIEvent )
+        public abstract void OnEvent(IUIEvent evt);
     }
 }
