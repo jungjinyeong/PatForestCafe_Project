@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 namespace Framework.Page
 {
@@ -13,8 +14,7 @@ namespace Framework.Page
 
         void Prepare();
 
-
-        IEnumerator Preprocessing();
+        UniTask Preprocessing();
 
         /// <summary>
         /// 페이지에 진입했습니다.

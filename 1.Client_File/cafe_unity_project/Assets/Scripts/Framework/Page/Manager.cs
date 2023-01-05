@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using Cysharp.Threading.Tasks;
 
 namespace Framework.Page
 {
@@ -65,11 +66,10 @@ namespace Framework.Page
         /// <param name="ID"></param>
         public void Change(int NextPageID)
         {
-            MainThreadDispatcher.StartCoroutine(Processing(NextPageID));
+            Processing(NextPageID).Forget();
         }
 
-
-        protected IEnumerator Processing(int NextPageID)
+        protected async UniTask Processing(int NextPageID)
         {
             if (activatedPage != null)
             {
@@ -81,7 +81,8 @@ namespace Framework.Page
             {
                 activatedPage = nextPage;
 
-                yield return MainThreadDispatcher.StartCoroutine(activatedPage.Preprocessing());
+                await activatedPage.Preprocessing();
+
                 activatedPage.OnEnter();
             }
         }

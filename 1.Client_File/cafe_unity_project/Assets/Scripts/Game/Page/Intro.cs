@@ -1,8 +1,5 @@
-﻿
-
-
-
-using System.Collections;
+﻿using System.Collections;
+using Cysharp.Threading.Tasks;
 
 namespace Game.Page
 {
@@ -30,9 +27,11 @@ namespace Game.Page
 
         }
 
-        public IEnumerator Preprocessing()
+        public async UniTask Preprocessing()
         {
-            yield return null;
+            bool isComplete = true;
+
+            await UniTask.WaitUntil(() => isComplete);
         }
     }
 }
