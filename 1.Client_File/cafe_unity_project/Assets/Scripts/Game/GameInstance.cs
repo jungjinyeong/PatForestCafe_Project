@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using UniRx;
+using Unity.VisualScripting;
 
 public partial class GameInstance : MonoBehaviour
 {
-    static GameInstance _instance;
-    public static GameInstance Instance { get { return _instance; } }
-
     void Awake()
     {
         _instance = this;
@@ -20,6 +18,21 @@ public partial class GameInstance : MonoBehaviour
 
     public void Init()
     {
+        mSoundMgr = this.GetOrAddComponent<SoundManager>();
+        mSoundMgr.Init();
+
+        mInputMgr = this.GetOrAddComponent<InputManager>();
+
+    }
+
+    public void Clear()
+    {
+        mSoundMgr?.Clear();
+    }
+
+    public void Reset()
+    {
+        mSoundMgr?.Destory();
 
     }
 }

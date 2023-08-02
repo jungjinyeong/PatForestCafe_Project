@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using Framework.UI;
+using Framework.State;
 
 [Serializable]
 public enum eUIType
@@ -27,11 +28,49 @@ public enum eUILayerType
     AlwaysOnTop,
 }
 
+public class UIWndStack
+{
+    public List<UIWndBase> m_uiStack = new List<UIWndBase>();
+
+    public void Add(UIWndBase wnd)
+    {
+        if(m_uiStack.Contains(wnd))
+        {
+
+        }
+        else
+        {
+            m_uiStack.Add(wnd);
+        }
+    }
+
+    public void Remove(eUIType type)
+    {
+        var find = m_uiStack.Find(x => x.GetUIType() == type);
+        if(find)
+        {
+            find.Close();
+            m_uiStack.Remove(find);
+        }
+    }
+
+    public bool IsContain(eUIType type)
+    {
+        return m_uiStack.Find(x => x.GetUIType() == type) != null;
+    }
+
+    public void Clear()
+    {
+        m_uiStack?.Clear();
+    }
+}
+
 public class UIManager : MonoBehaviour
 {
     readonly string UI_PATH_INFO_PATH = "UIPathInfo";
 
-    List<UIWndBase> m_uiStack = new List<UIWndBase>();
+    UIWndStack m_UIWndStack;
+
     Dictionary<eUIType, UIWndBase> m_uiContains = new Dictionary<eUIType, UIWndBase>();
     UIWndBase m_curUI = null;
 
@@ -69,6 +108,7 @@ public class UIManager : MonoBehaviour
     {
         _instance = this;
         DontDestroyOnLoad(this);
+        m_UIWndStack = new UIWndStack();
     }
 
     void Start()
@@ -88,8 +128,7 @@ public class UIManager : MonoBehaviour
         m_uiContains?.Clear();
         m_uiContains = null;
 
-        m_uiStack?.Clear();
-        m_uiStack = null;
+        m_UIWndStack?.Clear();
     }
 
     /// <summary>
@@ -97,7 +136,7 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void Clear()
     {
-        m_uiStack?.Clear();
+        m_UIWndStack?.Clear();
         m_uiContains?.Clear();
     }
 
@@ -111,7 +150,7 @@ public class UIManager : MonoBehaviour
         UIWndBase ui = null;
         if (m_uiContains != null && m_uiContains.TryGetValue(uiType, out ui))
         {
-            m_uiStack.Add(ui);
+            m_UIWndStack.Add(ui);
             ui.Open();
         }
         else
@@ -130,7 +169,7 @@ public class UIManager : MonoBehaviour
                 rect.offsetMin = Vector2.zero;
                 rect.localPosition = Vector3.zero;
                 m_uiContains.Add(uiType, ui);
-                m_uiStack.Add(ui);
+                m_UIWndStack.Add(ui);
                 ui.Init();
                 ui.Open();
             }
@@ -143,12 +182,9 @@ public class UIManager : MonoBehaviour
 
     public void Close(eUIType eUIType)
     {
-        for(int i = 0; i < m_uiStack.Count; i++)
+        if(m_UIWndStack.IsContain(eUIType))
         {
-            if (m_uiStack[i].GetUIType() == eUIType)
-            {
-                m_uiStack[i].Close();
-            }
+            m_UIWndStack.Remove(eUIType);
         }
     }
 
