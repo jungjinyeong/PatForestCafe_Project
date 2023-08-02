@@ -95,7 +95,7 @@ public class UIManager : MonoBehaviour
     /// <summary>
     /// 씬 이동 시 ui clear
     /// </summary>
-    public void Release()
+    public void Clear()
     {
         m_uiStack?.Clear();
         m_uiContains?.Clear();

@@ -8,7 +8,7 @@ namespace Framework.Extension
 {
     public static class ExtensionUI
     {
-        public static IDisposable OnSubscribeOnClick(this Button button, Action<Unit> onClickAction)
+        public static IDisposable OnSubscribeOnClick(this Button button, Action<UniRx.Unit> onClickAction)
         {
             return button.OnClickAsObservable().Subscribe(action =>
             {
