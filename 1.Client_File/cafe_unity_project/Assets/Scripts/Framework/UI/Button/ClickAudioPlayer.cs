@@ -12,7 +12,7 @@ namespace Framework.UI
         {
             if(_audioClip != null)
             {
-                AudioManager.Instance?.PlayEffect(_audioClip);
+                GameInstance.Sound.PlayEffect(_audioClip);
             }
         }
     }
