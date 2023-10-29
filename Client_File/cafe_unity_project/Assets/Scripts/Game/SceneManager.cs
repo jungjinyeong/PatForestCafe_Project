@@ -2,16 +2,23 @@
 using Cysharp.Threading.Tasks;
 using Framework.Scene;
 using Game.Scene;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class SceneManager : IResManager
 {
-    Dictionary<eScene, SceneBase> m_SceneDic = new Dictionary<eScene, SceneBase>();
-
     SceneBase mCurScene;
 
     public void Init()
     {
+        var find = GameObject.Find(eScene.Intro.ToString());
+
+        var curScene = find.GetComponent<SceneBase>();
+
+        mCurScene = curScene;
+
+        mCurScene.Prepare();
     }
 
     public void Subscribe()
@@ -20,27 +27,36 @@ public class SceneManager : IResManager
 
     public void Destory()
     {
-        m_SceneDic?.Clear();
-        m_SceneDic = null;
     }
 
     public void Clear()
     {
-        m_SceneDic?.Clear();
     }
 
     public void Add(SceneBase page)
     {
-        m_SceneDic.Add(page.ID, page);
     }
 
     public SceneBase Find(eScene ID)
     {
-        if (m_SceneDic.ContainsKey(ID))
-        {
-            return m_SceneDic[ID];
-        }
         return null;
+    }
+
+    public async UniTask<SceneBase> Load(eScene ID)
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(ID.ToString(), UnityEngine.SceneManagement.LoadSceneMode.Single);
+
+        await UniTask.Delay(100);
+
+        var find = GameObject.Find(ID.ToString());
+        if(null == find)
+        {
+            Debug.LogError($"null == find {ID}");
+            return null;
+        }
+
+        var curScene = find.GetComponent<SceneBase>();
+        return curScene;
     }
 
     public void ChangeScene(eScene changeID)
@@ -52,18 +68,26 @@ public class SceneManager : IResManager
     {
         if (mCurScene != null)
         {
+            GameInstance.Instance.Clear();
+
             mCurScene.OnExit();
         }
 
-        var nextScene = Find(changeID);
+        var nextScene = await Load(changeID);
 
         if (nextScene != null)
         {
             mCurScene = nextScene;
 
+            mCurScene.Prepare();
+
             await mCurScene.Preprocessing();
 
             mCurScene.OnEnter();
+        }
+        else
+        {
+            Debug.LogError("next scene == null.");
         }
     }
 }

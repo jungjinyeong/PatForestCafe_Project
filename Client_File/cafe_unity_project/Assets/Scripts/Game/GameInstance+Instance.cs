@@ -9,7 +9,7 @@ public partial class GameInstance
     static GameInstance _instance;
     public static GameInstance Instance { get { return _instance; } }
 
-    public UIManager UIMgr => UIManager.Instance;
+    public static UIManager UIMgr => UIManager.Instance;
 
     public static SoundManager Sound
     {
@@ -28,4 +28,10 @@ public partial class GameInstance
         }
     }
     private static InputManager mInputMgr;
+
+    public static SceneManager SceneMgr
+    {
+        get { return mSceneMgr; }
+    }
+    private static SceneManager mSceneMgr;
 }

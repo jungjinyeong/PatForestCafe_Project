@@ -5,7 +5,7 @@ namespace Framework.UI
 {
     public abstract class UIWndBase : UIBase
     {
-        protected UIManager UIMgr => GameInstance.Instance.UIMgr;
+        protected UIManager UIMgr => GameInstance.UIMgr;
 
         public abstract eUIType GetUIType();
 

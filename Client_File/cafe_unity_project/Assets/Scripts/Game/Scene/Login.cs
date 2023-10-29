@@ -4,9 +4,9 @@ using Framework.UI;
 
 namespace Game.Scene
 {
-    public class Intro : SceneBase
+    public class Login : SceneBase
     {
-        public override eScene ID => eScene.Intro;
+        public override eScene ID => eScene.Login;
 
         public override void OnEnter()
         {
@@ -25,7 +25,7 @@ namespace Game.Scene
 
         public override void Prepare()
         {
-            GameInstance.UIMgr.Open<UIRootIntro, UIEmptyParam>(eUIType.UIRootIntro, new UIEmptyParam());
+            GameInstance.UIMgr.Open<UIRootLogin, UIEmptyParam>(eUIType.UIRootLogin, new UIEmptyParam());
         }
 
         public override async UniTask Preprocessing()

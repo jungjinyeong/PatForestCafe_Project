@@ -4,9 +4,9 @@ using Framework.UI;
 
 namespace Game.Scene
 {
-    public class Intro : SceneBase
+    public class Ingame : SceneBase
     {
-        public override eScene ID => eScene.Intro;
+        public override eScene ID => eScene.Ingame;
 
         public override void OnEnter()
         {
@@ -25,7 +25,9 @@ namespace Game.Scene
 
         public override void Prepare()
         {
-            GameInstance.UIMgr.Open<UIRootIntro, UIEmptyParam>(eUIType.UIRootIntro, new UIEmptyParam());
+            GameInstance.UIMgr.Open<UIRootLobby, UIEmptyParam>(eUIType.UIRootLobby, new UIEmptyParam());
+
+            GameInstance.UIMgr.Open<UIHudController, UIEmptyParam>(eUIType.UIHudController, new UIEmptyParam());
         }
 
         public override async UniTask Preprocessing()

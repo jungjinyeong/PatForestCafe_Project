@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: UIPathInfo
   m_EditorClassIdentifier: 
   m_pathInfoDic:
-    m_keys: 0000010001000100
+    m_keys: 00000100010001000200010000000300
     m_values:
     - Prefabs/UI/ui_root_intro
     - Prefabs/UI/ui_ingameInfo
+    - Prefabs/UI/ui_root_login
+    - Prefabs/UI/UIHudController

@@ -8,29 +8,29 @@ using UniRx;
 using Framework.UI;
 using Framework.Extension;
 
-public class UIRootIntro : UIWndBase
+public class UIRootLogin : UIWndBase
 {
+    [SerializeField]
+    UIButtonEx mBtnStart = null;
+
     #region override
-    public override eUIType GetUIType() => eUIType.UIRootIntro;
+    public override eUIType GetUIType() => eUIType.UIRootLogin;
 
     public override void Init()
     {
         base.Init();
 
+        mBtnStart.OnSubscribeOnClick(_ =>
+        {
+            GameInstance.SceneMgr.ChangeScene(Game.Scene.eScene.Ingame);
+        }).AddTo(this);
     }
 
     public override void Open()
     {
         base.Open();
 
-        Process().Forget();
+
     }
     #endregion
-
-    async UniTask Process()
-    {
-        await UniTask.Delay(400);
-
-        GameInstance.SceneMgr.ChangeScene(Game.Scene.eScene.Login);
-    }
 }

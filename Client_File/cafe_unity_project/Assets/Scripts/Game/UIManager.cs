@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine;
 using Framework.UI;
 using Framework.State;
+using Cysharp.Threading.Tasks;
 
 [Serializable]
 public enum eUIType
@@ -12,6 +13,7 @@ public enum eUIType
 
     UIRootIntro = eUILayerType.Menu << 16,
     UIRootLobby,
+    UIRootLogin,
 
     UIHudController = eUILayerType.AlwaysOnTop << 16,
     UILoading,
@@ -44,10 +46,10 @@ public class UIWndStack
         }
     }
 
-    public void Remove(eUIType type)
+    public void Pop(eUIType type)
     {
         var find = m_uiStack.Find(x => x.GetUIType() == type);
-        if(find)
+        if (find)
         {
             find.Close();
             m_uiStack.Remove(find);
@@ -106,6 +108,7 @@ public class UIManager : MonoBehaviour
 
     void Awake()
     {
+        Debug.Log("awake ui");
         _instance = this;
         DontDestroyOnLoad(this);
         m_UIWndStack = new UIWndStack();
@@ -118,7 +121,7 @@ public class UIManager : MonoBehaviour
 
     public void Initialize() 
     {
-        Open<UIRootIntro, UIRootIntro.Param>(eUIType.UIRootIntro, new UIRootIntro.Param());
+        
     }
 
     public void Destroy()
@@ -136,26 +139,62 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void Clear()
     {
+        foreach(var ui in m_uiContains)
+        {
+            GameObject.Destroy(ui.Value.gameObject);
+        }
+
         m_UIWndStack?.Clear();
         m_uiContains?.Clear();
     }
 
+    public T OpenAlwaysOnTop<T,T1>(eUIType uiType, T1 param) where T : UIWndBase
+    {
+        UIWndBase ui = null;
+        if (!m_uiContains.TryGetValue(uiType, out ui))
+        {
+            string uiPath = GetUIPath(uiType);
+            GameObject uiPrefab = Resources.Load(uiPath) as GameObject;
+            if (uiPrefab != null)
+            {
+                ui = Instantiate(uiPrefab).GetComponent<UIWndBase>();
+                DontDestroyOnLoad(ui);
+                ui.gameObject.name = uiPrefab.name;
+                RectTransform rect = ui.gameObject.GetComponent<RectTransform>();
+                rect.SetParent(GetTargetCanvas(eUILayerType.AlwaysOnTop).gameObject.transform);
+                rect.offsetMax = Vector2.zero;
+                rect.offsetMin = Vector2.zero;
+                rect.localPosition = Vector3.zero;
+                rect.localScale = Vector3.one;
+                rect.rotation = Quaternion.identity;
+                m_uiContains.Add(uiType, ui);
+
+                ui.Init();
+            }
+        }
+        ui.Open();
+        return ui as T;
+    }
+
     public T Open<T, T1>(eUIType uiType, T1 param) where T : UIWndBase
     {
-        if(m_curUI != null)
+        eUILayerType layerType = GetLayerType(uiType);
+
+        if(layerType == eUILayerType.AlwaysOnTop)
+        {
+            var aways = OpenAlwaysOnTop<T, T1>(uiType, param);
+            return aways;
+        }
+
+        if (m_curUI != null)
         {
             m_curUI.Close();
         }
 
         UIWndBase ui = null;
-        if (m_uiContains != null && m_uiContains.TryGetValue(uiType, out ui))
+
+        if (!m_uiContains.TryGetValue(uiType, out ui))
         {
-            m_UIWndStack.Add(ui);
-            ui.Open();
-        }
-        else
-        {
-            eUILayerType layerType = GetLayerType(uiType);
             string uiPath = GetUIPath(uiType);
             GameObject uiPrefab = Resources.Load(uiPath) as GameObject;
             if (uiPrefab != null)
@@ -168,12 +207,16 @@ public class UIManager : MonoBehaviour
                 rect.offsetMax = Vector2.zero;
                 rect.offsetMin = Vector2.zero;
                 rect.localPosition = Vector3.zero;
+                rect.localScale = Vector3.one;
+                rect.rotation = Quaternion.identity;
                 m_uiContains.Add(uiType, ui);
-                m_UIWndStack.Add(ui);
+
                 ui.Init();
-                ui.Open();
             }
         }
+
+        m_UIWndStack.Add(ui);
+        ui.Open();
 
         m_curUI = ui;
 
@@ -184,7 +227,7 @@ public class UIManager : MonoBehaviour
     {
         if(m_UIWndStack.IsContain(eUIType))
         {
-            m_UIWndStack.Remove(eUIType);
+            m_UIWndStack.Pop(eUIType);
         }
     }
 
@@ -197,7 +240,7 @@ public class UIManager : MonoBehaviour
         return null;
     }
 
-    public eUILayerType GetLayerType(eUIType type)
+    public static eUILayerType GetLayerType(eUIType type)
     {
         return (eUILayerType)((int)type >> 16);
     }
