@@ -1,0 +1,136 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// 범용 스크롤 뷰 컨트롤러.
+/// 사용법:
+///   1. GameObject에 ScrollRect를 붙이고, UIScrollEx도 붙인다.
+///   2. Init(rowPrefab) 으로 행 프리팹을 등록한다.
+///   3. SetData(list) 로 데이터를 넘기면 행을 자동으로 생성/재사용한다.
+///   4. 행 프리팹에는 UIScrollRow<T> 상속 컴포넌트가 있어야 한다.
+/// </summary>
+public class UIScrollEx : UIBase
+{
+    [SerializeField] private ScrollRect scrollRect;
+
+    [Header("Layout")]
+    [SerializeField] private bool isHorizontal = false;
+    [SerializeField] private float spacing = 0f;
+    [SerializeField] private RectOffset padding = new RectOffset();
+    [SerializeField] private bool childForceExpandWidth = true;
+    [SerializeField] private bool childForceExpandHeight = false;
+
+    private GameObject _rowPrefab;
+    private Action<UIScrollRow> _onSelectAction;
+    private readonly List<UIScrollRow> _activeRows = new();
+    private readonly Queue<UIScrollRow> _rowPool = new();
+
+    private void Awake()
+    {
+        if (scrollRect == null)
+            scrollRect = GetComponent<ScrollRect>();
+
+        SetupLayoutGroup();
+    }
+
+    private void SetupLayoutGroup()
+    {
+        var content = scrollRect.content;
+        if (content == null) return;
+        if (content.GetComponent<HorizontalOrVerticalLayoutGroup>() != null) return;
+
+        HorizontalOrVerticalLayoutGroup layout = isHorizontal
+            ? content.gameObject.AddComponent<HorizontalLayoutGroup>()
+            : (HorizontalOrVerticalLayoutGroup)content.gameObject.AddComponent<VerticalLayoutGroup>();
+
+        layout.spacing = spacing;
+        layout.padding = padding;
+        layout.childForceExpandWidth = childForceExpandWidth;
+        layout.childForceExpandHeight = childForceExpandHeight;
+    }
+
+    public void Init(GameObject rowPrefab)
+    {
+        _rowPrefab = rowPrefab;
+        Clear();
+    }
+
+    public void SetOnSelect(Action<UIScrollRow> onSelectAction)
+    {
+        _onSelectAction = onSelectAction;
+    }
+
+    /// <summary>
+    /// 데이터 목록으로 스크롤 행을 채운다. List<T> 등 IList를 그대로 넘겨도 된다.
+    /// </summary>
+    public void SetData(IList dataList)
+    {
+        ReturnAllToPool();
+
+        if (dataList == null) return;
+
+        for (int i = 0; i < dataList.Count; i++)
+        {
+            var row = GetOrCreateRow();
+            row.Setup(i, _onSelectAction);
+            row.SetData(dataList[i]);
+            _activeRows.Add(row);
+        }
+    }
+
+    public void Clear()
+    {
+        ReturnAllToPool();
+    }
+
+    public int ActiveCount => _activeRows.Count;
+
+    public UIScrollRow GetRow(int index)
+    {
+        if (index < 0 || index >= _activeRows.Count) return null;
+        return _activeRows[index];
+    }
+
+    public void ScrollToTop()
+    {
+        if (scrollRect != null)
+            scrollRect.verticalNormalizedPosition = 1f;
+    }
+
+    public void ScrollToBottom()
+    {
+        if (scrollRect != null)
+            scrollRect.verticalNormalizedPosition = 0f;
+    }
+
+    private UIScrollRow GetOrCreateRow()
+    {
+        if (_rowPool.Count > 0)
+        {
+            var pooled = _rowPool.Dequeue();
+            pooled.Active();
+            return pooled;
+        }
+
+        var obj = Instantiate(_rowPrefab, scrollRect.content);
+        obj.SetActive(true);
+        var row = obj.GetComponent<UIScrollRow>();
+        if (row == null)
+            Debug.LogError($"[UIScrollEx] '{_rowPrefab.name}' has no UIScrollRow component.");
+        return row;
+    }
+
+    private void ReturnAllToPool()
+    {
+        foreach (var row in _activeRows)
+        {
+            if (row == null) continue;
+            row.Deative();
+            _rowPool.Enqueue(row);
+        }
+        _activeRows.Clear();
+    }
+}
