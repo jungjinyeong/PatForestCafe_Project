@@ -3,24 +3,26 @@ using UnityEngine.InputSystem;
 
 public class InputManager : MonoBehaviour, IManager
 {
-    private int characterLayerMask;
+    private int mCharacterLayerMask;
 
     public void Init()
     {
-        characterLayerMask = LayerMask.GetMask("Character");
+        mCharacterLayerMask = LayerMask.GetMask("Character");
     }
 
     private void Update()
     {
+        if(Camera.main == null) return;
+
         if (Pointer.current == null || !Pointer.current.press.wasPressedThisFrame) return;
 
         Vector2 screenPos = Pointer.current.position.ReadValue();
         Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
 
-        var col = Physics2D.OverlapPoint(worldPos, characterLayerMask);
+        var col = Physics2D.OverlapPoint(worldPos, mCharacterLayerMask);
         if (col is BoxCollider2D boxCollider2D)
         {
-            // TODO : ¼öÁ¤ ¿¹Á¤
+            // TODO : ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             GameInstance.UI.Open<UIPopupOrderDetail, UIPopupOrderDetail.Param>(eUIType.PopupOrderDetail,
                 new UIPopupOrderDetail.Param() { npc = boxCollider2D });
         }

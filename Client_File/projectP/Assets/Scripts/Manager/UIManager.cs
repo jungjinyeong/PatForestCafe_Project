@@ -73,34 +73,34 @@ public class UIManager : MonoBehaviour
 {
     readonly string UI_PATH_INFO_PATH = "UIPathInfo";
 
-    UIWndStack m_UIWndStack;
+    UIWndStack mUIWndStack;
 
     // test code
     [SerializeField]
-    SerializableDictionary<eUIType, UIWndBase> m_cachedUIDic = new SerializableDictionary<eUIType, UIWndBase>();
+    SerializableDictionary<eUIType, UIWndBase> mCachedUIDic = new SerializableDictionary<eUIType, UIWndBase>();
 
-    Dictionary<eUIType, UIWndBase> m_uiContains = new Dictionary<eUIType, UIWndBase>();
-    UIWndBase m_curUI = null;
+    Dictionary<eUIType, UIWndBase> mUiContains = new Dictionary<eUIType, UIWndBase>();
+    UIWndBase mCurUI = null;
 
-    private UIPathInfo m_uiPathInfo = null;
+    private UIPathInfo mUiPathInfo = null;
     public UIPathInfo UIPathInfo
     {
         get
         {
-            if (m_uiPathInfo == null)
+            if (mUiPathInfo == null)
             {
-                m_uiPathInfo = UnityEngine.Resources.Load<UIPathInfo>("UIPathInfo");
+                mUiPathInfo = UnityEngine.Resources.Load<UIPathInfo>("UIPathInfo");
             }
-            return m_uiPathInfo;
+            return mUiPathInfo;
         }
     }
 
     [SerializeField]
-    SerializableDictionary<eUILayerType, Canvas> m_targetCanvasDic = new SerializableDictionary<eUILayerType, Canvas>();
+    SerializableDictionary<eUILayerType, Canvas> mTargetCanvasDic = new SerializableDictionary<eUILayerType, Canvas>();
 
     public Canvas GetTargetCanvas(eUILayerType type)
     {
-        if (m_targetCanvasDic.TryGetValue(type, out var canvas))
+        if (mTargetCanvasDic.TryGetValue(type, out var canvas))
             return canvas;
         else
         {
@@ -109,15 +109,35 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    static UIManager _instance;
-    public static UIManager Instance { get { return _instance; } }
+    static UIManager mInstance;
+    public static UIManager Instance { get { return mInstance; } }
 
     void Awake()
     {
         Debug.Log("awake ui");
-        _instance = this;
+        mInstance = this;
         DontDestroyOnLoad(this);
-        m_UIWndStack = new UIWndStack();
+        mUIWndStack = new UIWndStack();
+
+        ConnectMainCamera();
+    }
+
+    private void ConnectMainCamera()
+    {
+        var mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            Debug.LogError("UIManager::ConnectMainCamera - MainCamera를 찾을 수 없습니다.");
+            return;
+        }
+
+        foreach (var canvas in mTargetCanvasDic.Values)
+        {
+            if (canvas == null)
+                continue;
+
+            canvas.worldCamera = mainCamera;
+        }
     }
 
     void Start()
@@ -127,20 +147,24 @@ public class UIManager : MonoBehaviour
 
     public void Initialize()
     {
-        foreach(var ui in m_cachedUIDic)
+        foreach(var ui in mCachedUIDic)
         {
-            ui.Value.gameObject.SetActive(false);   
+            // 이미 Open()되어 mUiContains에 등록된 UI는 꺼진 상태로 되돌리지 않는다.
+            if (mUiContains.ContainsKey(ui.Key))
+                continue;
+
+            ui.Value.gameObject.SetActive(false);
         }
     }
 
     public void Destroy()
     {
-        m_uiPathInfo = null;
+        mUiPathInfo = null;
 
-        m_uiContains?.Clear();
-        m_uiContains = null;
+        mUiContains?.Clear();
+        mUiContains = null;
 
-        m_UIWndStack?.Clear();
+        mUIWndStack?.Clear();
     }
 
     /// <summary>
@@ -148,19 +172,19 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void Clear()
     {
-        foreach (var ui in m_uiContains)
+        foreach (var ui in mUiContains)
         {
             GameObject.Destroy(ui.Value.gameObject);
         }
 
-        m_UIWndStack?.Clear();
-        m_uiContains?.Clear();
+        mUIWndStack?.Clear();
+        mUiContains?.Clear();
     }
 
     public T OpenAlwaysOnTop<T, T1>(eUIType uiType, T1 param) where T : UIWndBase
     {
         UIWndBase ui = null;
-        if (!m_uiContains.TryGetValue(uiType, out ui))
+        if (!mUiContains.TryGetValue(uiType, out ui))
         {
             string uiPath = GetUIPath(uiType);
             GameObject uiPrefab = Resources.Load(uiPath) as GameObject;
@@ -176,7 +200,7 @@ public class UIManager : MonoBehaviour
                 rect.localPosition = Vector3.zero;
                 rect.localScale = Vector3.one;
                 rect.rotation = Quaternion.identity;
-                m_uiContains.Add(uiType, ui);
+                mUiContains.Add(uiType, ui);
 
                 ui.Init();
             }
@@ -195,16 +219,16 @@ public class UIManager : MonoBehaviour
             return aways;
         }
 
-        if (m_curUI != null)
+        if (mCurUI != null)
         {
-            m_curUI.Close();
+            mCurUI.Close();
         }
 
         UIWndBase ui = null;
 
-        if (!m_uiContains.TryGetValue(uiType, out ui))
+        if (!mUiContains.TryGetValue(uiType, out ui))
         {
-            if(m_cachedUIDic.TryGetValue(uiType, out var cachedUI))
+            if(mCachedUIDic.TryGetValue(uiType, out var cachedUI))
             {
                 if (cachedUI != null)
                 {
@@ -232,24 +256,24 @@ public class UIManager : MonoBehaviour
             rect.localPosition = Vector3.zero;
             rect.localScale = Vector3.one;
             rect.rotation = Quaternion.identity;
-            m_uiContains.Add(uiType, ui);
+            mUiContains.Add(uiType, ui);
 
             ui.Init();
         }
 
-        m_UIWndStack.Add(ui);
+        mUIWndStack.Add(ui);
         ui.Open();
 
-        m_curUI = ui;
+        mCurUI = ui;
 
         return ui as T;
     }
 
     public void Close(eUIType eUIType)
     {
-        if(m_UIWndStack.IsContain(eUIType))
+        if(mUIWndStack.IsContain(eUIType))
         {
-            m_UIWndStack.Pop(eUIType);
+            mUIWndStack.Pop(eUIType);
         }
     }
 

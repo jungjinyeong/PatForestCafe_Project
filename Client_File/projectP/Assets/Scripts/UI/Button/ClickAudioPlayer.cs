@@ -6,13 +6,13 @@ namespace Framework.UI
 {
     public class ClickAudioPlayer : MonoBehaviour
     {
-        [SerializeField] private AudioClip _audioClip = null;
+        [SerializeField] private AudioClip mAudioClip = null;
 
         public void OnPlayAudio()
         {
-            if(_audioClip != null)
+            if(mAudioClip != null)
             {
-                GameInstance.Sound.PlayEffect(_audioClip);
+                GameInstance.Sound.PlayEffect(mAudioClip);
             }
         }
     }

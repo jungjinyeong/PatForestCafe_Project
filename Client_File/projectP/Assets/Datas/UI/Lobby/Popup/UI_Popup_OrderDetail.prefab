@@ -262,8 +262,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cae6c127c9c626e42b696ad3b605a91a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIPopupOrderDetail
-  btnClose: {fileID: 1828836171196145671}
-  btnBgClose: {fileID: 5418966006249243114}
+  mBtnClose: {fileID: 1828836171196145671}
+  mBtnBgClose: {fileID: 5418966006249243114}
   mNpcRootTr: {fileID: 8571632408845036886}
   mTextTitle: {fileID: 0}
   mTextDesc: {fileID: 5208956234690514045}

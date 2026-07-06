@@ -11,9 +11,9 @@ public class ObjectPoolManager : MonoBehaviour, IManager
         public int initialSize;
     }
 
-    [SerializeField] private List<PoolInfo> poolSettings;
-    private Dictionary<string, Queue<GameObject>> _pools = new Dictionary<string, Queue<GameObject>>();
-    private Dictionary<string, GameObject> _prefabLookup = new Dictionary<string, GameObject>();
+    [SerializeField] private List<PoolInfo> mPoolSettings;
+    private Dictionary<string, Queue<GameObject>> mPools = new Dictionary<string, Queue<GameObject>>();
+    private Dictionary<string, GameObject> mPrefabLookup = new Dictionary<string, GameObject>();
 
     public void Init()
     {
@@ -24,8 +24,8 @@ public class ObjectPoolManager : MonoBehaviour, IManager
 
     public void Clear()
     {
-        _pools.Clear();
-        _prefabLookup.Clear();
+        mPools.Clear();
+        mPrefabLookup.Clear();
     }
 
     public void Destory()
@@ -35,11 +35,11 @@ public class ObjectPoolManager : MonoBehaviour, IManager
 
     private void InitializePools()
     {
-        if (poolSettings == null) return;
-        foreach (var info in poolSettings)
+        if (mPoolSettings == null) return;
+        foreach (var info in mPoolSettings)
         {
-            _pools[info.poolName] = new Queue<GameObject>();
-            _prefabLookup[info.poolName] = info.prefab;
+            mPools[info.poolName] = new Queue<GameObject>();
+            mPrefabLookup[info.poolName] = info.prefab;
 
             for (int i = 0; i < info.initialSize; i++)
                 CreateNewObject(info.poolName);
@@ -48,21 +48,21 @@ public class ObjectPoolManager : MonoBehaviour, IManager
 
     private GameObject CreateNewObject(string poolName)
     {
-        GameObject obj = Instantiate(_prefabLookup[poolName], transform);
+        GameObject obj = Instantiate(mPrefabLookup[poolName], transform);
         obj.name = poolName;
         obj.SetActive(false);
-        _pools[poolName].Enqueue(obj);
+        mPools[poolName].Enqueue(obj);
         return obj;
     }
 
     public GameObject Spawn(string poolName, Vector3 position, Quaternion rotation)
     {
-        if (!_pools.ContainsKey(poolName)) return null;
+        if (!mPools.ContainsKey(poolName)) return null;
 
-        if (_pools[poolName].Count == 0)
+        if (mPools[poolName].Count == 0)
             CreateNewObject(poolName);
 
-        GameObject obj = _pools[poolName].Dequeue();
+        GameObject obj = mPools[poolName].Dequeue();
         obj.transform.position = position;
         obj.transform.rotation = rotation;
         obj.SetActive(true);
@@ -71,14 +71,14 @@ public class ObjectPoolManager : MonoBehaviour, IManager
 
     public void RegisterPool(string poolName, GameObject prefab)
     {
-        if (_pools.ContainsKey(poolName)) return;
-        _pools[poolName] = new Queue<GameObject>();
-        _prefabLookup[poolName] = prefab;
+        if (mPools.ContainsKey(poolName)) return;
+        mPools[poolName] = new Queue<GameObject>();
+        mPrefabLookup[poolName] = prefab;
     }
 
     public void Despawn(string poolName, GameObject obj)
     {
         obj.SetActive(false);
-        _pools[poolName].Enqueue(obj);
+        mPools[poolName].Enqueue(obj);
     }
 }

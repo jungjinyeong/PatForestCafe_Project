@@ -150,9 +150,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec6c4ea78a0a87b46a0ccef94246c067, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BreadTable
-  btnAddBread: {fileID: 6607327055056667244}
-  rootTransform: {fileID: 7887516141810802877}
-  breadPrefab: {fileID: 3164068087852033290, guid: 20c412f2edafebc48ab7d402ddf95141, type: 3}
+  mTableId: 0
+  mBtnAddBread: {fileID: 6607327055056667244}
+  mRootTransform: {fileID: 7887516141810802877}
+  mBreadPrefab: {fileID: 3164068087852033290, guid: 20c412f2edafebc48ab7d402ddf95141, type: 3}
 --- !u!114 &6607327055056667244
 MonoBehaviour:
   m_ObjectHideFlags: 0

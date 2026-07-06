@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 public partial class GameInstance
 {
-    static GameInstance _instance;
-    public static GameInstance Instance { get { return _instance; } }
+    static GameInstance mInstance;
+    public static GameInstance Instance { get { return mInstance; } }
 
     public static ResourceMgr Resource
     {

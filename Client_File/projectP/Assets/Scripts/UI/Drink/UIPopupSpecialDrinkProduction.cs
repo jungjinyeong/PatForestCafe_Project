@@ -9,8 +9,8 @@ public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialD
     public struct Param { }
 
     [Header("Scroll")]
-    [SerializeField] private UIScrollEx scrollEx;
-    [SerializeField] private GameObject drinkMaterialRowPrefab;
+    [SerializeField] private UIScrollEx mScrollEx;
+    [SerializeField] private GameObject mDrinkMaterialRowPrefab;
 
     public override eUIType GetUIType() => eUIType.UIPopupSpecialDrinkProduction;
 
@@ -18,8 +18,8 @@ public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialD
     {
         base.Init();
 
-        scrollEx.Init(drinkMaterialRowPrefab);
-        scrollEx.SetOnSelect(OnSelectMaterial);
+        mScrollEx.Init(mDrinkMaterialRowPrefab);
+        mScrollEx.SetOnSelect(OnSelectMaterial);
     }
 
     public override void Open()
@@ -50,7 +50,7 @@ public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialD
             });
         }
 
-        scrollEx.SetData(dataList);
+        mScrollEx.SetData(dataList);
     }
 
     private void OnSelectMaterial(UIScrollRow row)

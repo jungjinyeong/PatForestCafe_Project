@@ -8,18 +8,18 @@ public abstract class UIScrollRow : UIBase
 {
     public int Index { get; private set; }
 
-    private Action<UIScrollRow> _onSelectAction;
+    private Action<UIScrollRow> mOnSelectAction;
 
     internal void Setup(int index, Action<UIScrollRow> onSelectAction)
     {
         Index = index;
-        _onSelectAction = onSelectAction;
+        mOnSelectAction = onSelectAction;
     }
 
     /// <summary>
     /// 행이 선택됐을 때 자식 클래스에서 호출한다.
     /// </summary>
-    protected void Select() => _onSelectAction?.Invoke(this);
+    protected void Select() => mOnSelectAction?.Invoke(this);
 
     public abstract void SetData(object data);
 }

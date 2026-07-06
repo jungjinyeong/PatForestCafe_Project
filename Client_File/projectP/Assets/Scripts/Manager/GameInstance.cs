@@ -10,7 +10,7 @@ public partial class GameInstance : MonoBehaviour
 {
     void Awake()
     {
-        _instance = this;
+        mInstance = this;
         DontDestroyOnLoad(this);
 
         Init();
@@ -24,7 +24,7 @@ public partial class GameInstance : MonoBehaviour
         mTableMgr = new TableManager();
         mTableMgr.LoadAllTables();
 
-        if (UI == null)
+        if (UI == null && FindFirstObjectByType<UIManager>() == null)
         {
             GameObject uiMgr = Resources.Load("UIManager") as GameObject;
             if(uiMgr != null)

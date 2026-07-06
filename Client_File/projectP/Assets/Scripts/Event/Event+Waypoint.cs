@@ -12,4 +12,14 @@ namespace CEvent
             this.type = type;
         }
     }
+
+    public class WaypointGroupRegist
+    {
+        public WaypointGroup[] waypointGroups;
+
+        public WaypointGroupRegist(WaypointGroup[] waypointGroups)
+        {
+            this.waypointGroups = waypointGroups;
+        }
+    }
 }

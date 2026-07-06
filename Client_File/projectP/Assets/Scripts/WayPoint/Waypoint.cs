@@ -63,7 +63,7 @@ public class Waypoint : MonoBehaviour
 
     private float GetGizmoRadius()
     {
-        return 0.5f * mScale;
+        return mScale * 0.5f;
     }
 
     private Color GetGizmoColor()

@@ -10,33 +10,33 @@ using UnityEditor;
 public class SpawnManager : MonoBehaviour
 {
     [Header("NPC Prefabs")]
-    [SerializeField] private GameObject[] npcPrefabs;
+    [SerializeField] private GameObject[] mNpcPrefabs;
 
     [Header("Waypoint Groups")]
-    [SerializeField] private WaypointGroup[] waypointGroups;
+    [SerializeField] private WaypointGroup[] mWaypointGroups;
 
     [Header("Auto Spawn")]
     [SerializeField] private float mSpawnInterval = 3f;
 
     [Header("UI")]
-    [SerializeField] private GameObject lobbyCharUIPrefab;
+    [SerializeField] private GameObject mLobbyCharUIPrefab;
 
     private readonly List<WaypointNPC> mSpawnedNPCs = new();
     private IDisposable mAutoSpawnDisposable;
 
     public void SetInfo(GameObject lobbyCharUIPrefab, GameObject[] npcPrefabs, WaypointGroup[] waypointGroups)
     {
-        this.lobbyCharUIPrefab = lobbyCharUIPrefab;
-        this.npcPrefabs = npcPrefabs;
-        this.waypointGroups = waypointGroups;
+        this.mLobbyCharUIPrefab = lobbyCharUIPrefab;
+        this.mNpcPrefabs = npcPrefabs;
+        this.mWaypointGroups = waypointGroups;
 
         RegisterNPCPools();
     }
 
     private void RegisterNPCPools()
     {
-        if (npcPrefabs == null || GameInstance.Pool == null) return;
-        foreach (var prefab in npcPrefabs)
+        if (mNpcPrefabs == null || GameInstance.Pool == null) return;
+        foreach (var prefab in mNpcPrefabs)
         {
             if (prefab != null)
                 GameInstance.Pool.RegisterPool(prefab.name, prefab);
@@ -45,13 +45,13 @@ public class SpawnManager : MonoBehaviour
 
     public void SpawnAll()
     {
-        if (npcPrefabs == null || npcPrefabs.Length == 0)
+        if (mNpcPrefabs == null || mNpcPrefabs.Length == 0)
         {
             Debug.LogWarning("[SpawnManager] NPC prefabs not loaded.");
             return;
         }
 
-        foreach (var group in waypointGroups)
+        foreach (var group in mWaypointGroups)
             SpawnInGroup(group);
     }
 
@@ -84,7 +84,7 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnNPC(Waypoint spawnPoint, List<Waypoint> pathWaypoints)
     {
-        var prefab = npcPrefabs[UnityEngine.Random.Range(0, npcPrefabs.Length)];
+        var prefab = mNpcPrefabs[UnityEngine.Random.Range(0, mNpcPrefabs.Length)];
 
         GameObject npcObj;
         if (GameInstance.Pool != null)
@@ -119,10 +119,10 @@ public class SpawnManager : MonoBehaviour
 
     private void AttachLobbyCharUIRandom(GameObject npcObj)
     {
-        if (lobbyCharUIPrefab == null || UnityEngine.Random.value < 0.5f) return;
+        if (mLobbyCharUIPrefab == null || UnityEngine.Random.value < 0.5f) return;
         if (npcObj.GetComponentInChildren<LobbyCharUI>() != null) return;
 
-        var ui = Instantiate(lobbyCharUIPrefab, npcObj.transform);
+        var ui = Instantiate(mLobbyCharUIPrefab, npcObj.transform);
         ui.transform.localPosition = new Vector3(0f, 0f, 0f);
         ui.transform.localScale = Vector3.one * 0.3f;
 
@@ -157,10 +157,10 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnOneRandom()
     {
-        if (npcPrefabs == null || npcPrefabs.Length == 0 || waypointGroups == null || waypointGroups.Length == 0)
+        if (mNpcPrefabs == null || mNpcPrefabs.Length == 0 || mWaypointGroups == null || mWaypointGroups.Length == 0)
             return;
 
-        var group = waypointGroups[UnityEngine.Random.Range(0, waypointGroups.Length)];
+        var group = mWaypointGroups[UnityEngine.Random.Range(0, mWaypointGroups.Length)];
         if (group == null || group.Waypoints == null || group.Waypoints.Length == 0) return;
 
         var spawnPoints = new List<Waypoint>();

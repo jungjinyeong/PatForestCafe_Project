@@ -87,10 +87,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d573b7272a39d6c46977a2cd2b69b0f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIPopupSpecialDrinkProduction
-  btnClose: {fileID: 6788549128865076568}
-  btnBgClose: {fileID: 4767493215866331514}
-  scrollEx: {fileID: 8740347444416985470}
-  drinkMaterialRowPrefab: {fileID: 2147427071978824944}
+  mBtnClose: {fileID: 4767493215866331514}
+  mBtnBgClose: {fileID: 6788549128865076568}
+  mScrollEx: {fileID: 8740347444416985470}
+  mDrinkMaterialRowPrefab: {fileID: 2147427071978824944}
 --- !u!1 &2053368271995834401
 GameObject:
   m_ObjectHideFlags: 0
@@ -248,16 +248,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87c05b142a9013d46b8ef3e1460108d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIScrollEx
-  scrollRect: {fileID: 6350360698154465591}
-  isHorizontal: 1
-  spacing: 10
-  padding:
-    m_Left: 10
+  mScrollRect: {fileID: 6350360698154465591}
+  mIsHorizontal: 0
+  mSpacing: 0
+  mPadding:
+    m_Left: 0
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  childForceExpandWidth: 1
-  childForceExpandHeight: 0
+  mChildForceExpandWidth: 1
+  mChildForceExpandHeight: 0
 --- !u!1 &2920803698727044979
 GameObject:
   m_ObjectHideFlags: 0

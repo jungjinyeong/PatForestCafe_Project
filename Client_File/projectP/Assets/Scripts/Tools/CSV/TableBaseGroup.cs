@@ -7,15 +7,15 @@ public abstract class TableBaseGroupBase
 
 public class TableBaseGroup<T> : TableBaseGroupBase where T : TableBaseRow, new()
 {
-    private readonly Dictionary<int, T> _rows = new Dictionary<int, T>();
+    private readonly Dictionary<int, T> mRows = new Dictionary<int, T>();
 
-    public T Get(int tid) => _rows.TryGetValue(tid, out T row) ? row : null;
+    public T Get(int tid) => mRows.TryGetValue(tid, out T row) ? row : null;
 
-    public bool TryGet(int tid, out T row) => _rows.TryGetValue(tid, out row);
+    public bool TryGet(int tid, out T row) => mRows.TryGetValue(tid, out row);
 
-    public IReadOnlyDictionary<int, T> All => _rows;
+    public IReadOnlyDictionary<int, T> All => mRows;
 
-    protected void AddRow(int tid, T row) => _rows[tid] = row;
+    protected void AddRow(int tid, T row) => mRows[tid] = row;
 
     public override void Load(string[] csvLines)
     {

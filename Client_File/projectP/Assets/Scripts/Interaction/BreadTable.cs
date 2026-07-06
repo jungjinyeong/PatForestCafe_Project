@@ -8,29 +8,29 @@ using Extension;
 public class BreadTable : MonoBehaviour
 {
     [Header("ID")]
-    [SerializeField] private int tableId;
+    [SerializeField] private int mTableId;
 
     [Header("UI")]
-    [SerializeField] private UIButtonEx btnAddBread;
+    [SerializeField] private UIButtonEx mBtnAddBread;
 
     [Header("Bread")]
-    [SerializeField] private Transform rootTransform;
-    [SerializeField] private GameObject breadPrefab;
+    [SerializeField] private Transform mRootTransform;
+    [SerializeField] private GameObject mBreadPrefab;
 
     private readonly Queue<Bread> mActiveBreadQueue = new Queue<Bread>();
 
     private void Start()
     {
-        if (breadPrefab != null)
-            GameInstance.Pool?.RegisterPool(Bread.PoolName, breadPrefab);
+        if (mBreadPrefab != null)
+            GameInstance.Pool?.RegisterPool(Bread.PoolName, mBreadPrefab);
 
-        GameInstance.Model.Bread.Register(tableId);
+        GameInstance.Model.Bread.Register(mTableId);
 
-        btnAddBread.OnSubscribeOnClick(OnClickAddBread).AddTo(this);
+        mBtnAddBread.OnSubscribeOnClick(OnClickAddBread).AddTo(this);
 
         MessageBroker.Default
             .Receive<CEvent.BreadPickup>()
-            .Where(e => e.tableId == tableId)
+            .Where(e => e.tableId == mTableId)
             .Subscribe(e => HandleBreadPickupAsync(e.npc).Forget())
             .AddTo(this);
     }
@@ -38,7 +38,7 @@ public class BreadTable : MonoBehaviour
     private void OnClickAddBread()
     {
         SpawnBread();
-        GameInstance.Model.Bread.Add(tableId);
+        GameInstance.Model.Bread.Add(mTableId);
     }
 
     private async UniTaskVoid HandleBreadPickupAsync(WaypointNPC npc)
@@ -55,17 +55,17 @@ public class BreadTable : MonoBehaviour
         var lobbyUI = npc.GetComponentInChildren<LobbyCharUI>();
         lobbyUI?.AttachBread(bread);
 
-        GameInstance.Model.Bread.Consume(tableId);
+        GameInstance.Model.Bread.Consume(mTableId);
     }
 
     private void SpawnBread()
     {
-        if (GameInstance.Pool == null || rootTransform == null) return;
+        if (GameInstance.Pool == null || mRootTransform == null) return;
 
-        var go = GameInstance.Pool.Spawn(Bread.PoolName, rootTransform.position, Quaternion.identity);
+        var go = GameInstance.Pool.Spawn(Bread.PoolName, mRootTransform.position, Quaternion.identity);
         if (go == null) return;
 
-        go.transform.SetParent(rootTransform);
+        go.transform.SetParent(mRootTransform);
         go.transform.localScale = Vector3.one;
 
         var bread = go.GetComponent<Bread>();

@@ -8,8 +8,8 @@ using Extension;
 
 public abstract class UIWndBase : UIBase
 {
-    [SerializeField] private UIButtonEx btnClose;
-    [SerializeField] private UIButtonEx btnBgClose;
+    [SerializeField] private UIButtonEx mBtnClose;
+    [SerializeField] private UIButtonEx mBtnBgClose;
 
     protected UIManager UIMgr => GameInstance.UI;
 
@@ -17,8 +17,10 @@ public abstract class UIWndBase : UIBase
 
     public virtual void Init()
     {
-        btnClose.OnSubscribeOnClick(SelfClose).AddTo(this);
-        btnBgClose.OnSubscribeOnClick(SelfClose).AddTo(this);
+        if(mBtnClose != null)
+            mBtnClose.OnSubscribeOnClick(SelfClose).AddTo(this);
+        if(mBtnBgClose != null)
+            mBtnBgClose.OnSubscribeOnClick(SelfClose).AddTo(this);
     }
 
     public virtual void Destroy() { }

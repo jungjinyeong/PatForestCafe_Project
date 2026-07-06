@@ -6,7 +6,7 @@ using UnityEngine;
 public class TableManager
 {
     // 키: Row 타입 (e.g. CTable.ItemRow), 값: 해당 TableBaseGroup 인스턴스
-    private readonly Dictionary<Type, TableBaseGroupBase> _groups = new Dictionary<Type, TableBaseGroupBase>();
+    private readonly Dictionary<Type, TableBaseGroupBase> mGroups = new Dictionary<Type, TableBaseGroupBase>();
 
     public void LoadAllTables()
     {
@@ -55,7 +55,7 @@ public class TableManager
         if (baseType != null && baseType.IsGenericType)
         {
             Type rowType = baseType.GetGenericArguments()[0];
-            _groups[rowType] = group;
+            mGroups[rowType] = group;
             Debug.Log($"[TableManager] {tableName} 로드 완료 ({rowType.FullName})");
         }
     }
@@ -89,7 +89,7 @@ public class TableManager
     /// </summary>
     public TableBaseGroup<T> GetGroup<T>() where T : TableBaseRow, new()
     {
-        if (_groups.TryGetValue(typeof(T), out TableBaseGroupBase groupBase) &&
+        if (mGroups.TryGetValue(typeof(T), out TableBaseGroupBase groupBase) &&
             groupBase is TableBaseGroup<T> group)
         {
             return group;

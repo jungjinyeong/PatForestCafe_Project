@@ -6,7 +6,7 @@ public class CommonModelManager : MonoBehaviour, IManager
     public BreadModel Bread { get; private set; }
     public ItemModel Item { get; private set; }
 
-    private readonly List<IModelBase> _models = new List<IModelBase>();
+    private readonly List<IModelBase> mModels = new List<IModelBase>();
 
     public void Init()
     {
@@ -18,9 +18,9 @@ public class CommonModelManager : MonoBehaviour, IManager
 
     public void Clear()
     {
-        foreach (var model in _models)
+        foreach (var model in mModels)
             model?.Dispose();
-        _models.Clear();
+        mModels.Clear();
         Bread = null;
         Item  = null;
     }
@@ -38,7 +38,7 @@ public class CommonModelManager : MonoBehaviour, IManager
     private T Register<T>(T model) where T : IModelBase
     {
         model.Init();
-        _models.Add(model);
+        mModels.Add(model);
         return model;
     }
 }

@@ -3,29 +3,76 @@ using System;
 using System.Collections.Generic;
 
 using UnityEngine;
+using UniRx;
 
 
 public class GameModeLobby : GameModeBase
 {
-    // TODO : AreaOrder∏¶ ScriptableObject∑Œ ∏∏µÈæÓº≠ ∞¸∏Æ«œµµ∑œ ºˆ¡§ « ø‰
-    // TODO : WaypointMgr∑Œ ƒ⁄µÂ ∏µŒ ø≈±Ê øπ¡§
-    [SerializeField] GameObject mAreaOrder;
-    [SerializeField] GameObject mAreaBread;
+    private enum eGameModeLobbyState
+    {
+        Init,
+        WaitWaypointGroup,
+        Spawn,
+    }
 
-    [SerializeField] GameObject[] npcPrefabs;
+    [SerializeField] private GameObject[] mNpcPrefabs;
 
-    [SerializeField] GameObject lobbyCharUIPrefab;
+    [SerializeField] private GameObject mLobbyCharUIPrefab;
+
+    [SerializeField] private int mWaitWaypointGroupCount = 2;
+
+    private readonly StateMachine<eGameModeLobbyState> mStateMachine = new StateMachine<eGameModeLobbyState>();
+
+    private IDisposable mWaypointGroupDisposable;
 
     public override void Init()
     {
         base.Init();
 
-        var order = mAreaOrder.GetComponent<WaypointGroup>();
-        var bread = mAreaBread.GetComponent<WaypointGroup>();
-        var waypointGroups = new List<WaypointGroup> { order, bread };
-        waypointGroups.Sort((a, b) => a.Order.CompareTo(b.Order));
+        GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.UIRootLobby, new UIRootLobby.Param());
 
-        GameInstance.Spawn.SetInfo(lobbyCharUIPrefab, npcPrefabs, waypointGroups.ToArray());
+        mStateMachine.RegisterState(eGameModeLobbyState.WaitWaypointGroup, OnEnterWaitWaypointGroup, OnExitWaitWaypointGroup);
+        mStateMachine.RegisterState(eGameModeLobbyState.Spawn, OnEnterSpawn);
+
+        mStateMachine.ChangeState(eGameModeLobbyState.WaitWaypointGroup);
+    }
+
+    private void OnEnterWaitWaypointGroup()
+    {
+        mWaypointGroupDisposable = MessageBroker.Default.Receive<CEvent.WaypointGroupRegist>()
+            .Subscribe(OnWaypointGroupRegist)
+            .AddTo(this);
+
+        // WayPointManagerÏóê Ïù¥ÎØ∏ Îì±Î°ùÎêú WaypointGroupÏù¥ ÏûàÏùÑ Ïàò ÏûàÏúºÎØÄÎ°ú Ï¶âÏãú ÌôïÏù∏
+        CheckWaypointGroupsReady(GameInstance.WayPoint.WaypointGroups);
+    }
+
+    private void OnExitWaitWaypointGroup()
+    {
+        mWaypointGroupDisposable?.Dispose();
+        mWaypointGroupDisposable = null;
+    }
+
+    private void OnWaypointGroupRegist(CEvent.WaypointGroupRegist e)
+    {
+        CheckWaypointGroupsReady(e.waypointGroups);
+    }
+
+    private void CheckWaypointGroupsReady(IReadOnlyList<WaypointGroup> waypointGroups)
+    {
+        if (waypointGroups == null || waypointGroups.Count < mWaitWaypointGroupCount)
+            return;
+
+        var sortedGroups = new List<WaypointGroup>(waypointGroups);
+        sortedGroups.Sort((a, b) => a.Order.CompareTo(b.Order));
+
+        GameInstance.Spawn.SetInfo(mLobbyCharUIPrefab, mNpcPrefabs, sortedGroups.ToArray());
+
+        mStateMachine.ChangeState(eGameModeLobbyState.Spawn);
+    }
+
+    private void OnEnterSpawn()
+    {
         GameInstance.Spawn.StartAutoSpawn();
     }
 }

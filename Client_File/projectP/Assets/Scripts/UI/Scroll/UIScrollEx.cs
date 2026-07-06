@@ -14,53 +14,53 @@ using UnityEngine.UI;
 /// </summary>
 public class UIScrollEx : UIBase
 {
-    [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] private ScrollRect mScrollRect;
 
     [Header("Layout")]
-    [SerializeField] private bool isHorizontal = false;
-    [SerializeField] private float spacing = 0f;
-    [SerializeField] private RectOffset padding = new RectOffset();
-    [SerializeField] private bool childForceExpandWidth = true;
-    [SerializeField] private bool childForceExpandHeight = false;
+    [SerializeField] private bool mIsHorizontal = false;
+    [SerializeField] private float mSpacing = 0f;
+    [SerializeField] private RectOffset mPadding = new RectOffset();
+    [SerializeField] private bool mChildForceExpandWidth = true;
+    [SerializeField] private bool mChildForceExpandHeight = false;
 
-    private GameObject _rowPrefab;
-    private Action<UIScrollRow> _onSelectAction;
-    private readonly List<UIScrollRow> _activeRows = new();
-    private readonly Queue<UIScrollRow> _rowPool = new();
+    private GameObject mRowPrefab;
+    private Action<UIScrollRow> mOnSelectAction;
+    private readonly List<UIScrollRow> mActiveRows = new();
+    private readonly Queue<UIScrollRow> mRowPool = new();
 
     private void Awake()
     {
-        if (scrollRect == null)
-            scrollRect = GetComponent<ScrollRect>();
+        if (mScrollRect == null)
+            mScrollRect = GetComponent<ScrollRect>();
 
         SetupLayoutGroup();
     }
 
     private void SetupLayoutGroup()
     {
-        var content = scrollRect.content;
+        var content = mScrollRect.content;
         if (content == null) return;
         if (content.GetComponent<HorizontalOrVerticalLayoutGroup>() != null) return;
 
-        HorizontalOrVerticalLayoutGroup layout = isHorizontal
+        HorizontalOrVerticalLayoutGroup layout = mIsHorizontal
             ? content.gameObject.AddComponent<HorizontalLayoutGroup>()
             : (HorizontalOrVerticalLayoutGroup)content.gameObject.AddComponent<VerticalLayoutGroup>();
 
-        layout.spacing = spacing;
-        layout.padding = padding;
-        layout.childForceExpandWidth = childForceExpandWidth;
-        layout.childForceExpandHeight = childForceExpandHeight;
+        layout.spacing = mSpacing;
+        layout.padding = mPadding;
+        layout.childForceExpandWidth = mChildForceExpandWidth;
+        layout.childForceExpandHeight = mChildForceExpandHeight;
     }
 
     public void Init(GameObject rowPrefab)
     {
-        _rowPrefab = rowPrefab;
+        mRowPrefab = rowPrefab;
         Clear();
     }
 
     public void SetOnSelect(Action<UIScrollRow> onSelectAction)
     {
-        _onSelectAction = onSelectAction;
+        mOnSelectAction = onSelectAction;
     }
 
     /// <summary>
@@ -75,9 +75,9 @@ public class UIScrollEx : UIBase
         for (int i = 0; i < dataList.Count; i++)
         {
             var row = GetOrCreateRow();
-            row.Setup(i, _onSelectAction);
+            row.Setup(i, mOnSelectAction);
             row.SetData(dataList[i]);
-            _activeRows.Add(row);
+            mActiveRows.Add(row);
         }
     }
 
@@ -86,51 +86,51 @@ public class UIScrollEx : UIBase
         ReturnAllToPool();
     }
 
-    public int ActiveCount => _activeRows.Count;
+    public int ActiveCount => mActiveRows.Count;
 
     public UIScrollRow GetRow(int index)
     {
-        if (index < 0 || index >= _activeRows.Count) return null;
-        return _activeRows[index];
+        if (index < 0 || index >= mActiveRows.Count) return null;
+        return mActiveRows[index];
     }
 
     public void ScrollToTop()
     {
-        if (scrollRect != null)
-            scrollRect.verticalNormalizedPosition = 1f;
+        if (mScrollRect != null)
+            mScrollRect.verticalNormalizedPosition = 1f;
     }
 
     public void ScrollToBottom()
     {
-        if (scrollRect != null)
-            scrollRect.verticalNormalizedPosition = 0f;
+        if (mScrollRect != null)
+            mScrollRect.verticalNormalizedPosition = 0f;
     }
 
     private UIScrollRow GetOrCreateRow()
     {
-        if (_rowPool.Count > 0)
+        if (mRowPool.Count > 0)
         {
-            var pooled = _rowPool.Dequeue();
+            var pooled = mRowPool.Dequeue();
             pooled.Active();
             return pooled;
         }
 
-        var obj = Instantiate(_rowPrefab, scrollRect.content);
+        var obj = Instantiate(mRowPrefab, mScrollRect.content);
         obj.SetActive(true);
         var row = obj.GetComponent<UIScrollRow>();
         if (row == null)
-            Debug.LogError($"[UIScrollEx] '{_rowPrefab.name}' has no UIScrollRow component.");
+            Debug.LogError($"[UIScrollEx] '{mRowPrefab.name}' has no UIScrollRow component.");
         return row;
     }
 
     private void ReturnAllToPool()
     {
-        foreach (var row in _activeRows)
+        foreach (var row in mActiveRows)
         {
             if (row == null) continue;
             row.Deative();
-            _rowPool.Enqueue(row);
+            mRowPool.Enqueue(row);
         }
-        _activeRows.Clear();
+        mActiveRows.Clear();
     }
 }

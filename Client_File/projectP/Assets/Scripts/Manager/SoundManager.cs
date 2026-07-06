@@ -7,13 +7,13 @@ using UnityEngine.Audio;
 [RequireComponent(typeof(AudioSource))]
 public class SoundManager : MonoBehaviour, IManager
 {
-    [SerializeField] private List<AudioClip> _playlist = new List<AudioClip>(); 
+    [SerializeField] private List<AudioClip> mPlaylist = new List<AudioClip>(); 
 
-    private AudioSource _audioSource = null;
+    private AudioSource mAudioSource = null;
     
     public void Init()
     {
-        _audioSource = gameObject.GetComponent<AudioSource>();
+        mAudioSource = gameObject.GetComponent<AudioSource>();
     }
 
     public void Subscribe()
@@ -23,20 +23,20 @@ public class SoundManager : MonoBehaviour, IManager
 
     public void Clear()
     {
-        _playlist?.Clear();
+        mPlaylist?.Clear();
     }
 
     public void Destory()
     {
-        if(_playlist != null)
+        if(mPlaylist != null)
         {
-            _playlist.Clear();
-            _playlist = null;
+            mPlaylist.Clear();
+            mPlaylist = null;
         }
     }
 
     public void PlayEffect(AudioClip audioClip)
     {
-        _playlist.Add(audioClip);
+        mPlaylist.Add(audioClip);
     }
 }
