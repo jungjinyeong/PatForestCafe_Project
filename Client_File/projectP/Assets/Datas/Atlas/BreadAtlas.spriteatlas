@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BreadAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 2800000, guid: b114b2523b00a1a42bdda8bfbf07854d, type: 3}
+    - {fileID: 2800000, guid: cbaa580e124a796459f92d1bfc0e460e, type: 3}
+    - {fileID: 2800000, guid: 2db838bd1396081438d25b22b33a34f9, type: 3}
+    - {fileID: 2800000, guid: fdbf689b52ca5d54196225f79c7c7a7a, type: 3}
+    - {fileID: 2800000, guid: 36b20050112b9c34ca20357dd9176dd9, type: 3}
+    - {fileID: 2800000, guid: afc860acf90b74042ab630f275f62f45, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - 36b20050112b9c34ca20357dd9176dd9: 21300000
+    - b114b2523b00a1a42bdda8bfbf07854d: 21300000
+    - fdbf689b52ca5d54196225f79c7c7a7a: 21300000
+    - afc860acf90b74042ab630f275f62f45: 21300000
+    - 2db838bd1396081438d25b22b33a34f9: 21300000
+    - cbaa580e124a796459f92d1bfc0e460e: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 36b20050112b9c34ca20357dd9176dd9, type: 3}
+  - {fileID: 21300000, guid: b114b2523b00a1a42bdda8bfbf07854d, type: 3}
+  - {fileID: 21300000, guid: fdbf689b52ca5d54196225f79c7c7a7a, type: 3}
+  - {fileID: 21300000, guid: afc860acf90b74042ab630f275f62f45, type: 3}
+  - {fileID: 21300000, guid: 2db838bd1396081438d25b22b33a34f9, type: 3}
+  - {fileID: 21300000, guid: cbaa580e124a796459f92d1bfc0e460e, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Bread_5
+  - Bread_1
+  - Bread_4
+  - Bread_6
+  - Bread_3
+  - Bread_2
+  m_RenderDataMap: {}
+  m_Tag: BreadAtlas
+  m_IsVariant: 0
