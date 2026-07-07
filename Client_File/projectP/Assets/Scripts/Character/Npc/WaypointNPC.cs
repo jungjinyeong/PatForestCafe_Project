@@ -30,6 +30,8 @@ public class WaypointNPC : MonoBehaviour
     private bool mMovingForward = true;
     private bool mIsMoving = true;
 
+    private WaypointGroup mCurrentGroup;
+
     private Animator2D mAnimator2D;
     private SpriteRenderer mSpriteRenderer;
 
@@ -45,6 +47,12 @@ public class WaypointNPC : MonoBehaviour
         if (!mIsMoving || mWaypoints == null || mWaypoints.Length == 0) return;
 
         MoveTowardsTarget();
+    }
+
+    public void Init(WaypointGroup group, Waypoint[] waypoints)
+    {
+        mCurrentGroup = group;
+        Init(waypoints);
     }
 
     public void Init(Waypoint[] waypoints)
@@ -107,7 +115,8 @@ public class WaypointNPC : MonoBehaviour
 
             if (category == Waypoint.eWaypointCategoryType.Exit)
             {
-                ReturnToPool();
+                if (!TryMoveToNextGroup())
+                    ReturnToPool();
                 return;
             }
 
@@ -126,6 +135,29 @@ public class WaypointNPC : MonoBehaviour
         }
 
         MoveToNextWaypoint();
+    }
+
+    private bool TryMoveToNextGroup()
+    {
+        if (mCurrentGroup == null || GameInstance.WayPoint == null)
+            return false;
+
+        var nextGroup = GameInstance.WayPoint.GetNextGroup(mCurrentGroup.Order);
+        if (nextGroup == null)
+            return false;
+
+        var spawnPoint = nextGroup.GetSpawnPoint();
+        if (spawnPoint == null)
+            return false;
+
+        var pathWaypoints = nextGroup.GetPathWaypoints();
+        var waypoints = new Waypoint[1 + pathWaypoints.Length];
+        waypoints[0] = spawnPoint;
+        for (int i = 0; i < pathWaypoints.Length; i++)
+            waypoints[i + 1] = pathWaypoints[i];
+
+        Init(nextGroup, waypoints);
+        return true;
     }
 
     private void ReturnToPool()

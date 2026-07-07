@@ -27,4 +27,6 @@ public class StateMachine<TState> where TState : Enum
         if (mEnterActions.TryGetValue(next, out var onEnter))
             onEnter.Invoke();
     }
+
+    // TODO : NextState..
 }

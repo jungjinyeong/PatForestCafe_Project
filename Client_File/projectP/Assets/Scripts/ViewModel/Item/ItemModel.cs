@@ -1,9 +1,13 @@
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
-public class ItemModel : IModelBase
+public partial class ItemModel : IModelBase
 {
-    private readonly Dictionary<int, ItemData> mItems = new();
+    Dictionary<int, ItemData> mDicItems = new();
+    Dictionary<eMoneyType, WealthData> mDicWealths = new();
+
+    CompositeDisposable mDisposables = new CompositeDisposable();
 
     public void Init()
     {
@@ -14,20 +18,40 @@ public class ItemModel : IModelBase
             return;
         }
 
+        // TODO : 아이템 저장을 하기 시작하면 다 만들 필요없음.
         foreach (var row in group.All.Values)
-            mItems[row.Tid] = new ItemData(row);
+        {
+            if (row.ItemType == CTable.eItemType.Money)
+            {
+                var wealth = WealthData.Create(row);
+                mDicWealths[(eMoneyType)row.Tid] = wealth;
+                continue;
+            }
+
+            var item = ItemData.Create(row);
+            mDicItems[row.Tid] = item;
+        }
     }
+
+    #region Wealth
+
+    public WealthData GetWealth(eMoneyType moneyType)
+    {
+        return mDicWealths.TryGetValue(moneyType, out var wealth) ? wealth : null;
+    }
+
+    #endregion
 
     public ItemData Get(int tid)
     {
-        return mItems.TryGetValue(tid, out var item) ? item : null;
+        return mDicItems.TryGetValue(tid, out var item) ? item : null;
     }
 
-    public IEnumerable<ItemData> GetAll() => mItems.Values;
+    public IEnumerable<ItemData> GetAll() => mDicItems.Values;
 
     public void Add(int tid, int amount = 1)
     {
-        if (mItems.TryGetValue(tid, out var item))
+        if (mDicItems.TryGetValue(tid, out var item))
             item.Add(amount);
         else
             Debug.LogWarning($"[ItemModel] 존재하지 않는 아이템 Tid: {tid}");
@@ -35,7 +59,7 @@ public class ItemModel : IModelBase
 
     public void Consume(int tid, int amount = 1)
     {
-        if (mItems.TryGetValue(tid, out var item))
+        if (mDicItems.TryGetValue(tid, out var item))
             item.Consume(amount);
         else
             Debug.LogWarning($"[ItemModel] 존재하지 않는 아이템 Tid: {tid}");
@@ -43,7 +67,7 @@ public class ItemModel : IModelBase
 
     public void Set(int tid, int amount)
     {
-        if (mItems.TryGetValue(tid, out var item))
+        if (mDicItems.TryGetValue(tid, out var item))
             item.Set(amount);
         else
             Debug.LogWarning($"[ItemModel] 존재하지 않는 아이템 Tid: {tid}");
@@ -57,8 +81,12 @@ public class ItemModel : IModelBase
 
     public void Dispose()
     {
-        foreach (var item in mItems.Values)
+        mDisposables.Dispose();
+        
+        foreach (var item in mDicItems.Values)
             item.Dispose();
-        mItems.Clear();
+        mDicItems.Clear();
+
+        mDicWealths.Clear();
     }
 }

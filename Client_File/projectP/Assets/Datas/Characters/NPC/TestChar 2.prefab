@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 5423858350693515487}
   - component: {fileID: 6791948414816081913}
   - component: {fileID: 8436888285318587956}
-  - component: {fileID: 1315515760114757284}
   - component: {fileID: -9114492442449377318}
   - component: {fileID: -8536677914514434180}
+  - component: {fileID: 4459353648343566742}
   m_Layer: 6
   m_Name: TestChar 2
   m_TagString: Untagged
@@ -106,29 +106,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c97b023591a304d45a75849d0003a4e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaypointNPC
-  isInit: 0
-  waypoints: []
-  moveSpeed: 3
-  arrivalThreshold: 0.1
-  loop: 0
-  reverseOnEnd: 0
-  pathColor: {r: 0, g: 1, b: 0, a: 1}
---- !u!111 &1315515760114757284
-Animation:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2487020815310113988}
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Animation: {fileID: 0}
-  m_Animations: []
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_UpdateMode: 0
-  m_CullingType: 0
+  mIsInit: 0
+  mWaypoints: []
+  mMoveSpeed: 3
+  mArrivalThreshold: 0.1
+  mLoop: 1
+  mReverseOnEnd: 0
+  mBreadStopChance: 0.5
+  mSeparationDistance: 0.3
+  mPathColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!114 &-9114492442449377318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,10 +129,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Animator2D
   mAnimationList:
   - name: Idle
-    clip: {fileID: 7400000, guid: 87c04798a006f9d409507424782bad6b, type: 2}
+    clip: {fileID: 7400000, guid: f0d17bdb40fe70c4982eed37aa5c47d8, type: 2}
     loop: 1
   - name: Run
-    clip: {fileID: 7400000, guid: 192a4bc4c758ac44295fcebdae04bb84, type: 2}
+    clip: {fileID: 7400000, guid: 2ecc8e32f7c5dd14dbdfdd78704b113f, type: 2}
     loop: 1
 --- !u!61 &-8536677914514434180
 BoxCollider2D:
@@ -194,3 +180,25 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.32, y: 0.32}
   m_EdgeRadius: 0
+--- !u!95 &4459353648343566742
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2487020815310113988}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 111aa98088d80274fb2173d2f23eb6b6, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

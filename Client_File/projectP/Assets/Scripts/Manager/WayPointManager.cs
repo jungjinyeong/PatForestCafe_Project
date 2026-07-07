@@ -19,7 +19,36 @@ public class WayPointManager : MonoBehaviour
             return;
 
         mWaypointGroups.Add(group);
+        mWaypointGroups.Sort((a, b) => a.Order.CompareTo(b.Order));
 
         MessageBroker.Default.Publish(new CEvent.WaypointGroupRegist(mWaypointGroups.ToArray()));
+    }
+
+    public WaypointGroup GetFirstGroup()
+    {
+        WaypointGroup first = null;
+        foreach (var group in mWaypointGroups)
+        {
+            if (group == null)
+                continue;
+
+            if (first == null || group.Order < first.Order)
+                first = group;
+        }
+        return first;
+    }
+
+    public WaypointGroup GetNextGroup(int currentOrder)
+    {
+        WaypointGroup next = null;
+        foreach (var group in mWaypointGroups)
+        {
+            if (group == null || group.Order <= currentOrder)
+                continue;
+
+            if (next == null || group.Order < next.Order)
+                next = group;
+        }
+        return next;
     }
 }

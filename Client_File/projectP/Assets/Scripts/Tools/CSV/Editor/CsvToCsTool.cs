@@ -14,32 +14,6 @@ public class CsvToCsTool : OdinEditorWindow
     [MenuItem("Tools/CSV to CS")]
     private static void OpenWindow() => GetWindow<CsvToCsTool>().Show();
 
-    [Sirenix.OdinInspector.FilePath(Extensions = "csv")]
-    public string csvFilePath;
-
-    [Button("선택한 CSV 변환")]
-    public void ConvertCsvToCs()
-    {
-        if (string.IsNullOrEmpty(csvFilePath) || !File.Exists(csvFilePath))
-        {
-            Debug.LogError("파일 경로가 올바르지 않습니다.");
-            return;
-        }
-
-        string[] lines = File.ReadAllLines(csvFilePath);
-        if (lines.Length < 4)
-        {
-            Debug.LogError("CSV 파일 형식이 올바르지 않습니다. (최소 4행 필요)");
-            return;
-        }
-
-        ProcessCsvFile(csvFilePath, lines);
-        RebuildTableEnumFile();
-
-        AssetDatabase.Refresh();
-        Debug.Log($"{Path.GetFileNameWithoutExtension(csvFilePath)} 변환 완료!");
-    }
-
     [Button("Assets/CSV 전체 변환")]
     public void ConvertAllCsvToCs()
     {
@@ -85,7 +59,7 @@ public class CsvToCsTool : OdinEditorWindow
         string[] types   = lines[1].Split(',').Select(s => s.Trim()).ToArray();
 
         SaveFile(className + "Row.cs",   GenerateRowCode(className, headers, types));
-        SaveFile(className + "Group.cs", GenerateGroupCode(className, headers, types));
+        SaveFile(className + "Table.cs", GenerateGroupCode(className, headers, types));
     }
 
     // Assets/CSV 전체를 스캔해 TableEnum.cs 하나로 재생성
@@ -196,7 +170,7 @@ using System.Linq;
 
 namespace CTable
 {{
-    public class {className}Group : TableBaseGroup<{className}Row>
+    public class {className}Table : TableBaseGroup<{className}Row>
     {{
         public override void Load(string[] lines)
         {{
@@ -225,6 +199,9 @@ namespace CTable
 
         if (rawType == "float")
             return $"row.{fieldName} = float.TryParse({col}, out float _{fieldName}) ? _{fieldName} : 0f;";
+
+        if (rawType == "long")
+            return $"row.{fieldName} = long.TryParse({col}, out long _{fieldName}) ? _{fieldName} : 0;";
 
         if (rawType == "bool")
             return $"row.{fieldName} = bool.TryParse({col}, out bool _{fieldName}) && _{fieldName};";

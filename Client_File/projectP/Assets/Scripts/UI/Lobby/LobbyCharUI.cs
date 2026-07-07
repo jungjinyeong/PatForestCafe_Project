@@ -16,7 +16,7 @@ public class LobbyCharUI : MonoBehaviour
         ApplySortingOrder();
     }
 
-    public void AttachBread(Bread bread)
+    public void AttachBread(Intaraction_Bread bread)
     {
         if (mRootBreadTr == null || bread == null) return;
 

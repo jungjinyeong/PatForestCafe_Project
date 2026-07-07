@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace CTable
 {
-    public class DrinkGroup : TableBaseGroup<DrinkRow>
+    public class DrinkTable : TableBaseGroup<DrinkRow>
     {
         public override void Load(string[] lines)
         {

@@ -12,9 +12,6 @@ public class SpawnManager : MonoBehaviour
     [Header("NPC Prefabs")]
     [SerializeField] private GameObject[] mNpcPrefabs;
 
-    [Header("Waypoint Groups")]
-    [SerializeField] private WaypointGroup[] mWaypointGroups;
-
     [Header("Auto Spawn")]
     [SerializeField] private float mSpawnInterval = 3f;
 
@@ -24,11 +21,10 @@ public class SpawnManager : MonoBehaviour
     private readonly List<WaypointNPC> mSpawnedNPCs = new();
     private IDisposable mAutoSpawnDisposable;
 
-    public void SetInfo(GameObject lobbyCharUIPrefab, GameObject[] npcPrefabs, WaypointGroup[] waypointGroups)
+    public void SetInfo(GameObject lobbyCharUIPrefab, GameObject[] npcPrefabs)
     {
         this.mLobbyCharUIPrefab = lobbyCharUIPrefab;
         this.mNpcPrefabs = npcPrefabs;
-        this.mWaypointGroups = waypointGroups;
 
         RegisterNPCPools();
     }
@@ -51,8 +47,14 @@ public class SpawnManager : MonoBehaviour
             return;
         }
 
-        foreach (var group in mWaypointGroups)
-            SpawnInGroup(group);
+        var firstGroup = GameInstance.WayPoint?.GetFirstGroup();
+        if (firstGroup == null)
+        {
+            Debug.LogWarning("[SpawnManager] No WaypointGroup registered.");
+            return;
+        }
+
+        SpawnInGroup(firstGroup);
     }
 
     private void SpawnInGroup(WaypointGroup group)
@@ -60,16 +62,10 @@ public class SpawnManager : MonoBehaviour
         if (group == null || group.Waypoints == null || group.Waypoints.Length == 0) return;
 
         var spawnPoints = new List<Waypoint>();
-        var pathWaypoints = new List<Waypoint>();
-
         foreach (var wp in group.Waypoints)
         {
-            if (wp == null) continue;
-
-            if (wp.GetCategoryType() == Waypoint.eWaypointCategoryType.SpwanPoint)
+            if (wp != null && wp.GetCategoryType() == Waypoint.eWaypointCategoryType.SpwanPoint)
                 spawnPoints.Add(wp);
-            else
-                pathWaypoints.Add(wp);
         }
 
         if (spawnPoints.Count == 0)
@@ -78,11 +74,12 @@ public class SpawnManager : MonoBehaviour
             return;
         }
 
+        var pathWaypoints = group.GetPathWaypoints();
         foreach (var spawnPoint in spawnPoints)
-            SpawnNPC(spawnPoint, pathWaypoints);
+            SpawnNPC(spawnPoint, pathWaypoints, group);
     }
 
-    private void SpawnNPC(Waypoint spawnPoint, List<Waypoint> pathWaypoints)
+    private void SpawnNPC(Waypoint spawnPoint, Waypoint[] pathWaypoints, WaypointGroup group)
     {
         var prefab = mNpcPrefabs[UnityEngine.Random.Range(0, mNpcPrefabs.Length)];
 
@@ -104,12 +101,12 @@ public class SpawnManager : MonoBehaviour
             return;
         }
 
-        var initWaypoints = new Waypoint[1 + pathWaypoints.Count];
+        var initWaypoints = new Waypoint[1 + pathWaypoints.Length];
         initWaypoints[0] = spawnPoint;
-        for (int i = 0; i < pathWaypoints.Count; i++)
+        for (int i = 0; i < pathWaypoints.Length; i++)
             initWaypoints[i + 1] = pathWaypoints[i];
 
-        npc.Init(initWaypoints);
+        npc.Init(group, initWaypoints);
 
         if (!mSpawnedNPCs.Contains(npc))
             mSpawnedNPCs.Add(npc);
@@ -144,7 +141,7 @@ public class SpawnManager : MonoBehaviour
     public void StartAutoSpawn()
     {
         StopAutoSpawn();
-        mAutoSpawnDisposable = Observable.Interval(TimeSpan.FromSeconds(mSpawnInterval))
+        mAutoSpawnDisposable = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(mSpawnInterval))
             .Subscribe(_ => SpawnOneRandom())
             .AddTo(this);
     }
@@ -157,27 +154,23 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnOneRandom()
     {
-        if (mNpcPrefabs == null || mNpcPrefabs.Length == 0 || mWaypointGroups == null || mWaypointGroups.Length == 0)
+        if (mNpcPrefabs == null || mNpcPrefabs.Length == 0)
             return;
 
-        var group = mWaypointGroups[UnityEngine.Random.Range(0, mWaypointGroups.Length)];
+        var group = GameInstance.WayPoint?.GetFirstGroup();
         if (group == null || group.Waypoints == null || group.Waypoints.Length == 0) return;
 
         var spawnPoints = new List<Waypoint>();
-        var pathWaypoints = new List<Waypoint>();
-
         foreach (var wp in group.Waypoints)
         {
-            if (wp == null) continue;
-            if (wp.GetCategoryType() == Waypoint.eWaypointCategoryType.SpwanPoint)
+            if (wp != null && wp.GetCategoryType() == Waypoint.eWaypointCategoryType.SpwanPoint)
                 spawnPoints.Add(wp);
-            else
-                pathWaypoints.Add(wp);
         }
 
         if (spawnPoints.Count == 0) return;
 
-        SpawnNPC(spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Count)], pathWaypoints);
+        var pathWaypoints = group.GetPathWaypoints();
+        SpawnNPC(spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Count)], pathWaypoints, group);
     }
 
     public bool IsBlockedByNPC(WaypointNPC self, Vector3 direction, float separationDistance)

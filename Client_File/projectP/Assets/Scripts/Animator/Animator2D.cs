@@ -1,31 +1,14 @@
-using System;
-using UnityEngine; 
+using UnityEngine;
 
 public class Animator2D : AnimatorBase
 {
+    private Animator mAnimator;
+
     protected override void Awake()
     {
         base.Awake();
 
-        mAnimation = GetComponent<Animation>();
-
-        foreach (var anim in mClipTable)
-        {
-            if (anim.Value.clip == null) continue;
-
-#if UNITY_EDITOR
-            // Animation 컴포넌트는 Legacy 클립만 동작함. 에디터에서 자동으로 변환.
-            if (!anim.Value.clip.legacy)
-            {
-                anim.Value.clip.legacy = true;
-                UnityEditor.EditorUtility.SetDirty(anim.Value.clip);
-            }
-#endif
-            mAnimation.AddClip(anim.Value.clip, anim.Value.name);
-
-            if (mAnimation[anim.Value.name] == null)
-                Debug.LogWarning($"[Animator2D] '{anim.Value.name}' 클립 등록 실패. AnimationClip을 Legacy로 설정하세요.");
-        }
+        mAnimator = GetComponent<Animator>();
     }
 
     public override void PlayAnimation(string animName, float startTime = 0, bool loop = false)
@@ -35,43 +18,41 @@ public class Animator2D : AnimatorBase
         // base가 클립을 못 찾았으면 mCurrentAnim이 갱신되지 않으므로 중단
         if (mCurrentAnim == null || mCurrentAnim.name != animName) return;
 
-        if (mAnimation[animName] == null)
+        int stateHash = Animator.StringToHash(animName);
+        if (!mAnimator.HasState(0, stateHash))
         {
-            Debug.LogWarning($"[Animator2D] Animation 컴포넌트에 '{animName}' 상태가 없음. Legacy 클립인지 확인하세요.");
+            Debug.LogWarning($"[Animator2D] Animator에 '{animName}' 상태가 없음. AnimatorController를 확인하세요.");
             return;
         }
 
-        mAnimation[animName].wrapMode = mCurrentAnim.loop ? WrapMode.Loop : WrapMode.Once;
-        mAnimation.Play(animName);
+        float normalizedTime = mCurrentAnim.clip != null && mCurrentAnim.clip.length > 0f
+            ? startTime / mCurrentAnim.clip.length
+            : 0f;
+
+        mAnimator.speed = 1f;
+        mAnimator.Play(stateHash, 0, normalizedTime);
     }
 
-    //TODO: Pause, Resume ���� �ʿ�
-    override public void PauseAnimation()
+    public override void PauseAnimation()
     {
-        if (mAnimation.clip != null)
-        {
-            mAnimation.Stop();
-        }
+        base.PauseAnimation();
+        mAnimator.speed = 0f;
     }
 
-    override public void ResumeAnimation()
+    public override void ResumeAnimation()
     {
-        if (mAnimation.clip != null)
-        {
-            mAnimation.Play();
-        }
+        base.ResumeAnimation();
+        mAnimator.speed = 1f;
     }
 
-    override public void StopAnimation()
+    public override void StopAnimation()
     {
-        if (mAnimation.clip != null)
-        {
-            mAnimation.Stop();
-        }
+        base.StopAnimation();
+        mAnimator.speed = 0f;
     }
 
-    override public bool IsPaused(string animName)
+    public override bool IsPaused(string animName)
     {
-        return mAnimation.clip != null && mAnimation.isPlaying == false && mAnimation.clip.name == animName;
+        return mCurrentAnim != null && mCurrentAnim.name == animName && mAnimator.speed == 0f;
     }
 }

@@ -19,8 +19,6 @@ public class AnimatorBase : MonoBehaviour
     protected float mTime;
     protected bool mIsPlaying;
 
-    protected Animation mAnimation;
-
     protected virtual void Awake()
     {
         foreach (var anim in mAnimationList)
@@ -30,19 +28,15 @@ public class AnimatorBase : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// ÁöÁ¤ÇÑ ¾Ö´Ï¸ŞÀÌ¼ÇÀ» Àç»ıÇÕ´Ï´Ù.
-    /// </summary>
     public virtual void PlayAnimation(string animName, float startTime = 0f, bool loop = false)
     {
         if (!mClipTable.TryGetValue(animName, out var anim))
         {
-            Debug.LogWarning($"[Anim] {animName} ¾Ö´Ï¸ŞÀÌ¼ÇÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning($"[Anim] {animName} ì• ë‹ˆë©”ì´ì…˜ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
         mCurrentAnim = anim;
-        //mCurrentAnim.loop = loop;
         mTime = startTime;
         mIsPlaying = true;
     }

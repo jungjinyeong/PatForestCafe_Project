@@ -5,7 +5,7 @@ using UniRx;
 using UnityEngine;
 using Extension;
 
-public class BreadTable : MonoBehaviour
+public class Intaraction_BreadTable : MonoBehaviour
 {
     [Header("ID")]
     [SerializeField] private int mTableId;
@@ -17,12 +17,12 @@ public class BreadTable : MonoBehaviour
     [SerializeField] private Transform mRootTransform;
     [SerializeField] private GameObject mBreadPrefab;
 
-    private readonly Queue<Bread> mActiveBreadQueue = new Queue<Bread>();
+    private readonly Queue<Intaraction_Bread> mActiveBreadQueue = new Queue<Intaraction_Bread>();
 
     private void Start()
     {
         if (mBreadPrefab != null)
-            GameInstance.Pool?.RegisterPool(Bread.PoolName, mBreadPrefab);
+            GameInstance.Pool?.RegisterPool(Intaraction_Bread.PoolName, mBreadPrefab);
 
         GameInstance.Model.Bread.Register(mTableId);
 
@@ -62,13 +62,13 @@ public class BreadTable : MonoBehaviour
     {
         if (GameInstance.Pool == null || mRootTransform == null) return;
 
-        var go = GameInstance.Pool.Spawn(Bread.PoolName, mRootTransform.position, Quaternion.identity);
+        var go = GameInstance.Pool.Spawn(Intaraction_Bread.PoolName, mRootTransform.position, Quaternion.identity);
         if (go == null) return;
 
         go.transform.SetParent(mRootTransform);
         go.transform.localScale = Vector3.one;
 
-        var bread = go.GetComponent<Bread>();
+        var bread = go.GetComponent<Intaraction_Bread>();
         if (bread != null)
             mActiveBreadQueue.Enqueue(bread);
     }

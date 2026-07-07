@@ -1,27 +1,61 @@
 using UniRx;
 
+// 임시: MoneyType 테이블 컬럼이 추가되기 전까지 ItemData 쪽에서 관리
+public enum eMoneyType
+{
+    Gold
+}
+
 public class ItemData
 {
-    public int Tid { get; }
-    public CTable.eItemType ItemType { get; }
-    public string ItemName { get; }
-    public string Atlas { get; }
-    public string Icon { get; }
-
+    public CTable.ItemRow mRow { get; private set; }
+    public int Tid { get { return mRow.Tid; } }
+    
     public IReadOnlyReactiveProperty<int> Count => mCount;
     private readonly ReactiveProperty<int> mCount = new ReactiveProperty<int>(0);
 
-    public ItemData(CTable.ItemRow row)
+    public static ItemData Create(CTable.ItemRow row, int amount = 0)
     {
-        Tid      = row.Tid;
-        ItemType = row.ItemType;
-        ItemName = row.ItemName;
-        Atlas    = row.Atlas;
-        Icon     = row.Icon;
+        ItemData res = new ItemData();
+        res.mRow = row;
+        res.Set(amount);
+        return res;
     }
 
-    internal void Add(int amount)            => mCount.Value += amount;
-    internal void Set(int amount)            => mCount.Value = UnityEngine.Mathf.Max(0, amount);
-    internal void Consume(int amount)        => mCount.Value = UnityEngine.Mathf.Max(0, mCount.Value - amount);
-    internal void Dispose()                  => mCount.Dispose();
+    public virtual void Init()
+    {
+
+    }
+
+    public virtual void Add(int amount)
+    {
+        mCount.Value += amount;
+    }
+
+    public virtual void Set(int amount)
+    {
+        mCount.Value = UnityEngine.Mathf.Max(0, amount);
+    }
+
+    public virtual void Consume(int amount)
+    {
+        mCount.Value = UnityEngine.Mathf.Max(0, mCount.Value - amount);
+    }
+
+    public virtual void Dispose()
+    {
+        mCount.Dispose();
+    }
+}
+
+public class WealthData : ItemData
+{
+    public CTable.ItemRow mItemRow { get; private set; }
+
+    public static WealthData Create(CTable.ItemRow itemRow)
+    {
+        var res = new WealthData();
+        res.mItemRow = itemRow;
+        return res;
+    }
 }
