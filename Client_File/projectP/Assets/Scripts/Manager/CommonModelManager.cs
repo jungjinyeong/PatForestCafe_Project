@@ -5,6 +5,7 @@ public class CommonModelManager : MonoBehaviour, IManager
 {
     public BreadModel Bread { get; private set; }
     public ItemModel Item { get; private set; }
+    public DrinkModel Drink { get; private set; }
 
     private readonly List<IModelBase> mModels = new List<IModelBase>();
 
@@ -12,6 +13,7 @@ public class CommonModelManager : MonoBehaviour, IManager
     {
         Bread = Register(new BreadModel());
         Item  = Register(new ItemModel());
+        Drink = Register(new DrinkModel());
     }
 
     public void Subscribe() { }
@@ -23,6 +25,7 @@ public class CommonModelManager : MonoBehaviour, IManager
         mModels.Clear();
         Bread = null;
         Item  = null;
+        Drink = null;
     }
 
     public void Destory()

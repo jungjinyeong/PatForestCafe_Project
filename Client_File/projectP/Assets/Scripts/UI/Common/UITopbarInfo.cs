@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class UITopbarInfo : UIBase
 {
-    [SerializeField] private SerializableDictionary<eMoneyType, UIWealthItem> mWealthItems = new();
+    [SerializeField] private SerializableDictionary<CTable.eMoneyType, UIWealthItem> mWealthItems = new();
 
     private void Start()
     {

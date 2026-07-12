@@ -1,4 +1,4 @@
-﻿Tid,BreadName,Atlas,Icon,Price
-int,string,string,string,long
-@아이디,@브레드명,@아이템아틀라스,@아이템아이콘,@가격
-1001,소금빵,BreadAtlas,SaltBreadIcon,1000
+﻿Tid,@BreadName
+int,@string
+@아이디,@브레드명
+20001,@소금빵

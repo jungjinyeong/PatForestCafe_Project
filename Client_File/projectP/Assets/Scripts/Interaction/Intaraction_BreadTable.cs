@@ -41,7 +41,7 @@ public class Intaraction_BreadTable : MonoBehaviour
         GameInstance.Model.Bread.Add(mTableId);
     }
 
-    private async UniTaskVoid HandleBreadPickupAsync(WaypointNPC npc)
+    private async UniTaskVoid HandleBreadPickupAsync(CharNpc npc)
     {
         if (mActiveBreadQueue.Count == 0) return;
 
@@ -49,11 +49,13 @@ public class Intaraction_BreadTable : MonoBehaviour
 
         if (mActiveBreadQueue.Count == 0) return;
 
+        var lobbyUI = npc.GetComponentInChildren<LobbyCharUI>();
+        if (lobbyUI == null || !lobbyUI.CanAttachBread()) return;
+
         var bread = mActiveBreadQueue.Dequeue();
         if (bread == null) return;
 
-        var lobbyUI = npc.GetComponentInChildren<LobbyCharUI>();
-        lobbyUI?.AttachBread(bread);
+        lobbyUI.AttachBread(bread);
 
         GameInstance.Model.Bread.Consume(mTableId);
     }
@@ -70,6 +72,9 @@ public class Intaraction_BreadTable : MonoBehaviour
 
         var bread = go.GetComponent<Intaraction_Bread>();
         if (bread != null)
+        {
+            bread.SetTableId(mTableId);
             mActiveBreadQueue.Enqueue(bread);
+        }
     }
 }

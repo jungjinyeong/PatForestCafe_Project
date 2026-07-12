@@ -17,7 +17,6 @@ namespace CTable
 
                 var row = new DrinkRow();
                 row.Tid = int.TryParse(values[0].Trim(), out int _Tid) ? _Tid : 0;
-                row.Name = values[1].Trim();
                 row.DrinkType = (eDrinkType)Enum.Parse(typeof(eDrinkType), values[2].Trim());
                 row.DrinkTempType = (eDrinkTempType)Enum.Parse(typeof(eDrinkTempType), values[3].Trim());
                 row.DrinkMaterial1 = int.TryParse(values[4].Trim(), out int _DrinkMaterial1) ? _DrinkMaterial1 : 0;

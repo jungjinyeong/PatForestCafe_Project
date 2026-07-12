@@ -105,7 +105,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c97b023591a304d45a75849d0003a4e5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WaypointNPC
+  m_EditorClassIdentifier: Assembly-CSharp::CharNpc
   mIsInit: 0
   mWaypoints: []
   mMoveSpeed: 3

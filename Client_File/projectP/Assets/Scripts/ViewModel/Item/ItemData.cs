@@ -1,10 +1,5 @@
+using CTable;
 using UniRx;
-
-// 임시: MoneyType 테이블 컬럼이 추가되기 전까지 ItemData 쪽에서 관리
-public enum eMoneyType
-{
-    Gold
-}
 
 public class ItemData
 {
@@ -51,10 +46,12 @@ public class ItemData
 public class WealthData : ItemData
 {
     public CTable.ItemRow mItemRow { get; private set; }
+    public CTable.ItemMoneyRow mMoneyRow { get; private set; }
 
-    public static WealthData Create(CTable.ItemRow itemRow)
+    public static WealthData CreateWealthData(CTable.ItemRow itemRow)
     {
         var res = new WealthData();
+        res.mMoneyRow = GameInstance.Table.Get<CTable.ItemMoneyRow>(itemRow.Tid);
         res.mItemRow = itemRow;
         return res;
     }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using CTable;
 
 public partial class ItemModel : IModelBase
 {
@@ -23,8 +24,7 @@ public partial class ItemModel : IModelBase
         {
             if (row.ItemType == CTable.eItemType.Money)
             {
-                var wealth = WealthData.Create(row);
-                mDicWealths[(eMoneyType)row.Tid] = wealth;
+                mDicWealths[(eMoneyType)row.Tid] = WealthData.CreateWealthData(row);
                 continue;
             }
 

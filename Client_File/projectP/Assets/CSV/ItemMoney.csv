@@ -1,0 +1,4 @@
+Tid,@Name,MoneyType
+int,@string,Enum(eMoneyType)
+@아이디,@아이템명,@머니타입
+1001,@골드,Gold

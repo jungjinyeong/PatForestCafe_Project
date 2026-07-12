@@ -15,4 +15,9 @@
     {
         Money
     }
+
+    public enum eMoneyType
+    {
+        Gold
+    }
 }

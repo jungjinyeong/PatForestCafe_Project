@@ -167,3 +167,16 @@ void OnDestroy() => mDisposables.Dispose();
 - 코루틴은 UniRx로 대체 불가한 경우에만 사용
 - 씬 이름과 파일명은 PascalCase (예: `MainMenu`, `GamePlay`)
 - Controller는 MonoBehaviour를 상속하지 않음
+
+---
+
+## 절대 수정 금지 파일
+다음 파일/폴더는 어떤 경우에도 수정하지 마세요:
+- Assets/CTable/ (테이블 데이터들)
+- Assets/CSV/ (테이블 csv 파일)
+- Assets/Plugins/ (서드파티 에셋, 건드리면 깨짐)
+- Assets/StreamingAssets/config.json (런타임 설정)
+- ProjectSettings/ (프로젝트 세팅)
+- Packages/manifest.json (패키지 의존성)
+
+위 파일 수정이 필요해 보이는 상황이면, 수정 대신 반드시 먼저 나에게 물어보세요.

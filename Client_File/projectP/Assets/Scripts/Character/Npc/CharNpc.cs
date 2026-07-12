@@ -3,7 +3,7 @@ using UniRx;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
-public class WaypointNPC : MonoBehaviour
+public class CharNpc : CharBase
 {
     [Header("Waypoints")]
     [SerializeField] private bool mIsInit = false;
@@ -31,9 +31,6 @@ public class WaypointNPC : MonoBehaviour
     private bool mIsMoving = true;
 
     private WaypointGroup mCurrentGroup;
-
-    private Animator2D mAnimator2D;
-    private SpriteRenderer mSpriteRenderer;
 
     private void Start()
     {
@@ -63,8 +60,6 @@ public class WaypointNPC : MonoBehaviour
             return;
         }
 
-        mAnimator2D = GetComponentInChildren<Animator2D>();
-        mSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
         mWaypoints = waypoints;
 
         transform.position = mWaypoints[0].transform.position;
@@ -177,6 +172,11 @@ public class WaypointNPC : MonoBehaviour
 
         if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Trigger_Bread)
             MessageBroker.Default.Publish(new CEvent.BreadPickup(triggerWaypoint.TableId, this));
+        else if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Trigger_Order)
+        {
+            TryReceiveBreadGold();
+            ReceiveDefaultDrinkGold();
+        }
 
         Observable.Timer(TimeSpan.FromSeconds(1.5f))
             .Subscribe(_ =>
@@ -185,6 +185,29 @@ public class WaypointNPC : MonoBehaviour
                 MoveToNextWaypoint();
             })
             .AddTo(this);
+    }
+
+    private void TryReceiveBreadGold()
+    {
+        var lobbyUI = GetComponentInChildren<LobbyCharUI>();
+        if (lobbyUI == null || !lobbyUI.HasBread) return;
+
+        foreach (var bread in lobbyUI.DetachAllBreads())
+        {
+            var breadData = GameInstance.Model.Bread.Get(bread.TableId);
+            if (breadData?.MenuItemRow != null)
+                GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add((int)breadData.MenuItemRow.Price);
+
+            bread.Despawn();
+        }
+    }
+
+    private void ReceiveDefaultDrinkGold()
+    {
+        var drinkData = GameInstance.Model.Drink.DefaultDrink;
+        if (drinkData?.MenuItemRow == null) return;
+
+        GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add((int)drinkData.MenuItemRow.Price);
     }
 
     private void MoveToNextWaypoint()

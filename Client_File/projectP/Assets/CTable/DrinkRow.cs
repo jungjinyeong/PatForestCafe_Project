@@ -8,7 +8,6 @@ namespace CTable
     {
         public override int key => Tid;
         public int Tid;
-        public string Name;
         public eDrinkType DrinkType;
         public eDrinkTempType DrinkTempType;
         public int DrinkMaterial1;

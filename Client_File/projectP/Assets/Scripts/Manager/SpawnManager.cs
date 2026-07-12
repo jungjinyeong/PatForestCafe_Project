@@ -18,7 +18,7 @@ public class SpawnManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject mLobbyCharUIPrefab;
 
-    private readonly List<WaypointNPC> mSpawnedNPCs = new();
+    private readonly List<CharNpc> mSpawnedNPCs = new();
     private IDisposable mAutoSpawnDisposable;
 
     public void SetInfo(GameObject lobbyCharUIPrefab, GameObject[] npcPrefabs)
@@ -93,10 +93,10 @@ public class SpawnManager : MonoBehaviour
 
         npcObj.transform.localScale = new Vector3(3, 3, 1);
 
-        var npc = npcObj.GetComponent<WaypointNPC>();
+        var npc = npcObj.GetComponent<CharNpc>();
         if (npc == null)
         {
-            Debug.LogError($"[SpawnManager] '{prefab.name}' has no WaypointNPC component.");
+            Debug.LogError($"[SpawnManager] '{prefab.name}' has no CharNpc component.");
             Destroy(npcObj);
             return;
         }
@@ -127,7 +127,7 @@ public class SpawnManager : MonoBehaviour
             ui.AddComponent<LobbyCharUI>();
     }
 
-    public void ReturnToPool(WaypointNPC npc)
+    public void ReturnToPool(CharNpc npc)
     {
         if (npc == null) return;
         mSpawnedNPCs.Remove(npc);
@@ -173,7 +173,7 @@ public class SpawnManager : MonoBehaviour
         SpawnNPC(spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Count)], pathWaypoints, group);
     }
 
-    public bool IsBlockedByNPC(WaypointNPC self, Vector3 direction, float separationDistance)
+    public bool IsBlockedByNPC(CharNpc self, Vector3 direction, float separationDistance)
     {
         foreach (var npc in mSpawnedNPCs)
         {

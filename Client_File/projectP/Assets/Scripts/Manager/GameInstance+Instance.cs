@@ -85,4 +85,15 @@ public partial class GameInstance
         get { return mTimeMgr; }
     }
     private static TimeManager mTimeMgr;
+
+    public static ConfigData Config
+    {
+        get
+        {
+            if (mConfigData == null)
+                mConfigData = UnityEngine.Resources.Load<ConfigData>("ConfigData");
+            return mConfigData;
+        }
+    }
+    private static ConfigData mConfigData;
 }

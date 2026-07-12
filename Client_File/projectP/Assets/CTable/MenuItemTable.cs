@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace CTable
 {
-    public class BreadTable : TableBaseGroup<BreadRow>
+    public class MenuItemTable : TableBaseGroup<MenuItemRow>
     {
         public override void Load(string[] lines)
         {
@@ -13,10 +13,14 @@ namespace CTable
                 string line = lines[i];
                 if (string.IsNullOrWhiteSpace(line)) continue;
                 string[] values = line.Split(',');
-                if (values.Length < 2) continue;
+                if (values.Length < 5) continue;
 
-                var row = new BreadRow();
+                var row = new MenuItemRow();
                 row.Tid = int.TryParse(values[0].Trim(), out int _Tid) ? _Tid : 0;
+                row.Name = values[1].Trim();
+                row.Atlas = values[2].Trim();
+                row.Icon = values[3].Trim();
+                row.Price = long.TryParse(values[4].Trim(), out long _Price) ? _Price : 0;
 
                 AddRow(row.Tid, row);
             }

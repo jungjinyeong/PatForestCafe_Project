@@ -1,5 +1,5 @@
-Tid,Name,DrinkType,DrinkTempType,DrinkMaterial1,DrinkMaterial2,DrinkMaterial3,DrinkMaterial4,DrinkMaterial5
-int,string,Enum(eDrinkType),Enum(eDrinkTempType),int,int,int,int,int
-@아이디,@음료명,@음료타입,@음료재료1,@음료재료2,@음료재료3,@음료재료4,@음료재료5
-10001,아이스 아메리카노,Coffee,Ice,100001,100003,0,0,0
-10002,핫 아메리카노,Coffee,Hot,100001,100003,0,0,0
+Tid,@Name,DrinkType,DrinkTempType,DrinkMaterial1,DrinkMaterial2,DrinkMaterial3,DrinkMaterial4,DrinkMaterial5
+int,@string,Enum(eDrinkType),Enum(eDrinkTempType),int,int,int,int,int
+@아이디,@음료명,@음료타입,@가격,@음료온도타입,@음료재료1,@음료재료2,@음료재료3,@음료재료4,@음료재료5
+10001,@아이스 아메리카노,Coffee,Ice,100001,100003,0,0,0
+10002,@핫 아메리카노,Coffee,Hot,100001,100003,0,0,0

@@ -4,10 +4,10 @@ using Extension;
 
 public class UIWealthItem : UIBase
 {
-    [SerializeField] private eMoneyType mMoneyType;
+    [SerializeField] private CTable.eMoneyType mMoneyType;
     [SerializeField] private TextMeshProUGUI mAmountText;
 
-    public eMoneyType MoneyType => mMoneyType;
+    public CTable.eMoneyType MoneyType => mMoneyType;
 
     public void UpdateWealthInfos(int amount)
     {
