@@ -9,6 +9,7 @@ public class Waypoint : MonoBehaviour
         SpwanPoint,
         Exit,
         Trigger,
+        Wait,
         Max,
     }
 
@@ -26,6 +27,9 @@ public class Waypoint : MonoBehaviour
 
         Trigger_Order = eWaypointCategoryType.Trigger << 16,
         Trigger_Bread,
+
+        Wait_Min = eWaypointCategoryType.Wait << 16,
+        Wait_SpecialOrder,
 
         Max = eWaypointCategoryType.Max << 16,
     }
@@ -78,6 +82,8 @@ public class Waypoint : MonoBehaviour
                 return Color.red;
             case eWaypointCategoryType.Trigger:
                 return Color.yellow;
+            case eWaypointCategoryType.Wait:
+                return Color.cyan;
             default:
                 return Color.white;
         }

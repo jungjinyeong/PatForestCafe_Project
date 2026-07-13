@@ -111,13 +111,20 @@ public class SpawnManager : MonoBehaviour
         if (!mSpawnedNPCs.Contains(npc))
             mSpawnedNPCs.Add(npc);
 
-        AttachLobbyCharUIRandom(npcObj);
+        AttachLobbyCharUIRandom(npcObj, new LobbyCharUI.Param()
+        {
+            IsSpecialOrder = group.IsSpecialOrderZone && UnityEngine.Random.value < 0.5f,
+        });
     }
 
-    private void AttachLobbyCharUIRandom(GameObject npcObj)
+    private void AttachLobbyCharUIRandom(GameObject npcObj, LobbyCharUI.Param param)
     {
-        if (mLobbyCharUIPrefab == null || UnityEngine.Random.value < 0.5f) return;
-        if (npcObj.GetComponentInChildren<LobbyCharUI>() != null) return;
+        if (mLobbyCharUIPrefab == null) return;
+        if (npcObj.GetComponentInChildren<LobbyCharUI>() != null)
+        {
+            npcObj.GetComponentInChildren<LobbyCharUI>().SetParam(param);
+            return;
+        }
 
         var ui = Instantiate(mLobbyCharUIPrefab, npcObj.transform);
         ui.transform.localPosition = new Vector3(0f, 0f, 0f);
@@ -125,6 +132,10 @@ public class SpawnManager : MonoBehaviour
 
         if (ui.GetComponent<LobbyCharUI>() == null)
             ui.AddComponent<LobbyCharUI>();
+
+        var lobbyUI = ui.GetComponent<LobbyCharUI>();
+        lobbyUI.Init();
+        lobbyUI.SetParam(param);
     }
 
     public void ReturnToPool(CharNpc npc)

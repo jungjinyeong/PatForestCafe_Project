@@ -85,7 +85,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &7361566485655156687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,6 +115,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98313a9f89316ba4db0821e1d5fb738d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LobbyCharUI
+  mSpecialOrderObj: {fileID: 5472407084589740092}
   mRootBreadTr: {fileID: 141063552543115240}
 --- !u!1 &3540246200523403470
 GameObject:

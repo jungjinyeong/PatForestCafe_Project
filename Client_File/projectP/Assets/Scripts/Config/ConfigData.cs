@@ -5,6 +5,7 @@ public enum eConfigType
 {
     BreadMaxCount,
     DefaultDrinkTid,
+    MaxSpecialOrderNpc,
 }
 
 #if UNITY_EDITOR

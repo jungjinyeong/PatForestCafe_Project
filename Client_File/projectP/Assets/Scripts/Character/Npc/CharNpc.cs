@@ -31,6 +31,8 @@ public class CharNpc : CharBase
     private bool mIsMoving = true;
 
     private WaypointGroup mCurrentGroup;
+    private Waypoint mPausedWaypoint;
+    private IDisposable mPauseDisposable;
 
     private void Start()
     {
@@ -50,6 +52,21 @@ public class CharNpc : CharBase
     {
         mCurrentGroup = group;
         Init(waypoints);
+
+        ApplyGroupOptionsToLobbyCharUI();
+    }
+
+    private void ApplyGroupOptionsToLobbyCharUI()
+    {
+        if (mCurrentGroup == null) return;
+
+        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
+        if (lobbyCharUI == null) return;
+
+        lobbyCharUI.SetParam(new LobbyCharUI.Param
+        {
+            IsSpecialOrder = mCurrentGroup.IsSpecialOrderZone && UnityEngine.Random.value < 0.5f,
+        });
     }
 
     public void Init(Waypoint[] waypoints)
@@ -127,9 +144,30 @@ public class CharNpc : CharBase
                     return;
                 }
             }
+
+            if (category == Waypoint.eWaypointCategoryType.Wait)
+            {
+                if (arrived.WaypointType == Waypoint.eWaypointType.Wait_SpecialOrder && TryEnterSpecialOrderWait())
+                {
+                    TriggerPause(arrived);
+                    return;
+                }
+            }
         }
 
         MoveToNextWaypoint();
+    }
+
+    private bool TryEnterSpecialOrderWait()
+    {
+        if (mCurrentGroup == null || !mCurrentGroup.IsSpecialOrderZone)
+            return false;
+
+        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
+        if (lobbyCharUI == null || !lobbyCharUI.IsSpecialOrderActive)
+            return false;
+
+        return mCurrentGroup.TryEnterSpecialOrderSlot();
     }
 
     private bool TryMoveToNextGroup()
@@ -164,6 +202,7 @@ public class CharNpc : CharBase
     private void TriggerPause(Waypoint triggerWaypoint)
     {
         mIsMoving = false;
+        mPausedWaypoint = triggerWaypoint;
 
         if (mAnimator2D != null)
             mAnimator2D.PlayAnimation("Idle");
@@ -178,13 +217,35 @@ public class CharNpc : CharBase
             ReceiveDefaultDrinkGold();
         }
 
-        Observable.Timer(TimeSpan.FromSeconds(1.5f))
-            .Subscribe(_ =>
-            {
-                mIsMoving = true;
-                MoveToNextWaypoint();
-            })
+        // Wait_SpecialOrder는 자동으로 재개되지 않고, 컨펌 버튼(ResumeFromSpecialOrderWait)으로만 재개된다.
+        if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Wait_SpecialOrder)
+            return;
+
+        mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(1.5f))
+            .Subscribe(_ => ResumeFromPause())
             .AddTo(this);
+    }
+
+    private void ResumeFromPause()
+    {
+        mPauseDisposable?.Dispose();
+        mPauseDisposable = null;
+
+        if (mPausedWaypoint != null && mPausedWaypoint.WaypointType == Waypoint.eWaypointType.Wait_SpecialOrder)
+            mCurrentGroup?.ExitSpecialOrderSlot();
+
+        mPausedWaypoint = null;
+        mIsMoving = true;
+        MoveToNextWaypoint();
+    }
+
+    public bool IsWaitingSpecialOrder =>
+        mPausedWaypoint != null && mPausedWaypoint.WaypointType == Waypoint.eWaypointType.Wait_SpecialOrder;
+
+    public void ResumeFromSpecialOrderWait()
+    {
+        if (IsWaitingSpecialOrder)
+            ResumeFromPause();
     }
 
     private void TryReceiveBreadGold()

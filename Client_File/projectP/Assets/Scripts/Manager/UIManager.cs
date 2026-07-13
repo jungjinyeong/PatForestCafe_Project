@@ -209,11 +209,13 @@ public class UIManager : MonoBehaviour
                 ui.Init();
             }
         }
+        ui.transform.SetAsLastSibling();
         ui.Open();
         return ui as T;
     }
 
     public T Open<T, T1>(eUIType uiType, T1 param) where T : UIWndBase
+        where T1 : struct
     {
         eUILayerType layerType = GetLayerType(uiType);
 
@@ -266,6 +268,9 @@ public class UIManager : MonoBehaviour
         }
 
         mUIWndStack.Add(ui);
+        ui.transform.SetAsLastSibling();
+        if(ui is IUIParam<T1> uiParam)
+            uiParam.Set(param);
         ui.Open();
 
         if (layerType == eUILayerType.Menu)

@@ -27,6 +27,8 @@ public class UIPopupOrderDetail : UIWndBase, IUIParam<UIPopupOrderDetail.Param>
     [SerializeField] private UIButtonEx mBtnOpenSpecialDrink;
     [SerializeField] private UIButtonEx mBtnConfirm;
 
+    private BoxCollider2D mNpcCollider;
+
     public override eUIType GetUIType() => eUIType.PopupOrderDetail;
 
     public override void Init()
@@ -39,7 +41,7 @@ public class UIPopupOrderDetail : UIWndBase, IUIParam<UIPopupOrderDetail.Param>
 
     public void Set(Param param)
     {
-
+        mNpcCollider = param.npc;
     }
 
     public override void Open()
@@ -66,6 +68,9 @@ public class UIPopupOrderDetail : UIWndBase, IUIParam<UIPopupOrderDetail.Param>
 
     private void OnClickConfirm()
     {
+        var npc = mNpcCollider != null ? mNpcCollider.GetComponentInParent<CharNpc>() : null;
+        npc?.ResumeFromSpecialOrderWait();
+
         SelfClose();
     }
 }

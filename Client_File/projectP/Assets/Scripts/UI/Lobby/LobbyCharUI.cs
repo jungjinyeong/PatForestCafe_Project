@@ -3,11 +3,21 @@ using UnityEngine;
 
 public class LobbyCharUI : MonoBehaviour
 {
+    public struct Param
+    {
+        public bool IsSpecialOrder;
+    }
+
     private const int SortingOrder = 1002;
+
+    [Header("SpecialOrder")]
+    [SerializeField] private GameObject mSpecialOrderObj;
 
     [Header("Bread")]
     [SerializeField] private Transform mRootBreadTr;
     public Transform RootBreadTr => mRootBreadTr;
+
+    public bool IsSpecialOrderActive => mSpecialOrderObj != null && mSpecialOrderObj.activeSelf;
 
     private readonly List<Intaraction_Bread> mBreads = new List<Intaraction_Bread>();
     public IReadOnlyList<Intaraction_Bread> Breads => mBreads;
@@ -19,6 +29,22 @@ public class LobbyCharUI : MonoBehaviour
     {
         mMainCamera = Camera.main;
         ApplySortingOrder();
+    }
+
+    public void Init()
+    {
+        SetSpecialOrderActive(false);
+    }
+
+    public void SetParam(Param param)
+    {
+        SetSpecialOrderActive(param.IsSpecialOrder);
+    }
+
+    public void SetSpecialOrderActive(bool isActive)
+    {
+        if (mSpecialOrderObj != null)
+            mSpecialOrderObj.SetActive(isActive);
     }
 
     public bool CanAttachBread()

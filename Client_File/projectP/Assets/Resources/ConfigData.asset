@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: ConfigData
   m_EditorClassIdentifier: Assembly-CSharp::ConfigData
   m_configDic:
-    m_keys: 0000000001000000
-    m_values: 0300000011270000
+    m_keys: 000000000100000002000000
+    m_values: 030000001127000003000000

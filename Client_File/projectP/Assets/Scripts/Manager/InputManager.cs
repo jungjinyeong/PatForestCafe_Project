@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class InputManager : MonoBehaviour, IManager
@@ -22,9 +22,15 @@ public class InputManager : MonoBehaviour, IManager
         var col = Physics2D.OverlapPoint(worldPos, mCharacterLayerMask);
         if (col is BoxCollider2D boxCollider2D)
         {
-            // TODO : ���� ����
-            GameInstance.UI.Open<UIPopupOrderDetail, UIPopupOrderDetail.Param>(eUIType.PopupOrderDetail,
-                new UIPopupOrderDetail.Param() { npc = boxCollider2D });
+            //TODO: 이 부분은 나중에 NPC와 상호작용하는 로직으로 변경 필요
+            var npc = boxCollider2D.GetComponentInParent<CharNpc>();
+            var lobbyCharUI = npc != null ? npc.GetComponentInChildren<LobbyCharUI>() : null;
+
+            if (lobbyCharUI != null && lobbyCharUI.IsSpecialOrderActive)
+            {
+                GameInstance.UI.Open<UIPopupOrderDetail, UIPopupOrderDetail.Param>(eUIType.PopupOrderDetail,
+                    new UIPopupOrderDetail.Param() { npc = boxCollider2D });
+            }
         }
     }
 
