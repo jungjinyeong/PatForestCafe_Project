@@ -64,9 +64,11 @@ public class LobbyCharUI : MonoBehaviour
         bread.transform.localScale = Vector3.one;
 
         var breadRt = bread.GetComponent<RectTransform>();
-        var referenceRt = GetComponent<RectTransform>();
-        if (breadRt != null && referenceRt != null)
-            breadRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, referenceRt.rect.width);
+        if (breadRt != null)
+        {
+            breadRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 0.3f);
+            breadRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0.2f);
+        }
 
         mBreads.Add(bread);
     }
