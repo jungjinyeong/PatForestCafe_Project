@@ -249,15 +249,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIScrollEx
   mScrollRect: {fileID: 6350360698154465591}
-  mIsHorizontal: 0
+  mIsHorizontal: 1
   mSpacing: 0
   mPadding:
     m_Left: 0
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  mChildForceExpandWidth: 1
-  mChildForceExpandHeight: 0
+  mChildForceExpandWidth: 0
+  mChildForceExpandHeight: 1
 --- !u!1 &2920803698727044979
 GameObject:
   m_ObjectHideFlags: 0
@@ -544,7 +544,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 571043235302901394}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.99999994
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
