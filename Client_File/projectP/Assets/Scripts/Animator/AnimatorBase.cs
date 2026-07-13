@@ -32,7 +32,7 @@ public class AnimatorBase : MonoBehaviour
     {
         if (!mClipTable.TryGetValue(animName, out var anim))
         {
-            Debug.LogWarning($"[Anim] {animName} 애니메이션을 찾을 수 없습니다.");
+            Logger.Warning($"[Anim] {animName} 애니메이션을 찾을 수 없습니다.");
             return;
         }
 

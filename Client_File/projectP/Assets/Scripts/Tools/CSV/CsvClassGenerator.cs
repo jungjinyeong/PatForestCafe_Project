@@ -10,9 +10,9 @@ public class CsvClassGenerator
     public static void ConvertCsvToCs(string csvFilePath)
     {
         string[] lines = File.ReadAllLines(csvFilePath);
-        if (lines.Length < 4) // ÃÖ¼Ò µ¥ÀÌÅÍ Çà±îÁö ÇÊ¿ä
+        if (lines.Length < 4) // ï¿½Ö¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½
         {
-            Debug.LogError("CSV ÆÄÀÏ Çü½ÄÀÌ ¿Ã¹Ù¸£Áö ¾Ê½À´Ï´Ù.");
+            Logger.Error("CSV ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¹Ù¸ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.");
             return;
         }
 
@@ -20,17 +20,17 @@ public class CsvClassGenerator
         string[] headers = lines[0].Split(',').Select(s => s.Trim()).ToArray();
         string[] types = lines[1].Split(',').Select(s => s.Trim()).ToArray();
 
-        // 1. Å¬·¡½º ÄÚµå »ý¼º ¹× ÀúÀå
+        // 1. Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         string code = GenerateClassCode(className, headers, types);
         SaveFile(className + ".cs", code);
 
-        // 2. Enum »ý¼º Ã³¸® (Enum(Name) ÆÐÅÏ °¨Áö)
+        // 2. Enum ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ (Enum(Name) ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         for (int i = 0; i < types.Length; i++)
         {
             if (types[i].StartsWith("Enum"))
             {
                 string enumName = types[i].Replace("Enum(", "").Replace(")", "");
-                GenerateEnumFile(enumName, lines, i); // µ¥ÀÌÅÍ Çà¿¡¼­ °ª ÃßÃâ
+                GenerateEnumFile(enumName, lines, i); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½à¿¡ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             }
         }
 
@@ -39,7 +39,7 @@ public class CsvClassGenerator
 
     private static void GenerateEnumFile(string enumName, string[] lines, int colIndex)
     {
-        // µ¥ÀÌÅÍ Çà(3¹øÂ° ÀÎµ¦½ººÎÅÍ)¿¡¼­ À¯´ÏÅ©ÇÑ °ª ÃßÃâ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½(3ï¿½ï¿½Â° ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å©ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         HashSet<string> enumValues = new HashSet<string>();
         for (int i = 3; i < lines.Length; i++)
         {
@@ -62,7 +62,7 @@ public class CsvClassGenerator
             if (headers[i].StartsWith("@")) continue;
 
             string type = types[i];
-            // Å¸ÀÔ º¯È¯ (List ¹× Enum)
+            // Å¸ï¿½ï¿½ ï¿½ï¿½È¯ (List ï¿½ï¿½ Enum)
             if (type.StartsWith("[")) type = "List<int>";
             else if (type.StartsWith("Enum")) type = type.Replace("Enum(", "").Replace(")", "");
 

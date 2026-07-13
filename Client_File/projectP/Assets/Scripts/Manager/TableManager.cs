@@ -6,7 +6,7 @@ using UnityEngine;
 public class TableManager
 {
     // 키: Row 타입 (e.g. CTable.ItemRow), 값: 해당 TableBaseGroup 인스턴스
-    private readonly Dictionary<Type, TableBaseGroupBase> mGroups = new Dictionary<Type, TableBaseGroupBase>();
+    private readonly Dictionary<Type, TableBaseGroupBase> mTables = new Dictionary<Type, TableBaseGroupBase>();
 
     public void LoadAllTables()
     {
@@ -14,7 +14,7 @@ public class TableManager
         string csvFolder = Path.Combine(Application.dataPath, "CSV");
         if (!Directory.Exists(csvFolder))
         {
-            Debug.LogWarning($"[TableManager] CSV 폴더를 찾을 수 없습니다: {csvFolder}");
+            Logger.Warning($"[TableManager] CSV 폴더를 찾을 수 없습니다: {csvFolder}");
             return;
         }
 
@@ -38,25 +38,25 @@ public class TableManager
     private void RegisterTable(string tableName, string[] lines)
     {
         // 생성된 그룹 클래스는 CTable 네임스페이스에 위치
-        string groupClassName = $"CTable.{tableName}Group";
-        Type groupType = FindType(groupClassName);
+        string tableClassName = $"CTable.{tableName}Table";
+        Type tableType = FindType(tableClassName);
 
-        if (groupType == null)
+        if (tableType == null)
         {
-            Debug.LogWarning($"[TableManager] 그룹 클래스를 찾을 수 없습니다: {groupClassName}");
+            Logger.Warning($"[TableManager] 그룹 클래스를 찾을 수 없습니다: {tableClassName}");
             return;
         }
 
-        var group = (TableBaseGroupBase)Activator.CreateInstance(groupType);
-        group.Load(lines);
+        var table = (TableBaseGroupBase)Activator.CreateInstance(tableType);
+        table.Load(lines);
 
         // TableBaseGroup<T>의 T(Row 타입)를 리플렉션으로 추출해 키로 사용
-        Type baseType = groupType.BaseType;
+        Type baseType = tableType.BaseType;
         if (baseType != null && baseType.IsGenericType)
         {
             Type rowType = baseType.GetGenericArguments()[0];
-            mGroups[rowType] = group;
-            Debug.Log($"[TableManager] {tableName} 로드 완료 ({rowType.FullName})");
+            mTables[rowType] = table;
+            Logger.Log($"[TableManager] {tableName} 로드 완료 ({rowType.FullName})");
         }
     }
 
@@ -75,21 +75,21 @@ public class TableManager
     /// </summary>
     public T Get<T>(int tid) where T : TableBaseRow, new()
     {
-        var group = GetGroup<T>();
+        var group = GetTable<T>();
         if (group != null)
         {
             return group.Get(tid);
         }
-        Debug.LogWarning($"[TableManager] {typeof(T).FullName}에 해당하는 그룹을 찾을 수 없습니다.");
+        Logger.Warning($"[TableManager] {typeof(T).FullName}에 해당하는 그룹을 찾을 수 없습니다.");
         return null;
     }
 
     /// <summary>
     /// Row 타입에 해당하는 TableBaseGroup 전체를 반환합니다.
     /// </summary>
-    public TableBaseGroup<T> GetGroup<T>() where T : TableBaseRow, new()
+    public TableBaseGroup<T> GetTable<T>() where T : TableBaseRow, new()
     {
-        if (mGroups.TryGetValue(typeof(T), out TableBaseGroupBase groupBase) &&
+        if (mTables.TryGetValue(typeof(T), out TableBaseGroupBase groupBase) &&
             groupBase is TableBaseGroup<T> group)
         {
             return group;

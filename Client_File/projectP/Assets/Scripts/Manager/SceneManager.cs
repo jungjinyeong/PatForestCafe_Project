@@ -14,7 +14,7 @@ public class SceneManager : IManager
         var gameFramework = GameObject.Find("GameFramework");
         if(gameFramework == null)
         {
-            Debug.LogError("GameFramework 오브젝트가 존재하지 않습니다. GameFramework 오브젝트를 생성하고 GameModeBase를 붙여야합니다.");
+            Logger.Error("GameFramework 오브젝트가 존재하지 않습니다. GameFramework 오브젝트를 생성하고 GameModeBase를 붙여야합니다.");
             return;
         }
 
@@ -25,7 +25,7 @@ public class SceneManager : IManager
         }
         else
         {
-            Debug.LogError("GameFramework 오브젝트에 GameModeBase가 붙어있지 않습니다. GameModeBase를 붙여야합니다.");
+            Logger.Error("GameFramework 오브젝트에 GameModeBase가 붙어있지 않습니다. GameModeBase를 붙여야합니다.");
             return;
         }
     }

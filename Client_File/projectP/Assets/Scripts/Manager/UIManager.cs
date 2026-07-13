@@ -98,13 +98,17 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     SerializableDictionary<eUILayerType, Canvas> mTargetCanvasDic = new SerializableDictionary<eUILayerType, Canvas>();
 
+    [SerializeField]
+    UIHudController mHudController;
+    public UIHudController HudController => mHudController;
+
     public Canvas GetTargetCanvas(eUILayerType type)
     {
         if (mTargetCanvasDic.TryGetValue(type, out var canvas))
             return canvas;
         else
         {
-            Debug.LogError($"ui layer type : {type} ::: target canvas is null");
+            Logger.Error($"ui layer type : {type} ::: target canvas is null");
             return null;
         }
     }
@@ -114,7 +118,7 @@ public class UIManager : MonoBehaviour
 
     void Awake()
     {
-        Debug.Log("awake ui");
+        Logger.Log("awake ui");
         mInstance = this;
         DontDestroyOnLoad(this);
         mUIWndStack = new UIWndStack();
@@ -127,7 +131,7 @@ public class UIManager : MonoBehaviour
         var mainCamera = Camera.main;
         if (mainCamera == null)
         {
-            Debug.LogError("UIManager::ConnectMainCamera - MainCamera를 찾을 수 없습니다.");
+            Logger.Error("UIManager::ConnectMainCamera - MainCamera를 찾을 수 없습니다.");
             return;
         }
 

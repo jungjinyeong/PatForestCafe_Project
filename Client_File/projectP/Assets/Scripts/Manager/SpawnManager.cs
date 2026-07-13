@@ -43,14 +43,14 @@ public class SpawnManager : MonoBehaviour
     {
         if (mNpcPrefabs == null || mNpcPrefabs.Length == 0)
         {
-            Debug.LogWarning("[SpawnManager] NPC prefabs not loaded.");
+            Logger.Warning("[SpawnManager] NPC prefabs not loaded.");
             return;
         }
 
         var firstGroup = GameInstance.WayPoint?.GetFirstGroup();
         if (firstGroup == null)
         {
-            Debug.LogWarning("[SpawnManager] No WaypointGroup registered.");
+            Logger.Warning("[SpawnManager] No WaypointGroup registered.");
             return;
         }
 
@@ -70,7 +70,7 @@ public class SpawnManager : MonoBehaviour
 
         if (spawnPoints.Count == 0)
         {
-            Debug.LogWarning($"[SpawnManager] '{group.name}' has no SpawnPoint waypoints.");
+            Logger.Warning($"[SpawnManager] '{group.name}' has no SpawnPoint waypoints.");
             return;
         }
 
@@ -96,7 +96,7 @@ public class SpawnManager : MonoBehaviour
         var npc = npcObj.GetComponent<CharNpc>();
         if (npc == null)
         {
-            Debug.LogError($"[SpawnManager] '{prefab.name}' has no CharNpc component.");
+            Logger.Error($"[SpawnManager] '{prefab.name}' has no CharNpc component.");
             Destroy(npcObj);
             return;
         }

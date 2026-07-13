@@ -366,6 +366,7 @@ MonoBehaviour:
     - {fileID: 6371794671059301451}
     - {fileID: 2509193474799124458}
     - {fileID: 9083713593287600460}
+  mHudController: {fileID: 4559874238931932334}
 --- !u!1001 &701255449924495400
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -468,6 +469,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 610934570017694555, guid: 814fec75716ce524eb206dc7d0a81772, type: 3}
   m_PrefabInstance: {fileID: 701255449924495400}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4559874238931932334 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3962236848560962694, guid: 814fec75716ce524eb206dc7d0a81772, type: 3}
+  m_PrefabInstance: {fileID: 701255449924495400}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaad8d5b859fd5243b5b000e4ccbe1ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIHudController
 --- !u!1001 &4661829122482224334
 PrefabInstance:
   m_ObjectHideFlags: 0

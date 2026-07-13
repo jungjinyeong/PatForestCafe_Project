@@ -12,19 +12,20 @@ public class ItemData
     public static ItemData Create(CTable.ItemRow row, int amount = 0)
     {
         ItemData res = new ItemData();
-        res.mRow = row;
-        res.Set(amount);
+        res.Init(row, amount);
         return res;
     }
 
-    public virtual void Init()
+    public virtual void Init(ItemRow row, int amount = 0)
     {
-
+        mRow = row;
+        Set(amount);
     }
 
     public virtual void Add(int amount)
     {
         mCount.Value += amount;
+        Logger.Log($"[ItemData] Add Tid: {Tid}, Amount: {amount}, New Count: {mCount.Value}");
     }
 
     public virtual void Set(int amount)
@@ -45,14 +46,15 @@ public class ItemData
 
 public class WealthData : ItemData
 {
-    public CTable.ItemRow mItemRow { get; private set; }
     public CTable.ItemMoneyRow mMoneyRow { get; private set; }
 
-    public static WealthData CreateWealthData(CTable.ItemRow itemRow)
+    public CTable.eMoneyType MoneyType => mMoneyRow.MoneyType;
+
+    public static WealthData CreateWealthData(CTable.ItemMoneyRow moneyRow, int amount = 0)
     {
         var res = new WealthData();
-        res.mMoneyRow = GameInstance.Table.Get<CTable.ItemMoneyRow>(itemRow.Tid);
-        res.mItemRow = itemRow;
+        res.Init(GameInstance.Table.Get<ItemRow>(moneyRow.Tid), amount);
+        res.mMoneyRow = moneyRow;
         return res;
     }
 }

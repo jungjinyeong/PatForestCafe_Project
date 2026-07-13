@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 public class DrinkModel : IModelBase
 {
@@ -9,10 +8,10 @@ public class DrinkModel : IModelBase
 
     public void Init()
     {
-        var group = GameInstance.Table.GetGroup<CTable.DrinkRow>();
+        var group = GameInstance.Table.GetTable<CTable.DrinkRow>();
         if (group == null)
         {
-            Debug.LogWarning("[DrinkModel] DrinkGroup을 찾을 수 없습니다.");
+            Logger.Warning("[DrinkModel] DrinkGroup을 찾을 수 없습니다.");
             return;
         }
 
@@ -22,7 +21,7 @@ public class DrinkModel : IModelBase
         int defaultDrinkTid = GameInstance.Config.GetValue(eConfigType.DefaultDrinkTid);
         DefaultDrink = Get(defaultDrinkTid);
         if (DefaultDrink == null)
-            Debug.LogWarning($"[DrinkModel] 기본 Drink Tid({defaultDrinkTid})를 찾을 수 없습니다.");
+            Logger.Warning($"[DrinkModel] 기본 Drink Tid({defaultDrinkTid})를 찾을 수 없습니다.");
     }
 
     public DrinkData Get(int tableId)

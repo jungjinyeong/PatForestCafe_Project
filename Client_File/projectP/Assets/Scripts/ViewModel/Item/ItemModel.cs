@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UniRx;
-using UnityEngine;
 using CTable;
 
 public partial class ItemModel : IModelBase
@@ -12,10 +11,10 @@ public partial class ItemModel : IModelBase
 
     public void Init()
     {
-        var group = GameInstance.Table.GetGroup<CTable.ItemRow>();
+        var group = GameInstance.Table.GetTable<CTable.ItemRow>();
         if (group == null)
         {
-            Debug.LogWarning("[ItemModel] ItemGroup을 찾을 수 없습니다.");
+            Logger.Warning("[ItemModel] ItemGroup을 찾을 수 없습니다.");
             return;
         }
 
@@ -24,7 +23,18 @@ public partial class ItemModel : IModelBase
         {
             if (row.ItemType == CTable.eItemType.Money)
             {
-                mDicWealths[(eMoneyType)row.Tid] = WealthData.CreateWealthData(row);
+                var moneyRow = GameInstance.Table.Get<CTable.ItemMoneyRow>(row.Tid);
+                if(moneyRow == null)
+                {
+                    Logger.Warning($"[ItemModel] MoneyRow를 찾을 수 없습니다. Tid: {row.Tid}");
+                    continue;
+                }
+                if(mDicWealths.ContainsKey(moneyRow.MoneyType))
+                {
+                    Logger.Warning($"[ItemModel] 중복된 MoneyType이 존재합니다. MoneyType: {moneyRow.MoneyType}");
+                    continue;
+                }
+                mDicWealths[moneyRow.MoneyType] = WealthData.CreateWealthData(moneyRow);
                 continue;
             }
 
@@ -54,7 +64,7 @@ public partial class ItemModel : IModelBase
         if (mDicItems.TryGetValue(tid, out var item))
             item.Add(amount);
         else
-            Debug.LogWarning($"[ItemModel] 존재하지 않는 아이템 Tid: {tid}");
+            Logger.Warning($"[ItemModel] 존재하지 않는 아이템 Tid: {tid}");
     }
 
     public void Consume(int tid, int amount = 1)
@@ -62,7 +72,7 @@ public partial class ItemModel : IModelBase
         if (mDicItems.TryGetValue(tid, out var item))
             item.Consume(amount);
         else
-            Debug.LogWarning($"[ItemModel] 존재하지 않는 아이템 Tid: {tid}");
+            Logger.Warning($"[ItemModel] 존재하지 않는 아이템 Tid: {tid}");
     }
 
     public void Set(int tid, int amount)
@@ -70,7 +80,7 @@ public partial class ItemModel : IModelBase
         if (mDicItems.TryGetValue(tid, out var item))
             item.Set(amount);
         else
-            Debug.LogWarning($"[ItemModel] 존재하지 않는 아이템 Tid: {tid}");
+            Logger.Warning($"[ItemModel] 존재하지 않는 아이템 Tid: {tid}");
     }
 
     public bool HasEnough(int tid, int amount)

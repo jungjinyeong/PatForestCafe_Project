@@ -2,21 +2,33 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-public class UITopbarInfo : UIBase
+public class UITopbarInfo : UIHUDBase
 {
     [SerializeField] private SerializableDictionary<CTable.eMoneyType, UIWealthItem> mWealthItems = new();
 
-    private void Start()
+    public override void Init()
     {
-        UpdateWealthInfos();
+        base.Init();
+
+        SubscribeWealthInfos();
     }
 
-    private void UpdateWealthInfos()
+    private void SubscribeWealthInfos()
     {
         foreach (var item in mWealthItems)
         {
-            int amount = GameInstance.Model.Item.GetWealth(item.Key)?.Count?.Value ?? 0;
-            item.Value.UpdateWealthInfos(amount);
+            var wealth = GameInstance.Model.Item.GetWealth(item.Key);
+            var wealthItem = item.Value;
+
+            if (wealth == null)
+            {
+                wealthItem.UpdateWealthInfos(0);
+                continue;
+            }
+
+            wealth.Count
+                .Subscribe(amount => wealthItem.UpdateWealthInfos(amount))
+                .AddTo(this);
         }
     }
 }

@@ -135,7 +135,7 @@ public class ResourceMgr : MonoBehaviour, IManager
                 continue;
             }
 
-            //»óÁÖÇØ¾ßÇÏ´Â ¸®¼Ò½º´Â ÇÊÅÍ¸µ.
+            //ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½.
             if(ChkCommonAsset(item.Key))
             {
                 continue;
@@ -175,7 +175,7 @@ public class ResourceMgr : MonoBehaviour, IManager
         }
         if(string.IsNullOrEmpty(label))
         {
-            Debug.LogError($"ResourceMgr::AsyncLoadResourceLocationsAsync - label is null or empty.");
+            Logger.Error($"ResourceMgr::AsyncLoadResourceLocationsAsync - label is null or empty.");
             return null;
         }
         var result = await Addressables.LoadResourceLocationsAsync(label, type);
@@ -198,7 +198,7 @@ public class ResourceMgr : MonoBehaviour, IManager
                 mMaxLoadCount += resource.GetMaxLoad();
         }
 
-        Debug.Log($"Loading Mgr Count : {mListResources.Count}");
+        Logger.Log($"Loading Mgr Count : {mListResources.Count}");
     }
 
     public bool NeedLoading()
@@ -351,7 +351,7 @@ public class ResourceMgr : MonoBehaviour, IManager
         }
         else
         {
-            Debug.LogError($"DeleteAddressables failed: {deleteHandle.OperationException}");
+            Logger.Error($"DeleteAddressables failed: {deleteHandle.OperationException}");
             return false;
         }
     }
@@ -374,7 +374,7 @@ public class ResourceMgr : MonoBehaviour, IManager
         }
         catch (Exception ex)
         {
-            Debug.LogError($"LoadAsync Exception: {ex.Message}");
+            Logger.Error($"LoadAsync Exception: {ex.Message}");
             onFail?.Invoke();
         }
     }
@@ -406,7 +406,7 @@ public class ResourceMgr : MonoBehaviour, IManager
             return resource;
         }
 
-        Debug.LogError($"Failed to load asset at address: {assetAddress}");
+        Logger.Error($"Failed to load asset at address: {assetAddress}");
         return null;
     }
 
@@ -444,7 +444,7 @@ public class ResourceMgr : MonoBehaviour, IManager
             mLoadedResources[assetAddress] = new LoadeddResourcesInfo(resource);
             return resource;
         }
-        Debug.LogError($"Failed to load asset at address: {assetAddress}");
+        Logger.Error($"Failed to load asset at address: {assetAddress}");
         return null;
     }
     #endregion

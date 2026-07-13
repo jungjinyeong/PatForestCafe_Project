@@ -30,11 +30,13 @@ public partial class GameModeLobby
     private void OnEnterOpenLobbyUI()
     {
         GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.UIRootLobby, new UIRootLobby.Param());
+
+        GameInstance.UI.HudController.Init();
     }
 
     private void OnEnterWaitWaypointGroup()
     {
-        // WayPointManager¿¡ ÀÌ¹Ì µî·ÏµÈ WaypointGroupÀÌ ÀÖÀ» ¼ö ÀÖÀ¸¹Ç·Î Áï½Ã È®ÀÎ
+        // WayPointManagerï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½Ïµï¿½ WaypointGroupï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         CheckWaypointGroupsReady(GameInstance.WayPoint.WaypointGroups);
     }
 

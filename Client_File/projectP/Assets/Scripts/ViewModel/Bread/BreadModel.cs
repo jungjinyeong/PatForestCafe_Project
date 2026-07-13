@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UniRx;
-using UnityEngine;
 
 public class BreadModel : IModelBase
 {
@@ -16,7 +15,7 @@ public class BreadModel : IModelBase
         var bread = BreadData.Create(GameInstance.Table.Get<CTable.BreadRow>(tableId));
         if (bread == null)
         {
-            Debug.LogWarning($"[BreadModel] 존재하지 않는 빵 Tid: {tableId}");
+            Logger.Warning($"[BreadModel] 존재하지 않는 빵 Tid: {tableId}");
             return;
         }
 

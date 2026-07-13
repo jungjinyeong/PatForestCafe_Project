@@ -119,7 +119,7 @@ public class UIScrollEx : UIBase
         obj.SetActive(true);
         var row = obj.GetComponent<UIScrollRow>();
         if (row == null)
-            Debug.LogError($"[UIScrollEx] '{mRowPrefab.name}' has no UIScrollRow component.");
+            Logger.Error($"[UIScrollEx] '{mRowPrefab.name}' has no UIScrollRow component.");
         return row;
     }
 

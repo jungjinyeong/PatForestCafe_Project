@@ -20,14 +20,14 @@ public class CsvToCsTool : OdinEditorWindow
         string csvFolder = Path.Combine(Application.dataPath, "CSV");
         if (!Directory.Exists(csvFolder))
         {
-            Debug.LogError($"CSV 폴더를 찾을 수 없습니다: {csvFolder}");
+            Logger.Error($"CSV 폴더를 찾을 수 없습니다: {csvFolder}");
             return;
         }
 
         string[] files = Directory.GetFiles(csvFolder, "*.csv");
         if (files.Length == 0)
         {
-            Debug.LogWarning("Assets/CSV 폴더에 CSV 파일이 없습니다.");
+            Logger.Warning("Assets/CSV 폴더에 CSV 파일이 없습니다.");
             return;
         }
 
@@ -36,7 +36,7 @@ public class CsvToCsTool : OdinEditorWindow
             string[] lines = File.ReadAllLines(file);
             if (lines.Length < 4)
             {
-                Debug.LogWarning($"형식 오류로 건너뜀: {file}");
+                Logger.Warning($"형식 오류로 건너뜀: {file}");
                 continue;
             }
             ProcessCsvFile(file, lines);
@@ -45,7 +45,7 @@ public class CsvToCsTool : OdinEditorWindow
         RebuildTableEnumFile();
 
         AssetDatabase.Refresh();
-        Debug.Log($"전체 변환 완료! ({files.Length}개 파일 처리)");
+        Logger.Log($"전체 변환 완료! ({files.Length}개 파일 처리)");
     }
 
     // ──────────────────────────────────────────────

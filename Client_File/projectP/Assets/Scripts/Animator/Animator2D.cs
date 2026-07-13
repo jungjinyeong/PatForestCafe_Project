@@ -21,7 +21,7 @@ public class Animator2D : AnimatorBase
         int stateHash = Animator.StringToHash(animName);
         if (!mAnimator.HasState(0, stateHash))
         {
-            Debug.LogWarning($"[Animator2D] Animator에 '{animName}' 상태가 없음. AnimatorController를 확인하세요.");
+            Logger.Warning($"[Animator2D] Animator에 '{animName}' 상태가 없음. AnimatorController를 확인하세요.");
             return;
         }
 

@@ -33,10 +33,10 @@ public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialD
 
     private void SetupMaterialScroll()
     {
-        var group = GameInstance.Table.GetGroup<CTable.DrinkMaterialRow>();
+        var group = GameInstance.Table.GetTable<CTable.DrinkMaterialRow>();
         if (group == null)
         {
-            Debug.LogWarning("[UIPopupSpecialDrinkProduction] DrinkMaterialGroup을 찾을 수 없습니다.");
+            Logger.Warning("[UIPopupSpecialDrinkProduction] DrinkMaterialGroup을 찾을 수 없습니다.");
             return;
         }
 
@@ -56,6 +56,6 @@ public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialD
     private void OnSelectMaterial(UIScrollRow row)
     {
         if (row is UIScrollDrinkMaterial materialRow && materialRow.CurrentData != null)
-            Debug.Log($"[UIPopupSpecialDrinkProduction] 선택된 재료: Tid={materialRow.CurrentData.Tid}, Name={materialRow.CurrentData.Name}");
+            Logger.Log($"[UIPopupSpecialDrinkProduction] 선택된 재료: Tid={materialRow.CurrentData.Tid}, Name={materialRow.CurrentData.Name}");
     }
 }
