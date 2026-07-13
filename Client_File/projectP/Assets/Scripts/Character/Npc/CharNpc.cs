@@ -52,21 +52,6 @@ public class CharNpc : CharBase
     {
         mCurrentGroup = group;
         Init(waypoints);
-
-        ApplyGroupOptionsToLobbyCharUI();
-    }
-
-    private void ApplyGroupOptionsToLobbyCharUI()
-    {
-        if (mCurrentGroup == null) return;
-
-        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
-        if (lobbyCharUI == null) return;
-
-        lobbyCharUI.SetParam(new LobbyCharUI.Param
-        {
-            IsSpecialOrder = mCurrentGroup.IsSpecialOrderZone && UnityEngine.Random.value < 0.5f,
-        });
     }
 
     public void Init(Waypoint[] waypoints)
@@ -99,7 +84,11 @@ public class CharNpc : CharBase
         if (distanceToTarget <= mArrivalThreshold)
         {
             transform.position = target.position;
-            AdvanceWaypoint();
+
+            bool isPaused = AdvanceWaypoint();
+            if (!isPaused)
+                MoveToNextWaypoint();
+
             return;
         }
 
@@ -118,76 +107,84 @@ public class CharNpc : CharBase
         mCurrentIndex = Mathf.Clamp(mCurrentIndex, 0, mWaypoints.Length - 1);
     }
 
-    private void AdvanceWaypoint()
+    private bool AdvanceWaypoint()
     {
         var arrived = mWaypoints[mCurrentIndex];
-        if (arrived != null)
+        if (arrived == null)
+            return false;
+
+        var category = arrived.GetCategoryType();
+
+        if (category == Waypoint.eWaypointCategoryType.SpwanPoint)
         {
-            var category = arrived.GetCategoryType();
+            ApplySpecialOrderParam();
+        }
 
-            if (category == Waypoint.eWaypointCategoryType.Exit)
+        if (category == Waypoint.eWaypointCategoryType.Exit)
+        {
+            if (!TryMoveToNextGroup())
+                ReturnToPool();
+            return true;
+        }
+
+        if (category == Waypoint.eWaypointCategoryType.Trigger)
+        {
+            bool shouldStop = arrived.WaypointType == Waypoint.eWaypointType.Trigger_Bread
+                ? UnityEngine.Random.value < mBreadStopChance
+                : true;
+
+            if (shouldStop)
             {
-                if (!TryMoveToNextGroup())
-                    ReturnToPool();
-                return;
-            }
-
-            if (category == Waypoint.eWaypointCategoryType.Trigger)
-            {
-                bool shouldStop = arrived.WaypointType == Waypoint.eWaypointType.Trigger_Bread
-                    ? UnityEngine.Random.value < mBreadStopChance
-                    : true;
-
-                if (shouldStop)
-                {
-                    TriggerPause(arrived);
-                    return;
-                }
-            }
-
-            if (category == Waypoint.eWaypointCategoryType.Wait)
-            {
-                if (arrived.WaypointType == Waypoint.eWaypointType.Wait_SpecialOrder && TryEnterSpecialOrderWait())
-                {
-                    TriggerPause(arrived);
-                    return;
-                }
+                TriggerPause(arrived);
+                return true;
             }
         }
 
-        MoveToNextWaypoint();
+        if (category == Waypoint.eWaypointCategoryType.Wait)
+        {
+            bool shouldStop = CanEnterWait(arrived);
+
+            if (shouldStop)
+            {
+                TriggerPause(arrived);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void ApplySpecialOrderParam()
+    {
+        if (GameInstance.Spawn == null) return;
+
+        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
+        if (lobbyCharUI == null) return;
+
+        lobbyCharUI.SetParam(new LobbyCharUI.Param
+        {
+            IsSpecialOrder = GameInstance.Spawn.DecideSpecialOrder(mCurrentGroup),
+        });
+    }
+
+    private bool CanEnterWait(Waypoint waypoint)
+    {
+        switch (waypoint.WaypointType)
+        {
+            case Waypoint.eWaypointType.Wait_SpecialOrder:
+                return TryEnterSpecialOrderWait();
+            default:
+                return false;
+        }
     }
 
     private bool TryEnterSpecialOrderWait()
     {
-        if (mCurrentGroup == null)
-        {
-            Logger.Warning("[CharNpc]", $"{name} TryEnterSpecialOrderWait: mCurrentGroup is null");
+        if (mCurrentGroup == null || !mCurrentGroup.IsSpecialOrderZone)
             return false;
-        }
-
-        if (!mCurrentGroup.IsSpecialOrderZone)
-        {
-            Logger.Log("[CharNpc]", $"{name} TryEnterSpecialOrderWait: {mCurrentGroup.name} is not a special order zone");
-            return false;
-        }
 
         var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
-        if (lobbyCharUI == null)
-        {
-            Logger.Warning("[CharNpc]", $"{name} TryEnterSpecialOrderWait: no LobbyCharUI found");
-            return false;
-        }
-
-        if (!lobbyCharUI.IsSpecialOrderActive)
-        {
-            Logger.Log("[CharNpc]", $"{name} TryEnterSpecialOrderWait: IsSpecialOrderActive is false");
-            return false;
-        }
-
-        bool entered = mCurrentGroup.TryEnterSpecialOrderSlot();
-        Logger.Log("[CharNpc]", $"{name} TryEnterSpecialOrderWait: slot {(entered ? "acquired" : "full")}");
-        return entered;
+        return lobbyCharUI != null && lobbyCharUI.IsSpecialOrderActive;
     }
 
     private bool TryMoveToNextGroup()
@@ -221,6 +218,8 @@ public class CharNpc : CharBase
 
     private void TriggerPause(Waypoint triggerWaypoint)
     {
+        Logger.Log($"[CharNpc] TriggerPause: {triggerWaypoint.name} ({triggerWaypoint.WaypointType})");
+
         mIsMoving = false;
         mPausedWaypoint = triggerWaypoint;
 
@@ -251,9 +250,6 @@ public class CharNpc : CharBase
         mPauseDisposable?.Dispose();
         mPauseDisposable = null;
 
-        if (mPausedWaypoint != null && mPausedWaypoint.WaypointType == Waypoint.eWaypointType.Wait_SpecialOrder)
-            mCurrentGroup?.ExitSpecialOrderSlot();
-
         mPausedWaypoint = null;
         mIsMoving = true;
         MoveToNextWaypoint();
@@ -264,8 +260,11 @@ public class CharNpc : CharBase
 
     public void ResumeFromSpecialOrderWait()
     {
-        if (IsWaitingSpecialOrder)
-            ResumeFromPause();
+        if (!IsWaitingSpecialOrder)
+            return;
+
+        GetComponentInChildren<LobbyCharUI>()?.SetSpecialOrderActive(false);
+        ResumeFromPause();
     }
 
     private void TryReceiveBreadGold()

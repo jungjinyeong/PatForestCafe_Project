@@ -14,27 +14,10 @@ public class WaypointGroup : MonoBehaviour
     [Header("Option")]
     [SerializeField] private bool mIsSpecialOrderZone = false;
 
-    private int mSpecialOrderOccupantCount = 0;
-
     public int Order => mOrder;
     public Waypoint[] Waypoints => mWaypoints;
 
     public bool IsSpecialOrderZone => mIsSpecialOrderZone;
-
-    public bool TryEnterSpecialOrderSlot()
-    {
-        int maxSpecialOrderNpc = GameInstance.Config.GetValue(eConfigType.MaxSpecialOrderNpc);
-        if (mSpecialOrderOccupantCount >= maxSpecialOrderNpc)
-            return false;
-
-        mSpecialOrderOccupantCount++;
-        return true;
-    }
-
-    public void ExitSpecialOrderSlot()
-    {
-        mSpecialOrderOccupantCount = Mathf.Max(0, mSpecialOrderOccupantCount - 1);
-    }
 
     public Waypoint GetSpawnPoint()
     {

@@ -111,20 +111,49 @@ public class SpawnManager : MonoBehaviour
         if (!mSpawnedNPCs.Contains(npc))
             mSpawnedNPCs.Add(npc);
 
-        AttachLobbyCharUIRandom(npcObj, new LobbyCharUI.Param()
-        {
-            IsSpecialOrder = group.IsSpecialOrderZone && UnityEngine.Random.value < 0.5f,
-        });
+        AttachLobbyCharUI(npcObj);
     }
 
-    private void AttachLobbyCharUIRandom(GameObject npcObj, LobbyCharUI.Param param)
+    public bool DecideSpecialOrder(WaypointGroup group)
+    {
+        return CanAssignSpecialOrder(group) && UnityEngine.Random.value < 0.5f;
+    }
+
+    private bool CanAssignSpecialOrder(WaypointGroup group)
+    {
+        if (!HasSpecialOrderZone(group))
+            return false;
+
+        int maxSpecialOrderNpc = GameInstance.Config.GetValue(eConfigType.MaxSpecialOrderNpc);
+        int currentSpecialOrderCount = 0;
+
+        foreach (var npc in mSpawnedNPCs)
+        {
+            if (npc == null) continue;
+
+            var lobbyCharUI = npc.GetComponentInChildren<LobbyCharUI>();
+            if (lobbyCharUI != null && lobbyCharUI.IsSpecialOrderActive)
+                currentSpecialOrderCount++;
+        }
+
+        return currentSpecialOrderCount < maxSpecialOrderNpc;
+    }
+
+    private bool HasSpecialOrderZone(WaypointGroup group)
+    {
+        if(group != null)
+        {
+            return group.IsSpecialOrderZone;
+        }
+
+        return false;
+    }
+
+    private void AttachLobbyCharUI(GameObject npcObj)
     {
         if (mLobbyCharUIPrefab == null) return;
         if (npcObj.GetComponentInChildren<LobbyCharUI>() != null)
-        {
-            npcObj.GetComponentInChildren<LobbyCharUI>().SetParam(param);
             return;
-        }
 
         var ui = Instantiate(mLobbyCharUIPrefab, npcObj.transform);
         ui.transform.localPosition = new Vector3(0f, 0f, 0f);
@@ -133,9 +162,7 @@ public class SpawnManager : MonoBehaviour
         if (ui.GetComponent<LobbyCharUI>() == null)
             ui.AddComponent<LobbyCharUI>();
 
-        var lobbyUI = ui.GetComponent<LobbyCharUI>();
-        lobbyUI.Init();
-        lobbyUI.SetParam(param);
+        ui.GetComponent<LobbyCharUI>().Init();
     }
 
     public void ReturnToPool(CharNpc npc)
@@ -189,6 +216,7 @@ public class SpawnManager : MonoBehaviour
         foreach (var npc in mSpawnedNPCs)
         {
             if (npc == self || npc == null || !npc.gameObject.activeInHierarchy) continue;
+            if (npc.IsWaitingSpecialOrder) continue;
 
             Vector3 toNpc = npc.transform.position - self.transform.position;
             float dist = toNpc.magnitude;

@@ -24,9 +24,8 @@ public class InputManager : MonoBehaviour, IManager
         {
             //TODO: 이 부분은 나중에 NPC와 상호작용하는 로직으로 변경 필요
             var npc = boxCollider2D.GetComponentInParent<CharNpc>();
-            var lobbyCharUI = npc != null ? npc.GetComponentInChildren<LobbyCharUI>() : null;
 
-            if (lobbyCharUI != null && lobbyCharUI.IsSpecialOrderActive)
+            if (npc != null && npc.IsWaitingSpecialOrder)
             {
                 GameInstance.UI.Open<UIPopupOrderDetail, UIPopupOrderDetail.Param>(eUIType.PopupOrderDetail,
                     new UIPopupOrderDetail.Param() { npc = boxCollider2D });
