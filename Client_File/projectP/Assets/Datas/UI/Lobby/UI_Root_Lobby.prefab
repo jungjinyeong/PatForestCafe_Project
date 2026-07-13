@@ -1498,6 +1498,7 @@ MonoBehaviour:
   mWaypointGroups:
   - {fileID: 4084758993120391146}
   - {fileID: 8568334348658748671}
+  mDayNightBg: {fileID: 0}
 --- !u!1 &8003261035309873617
 GameObject:
   m_ObjectHideFlags: 0

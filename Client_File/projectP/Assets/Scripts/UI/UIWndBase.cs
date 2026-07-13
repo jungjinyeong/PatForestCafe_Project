@@ -5,11 +5,14 @@ using UnityEngine;
 
 using UniRx;
 using Extension;
+using Sirenix.OdinInspector;
 
 public abstract class UIWndBase : UIBase
 {
-    [SerializeField] private UIButtonEx mBtnClose;
-    [SerializeField] private UIButtonEx mBtnBgClose;
+    [SerializeField, ShowIf(nameof(IsPopup))] private UIButtonEx mBtnClose;
+    [SerializeField, ShowIf(nameof(IsPopup))] private UIButtonEx mBtnBgClose;
+
+    private bool IsPopup => UIManager.GetLayerType(GetUIType()) == eUILayerType.Popup;
 
     protected UIManager UIMgr => GameInstance.UI;
 

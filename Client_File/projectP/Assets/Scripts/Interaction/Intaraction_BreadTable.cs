@@ -19,7 +19,7 @@ public class Intaraction_BreadTable : MonoBehaviour
 
     private readonly Queue<Intaraction_Bread> mActiveBreadQueue = new Queue<Intaraction_Bread>();
 
-    private void Start()
+    public void Init()
     {
         if (mBreadPrefab != null)
             GameInstance.Pool?.RegisterPool(Intaraction_Bread.PoolName, mBreadPrefab);

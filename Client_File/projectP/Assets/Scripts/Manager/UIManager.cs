@@ -223,7 +223,7 @@ public class UIManager : MonoBehaviour
             return aways;
         }
 
-        if (mCurUI != null)
+        if (layerType == eUILayerType.Menu && mCurUI != null)
         {
             mCurUI.Close();
         }
@@ -268,7 +268,8 @@ public class UIManager : MonoBehaviour
         mUIWndStack.Add(ui);
         ui.Open();
 
-        mCurUI = ui;
+        if (layerType == eUILayerType.Menu)
+            mCurUI = ui;
 
         return ui as T;
     }

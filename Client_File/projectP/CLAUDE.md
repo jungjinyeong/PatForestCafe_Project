@@ -161,6 +161,31 @@ void OnDestroy() => mDisposables.Dispose();
 
 ---
 
+## GameInstance 의존 초기화 규칙
+
+`GameInstance.Model`, `GameInstance.Table`, `GameInstance.Config`, `GameInstance.DayNight` 등 `GameInstance.Init()`이 끝나야 유효해지는 매니저/모델은 **`Awake()`나 `Start()`에서 직접 호출하지 않습니다.**
+
+- Unity는 서로 다른 GameObject 간의 `Awake`/`Start` 실행 순서를 보장하지 않으므로, `GameInstance.Init()`이 아직 끝나지 않은 시점에 접근하면 null 참조가 발생할 수 있습니다.
+- 대신 `public void Init()` 메서드를 만들어 해당 로직을 옮기고, `GameInstance.Init()` 체인(또는 그 이후에 실행되는 GameMode/UI 초기화 단계)에서 명시적으로 호출합니다.
+- 예: `UITopbarInfo.Init()` → `UIHudController.Init()` → 로비 스텝(`GameModeLobby+FSM.OnEnterOpenLobbyUI`)에서 호출. `Intaraction_BreadTable.Init()`, `UIDayNightBg.Init()`도 각각 `GameModeLobby+FSM.OnEnterInit()`, `UIRootLobby.Init()`에서 호출.
+
+```csharp
+// 금지
+private void Start()
+{
+    GameInstance.Model.Item.Add(1001, 1); // GameInstance.Init() 완료 여부 불확실
+}
+
+// 권장
+public void Init()
+{
+    GameInstance.Model.Item.Add(1001, 1);
+}
+// -> GameInstance.Init() 완료가 보장되는 지점(GameMode 상태 진입, 상위 Init 체인 등)에서 호출
+```
+
+---
+
 ## 주의사항
 
 - `Find()`, `GetComponent()`는 Awake/Start에서만 호출, Update에서 사용 금지

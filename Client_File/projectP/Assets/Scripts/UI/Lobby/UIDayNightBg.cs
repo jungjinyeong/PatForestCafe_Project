@@ -7,7 +7,7 @@ public class UIDayNightBg : UIBase
     [Header("Night Overlay")]
     [SerializeField] private Image mNightOverlay;
 
-    private void Start()
+    public void Init()
     {
         GameInstance.DayNight.NightAlpha
             .Subscribe(SetNightAlpha)
