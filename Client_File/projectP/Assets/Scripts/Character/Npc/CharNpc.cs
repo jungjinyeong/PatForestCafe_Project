@@ -160,14 +160,34 @@ public class CharNpc : CharBase
 
     private bool TryEnterSpecialOrderWait()
     {
-        if (mCurrentGroup == null || !mCurrentGroup.IsSpecialOrderZone)
+        if (mCurrentGroup == null)
+        {
+            Logger.Warning("[CharNpc]", $"{name} TryEnterSpecialOrderWait: mCurrentGroup is null");
             return false;
+        }
+
+        if (!mCurrentGroup.IsSpecialOrderZone)
+        {
+            Logger.Log("[CharNpc]", $"{name} TryEnterSpecialOrderWait: {mCurrentGroup.name} is not a special order zone");
+            return false;
+        }
 
         var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
-        if (lobbyCharUI == null || !lobbyCharUI.IsSpecialOrderActive)
+        if (lobbyCharUI == null)
+        {
+            Logger.Warning("[CharNpc]", $"{name} TryEnterSpecialOrderWait: no LobbyCharUI found");
             return false;
+        }
 
-        return mCurrentGroup.TryEnterSpecialOrderSlot();
+        if (!lobbyCharUI.IsSpecialOrderActive)
+        {
+            Logger.Log("[CharNpc]", $"{name} TryEnterSpecialOrderWait: IsSpecialOrderActive is false");
+            return false;
+        }
+
+        bool entered = mCurrentGroup.TryEnterSpecialOrderSlot();
+        Logger.Log("[CharNpc]", $"{name} TryEnterSpecialOrderWait: slot {(entered ? "acquired" : "full")}");
+        return entered;
     }
 
     private bool TryMoveToNextGroup()

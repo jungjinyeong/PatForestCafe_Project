@@ -17,7 +17,8 @@ public class LobbyCharUI : MonoBehaviour
     [SerializeField] private Transform mRootBreadTr;
     public Transform RootBreadTr => mRootBreadTr;
 
-    public bool IsSpecialOrderActive => mSpecialOrderObj != null && mSpecialOrderObj.activeSelf;
+    private bool mIsSpecialOrderActive = false;
+    public bool IsSpecialOrderActive => mIsSpecialOrderActive;
 
     private readonly List<Intaraction_Bread> mBreads = new List<Intaraction_Bread>();
     public IReadOnlyList<Intaraction_Bread> Breads => mBreads;
@@ -45,6 +46,8 @@ public class LobbyCharUI : MonoBehaviour
     {
         if (mSpecialOrderObj != null)
             mSpecialOrderObj.SetActive(isActive);
+
+        mIsSpecialOrderActive = isActive;
     }
 
     public bool CanAttachBread()
