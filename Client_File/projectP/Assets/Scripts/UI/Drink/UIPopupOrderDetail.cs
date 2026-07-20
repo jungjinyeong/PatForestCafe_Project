@@ -62,14 +62,14 @@ public class UIPopupOrderDetail : UIWndBase, IUIParam<UIPopupOrderDetail.Param>
 
     private void OnClickOpenSpecialDrink()
     {
-        UIMgr.Open<UIPopupSpecialDrinkProduction, UIPopupSpecialDrinkProduction.Param>(eUIType.UIPopupSpecialDrinkProduction, 
-            new UIPopupSpecialDrinkProduction.Param());
+        UIMgr.Open<UIPopupSpecialDrinkProduction, UIPopupSpecialDrinkProduction.Param>(eUIType.UIPopupSpecialDrinkProduction,
+            new UIPopupSpecialDrinkProduction.Param { npc = mNpcCollider });
     }
 
     private void OnClickConfirm()
     {
-        var npc = mNpcCollider != null ? mNpcCollider.GetComponentInParent<CharNpc>() : null;
-        npc?.ResumeFromSpecialOrderWait();
+        var waiter = mNpcCollider != null ? mNpcCollider.GetComponentInParent<ISpecialOrderWaiter>() : null;
+        waiter?.ResumeFromSpecialOrderWait();
 
         SelfClose();
     }

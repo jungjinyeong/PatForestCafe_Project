@@ -50,7 +50,29 @@ public partial class ItemModel : IModelBase
         return mDicWealths.TryGetValue(moneyType, out var wealth) ? wealth : null;
     }
 
+    public IEnumerable<WealthData> GetAllWealth() => mDicWealths.Values;
+
     #endregion
+
+    public void SetByTid(int tid, int amount)
+    {
+        if (mDicItems.TryGetValue(tid, out var item))
+        {
+            item.Set(amount);
+            return;
+        }
+
+        foreach (var wealth in mDicWealths.Values)
+        {
+            if (wealth.Tid == tid)
+            {
+                wealth.Set(amount);
+                return;
+            }
+        }
+
+        Logger.Warning($"[ItemModel] 저장 데이터 복원 실패, 존재하지 않는 Tid: {tid}");
+    }
 
     public ItemData Get(int tid)
     {

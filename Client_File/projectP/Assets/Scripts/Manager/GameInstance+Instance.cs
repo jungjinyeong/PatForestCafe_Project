@@ -74,6 +74,12 @@ public partial class GameInstance
     }
     private static CommonModelManager mCommonModelMgr;
 
+    public static SaveManager Save
+    {
+        get { return mSaveMgr; }
+    }
+    private static SaveManager mSaveMgr;
+
     public static DayNightManager DayNight
     {
         get { return mDayNightMgr; }

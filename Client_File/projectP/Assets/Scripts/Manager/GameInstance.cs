@@ -53,6 +53,9 @@ public partial class GameInstance : MonoBehaviour
         mCommonModelMgr = this.GetOrAddComponent<CommonModelManager>();
         mCommonModelMgr.Init();
 
+        mSaveMgr = this.GetOrAddComponent<SaveManager>();
+        mSaveMgr.Init();
+
         mTimeMgr = this.GetOrAddComponent<TimeManager>();
         mTimeMgr.Init();
 
@@ -68,6 +71,7 @@ public partial class GameInstance : MonoBehaviour
     {
         mSoundMgr?.Clear();
         mCommonModelMgr?.Clear();
+        mSaveMgr?.StopAutoSave();
         UI?.Clear();
     }
 

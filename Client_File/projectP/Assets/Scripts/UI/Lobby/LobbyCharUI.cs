@@ -6,6 +6,7 @@ public class LobbyCharUI : MonoBehaviour
     public struct Param
     {
         public bool IsSpecialOrder;
+        public int DesiredDrinkTid;
     }
 
     private const int SortingOrder = 1002;
@@ -19,6 +20,9 @@ public class LobbyCharUI : MonoBehaviour
 
     private bool mIsSpecialOrderActive = false;
     public bool IsSpecialOrderActive => mIsSpecialOrderActive;
+
+    private int mDesiredDrinkTid = -1;
+    public int DesiredDrinkTid => mDesiredDrinkTid;
 
     private readonly List<Intaraction_Bread> mBreads = new List<Intaraction_Bread>();
     public IReadOnlyList<Intaraction_Bread> Breads => mBreads;
@@ -40,6 +44,7 @@ public class LobbyCharUI : MonoBehaviour
     public void SetParam(Param param)
     {
         SetSpecialOrderActive(param.IsSpecialOrder);
+        mDesiredDrinkTid = param.IsSpecialOrder ? param.DesiredDrinkTid : -1;
     }
 
     public void SetSpecialOrderActive(bool isActive)

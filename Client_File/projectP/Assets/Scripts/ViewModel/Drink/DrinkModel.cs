@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class DrinkModel : IModelBase
 {
@@ -27,6 +28,23 @@ public class DrinkModel : IModelBase
     public DrinkData Get(int tableId)
     {
         return mDicDrinks.TryGetValue(tableId, out var drink) ? drink : null;
+    }
+
+    public int GetRandomSpecialOrderTid()
+    {
+        var candidates = new List<int>();
+        foreach (var tid in mDicDrinks.Keys)
+        {
+            if (DefaultDrink != null && tid == DefaultDrink.TId)
+                continue;
+
+            candidates.Add(tid);
+        }
+
+        if (candidates.Count == 0)
+            return -1;
+
+        return candidates[UnityEngine.Random.Range(0, candidates.Count)];
     }
 
     public void Dispose()

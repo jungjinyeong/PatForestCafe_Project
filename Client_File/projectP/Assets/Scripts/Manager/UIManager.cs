@@ -12,6 +12,7 @@ public enum eUIType
     UIRootIntro = eUILayerType.Menu << 16,
     UIRootLobby,
     UIRootLogin,
+    UIRootMaterialIsland,
 
     UIPopupOption = eUILayerType.Popup << 16,
     UIPopupSpecialDrinkProduction,

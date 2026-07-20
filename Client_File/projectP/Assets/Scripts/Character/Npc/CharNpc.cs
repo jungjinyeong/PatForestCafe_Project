@@ -3,7 +3,7 @@ using UniRx;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
-public class CharNpc : CharBase
+public class CharNpc : CharBase, ISpecialOrderWaiter
 {
     [Header("Waypoints")]
     [SerializeField] private bool mIsInit = false;
@@ -161,9 +161,16 @@ public class CharNpc : CharBase
         var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
         if (lobbyCharUI == null) return;
 
+        bool isSpecialOrder = GameInstance.Spawn.DecideSpecialOrder(mCurrentGroup);
+        int desiredDrinkTid = isSpecialOrder ? GameInstance.Model.Drink.GetRandomSpecialOrderTid() : -1;
+
+        if (desiredDrinkTid < 0)
+            isSpecialOrder = false;
+
         lobbyCharUI.SetParam(new LobbyCharUI.Param
         {
-            IsSpecialOrder = GameInstance.Spawn.DecideSpecialOrder(mCurrentGroup),
+            IsSpecialOrder = isSpecialOrder,
+            DesiredDrinkTid = desiredDrinkTid,
         });
     }
 
