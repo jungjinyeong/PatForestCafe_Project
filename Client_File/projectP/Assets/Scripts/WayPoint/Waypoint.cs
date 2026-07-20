@@ -41,9 +41,13 @@ public class Waypoint : MonoBehaviour
     [Header("Trigger Option")]
     [SerializeField] private int mTableId;
 
+    [Header("Pathfinding")]
+    [SerializeField] private Waypoint[] mNeighbors;
+
     public eWaypointType WaypointType => mWaypointType;
     public float Scale => mScale;
     public int TableId => mTableId;
+    public Waypoint[] Neighbors => mNeighbors;
 
     public eWaypointCategoryType GetCategoryType()
     {
