@@ -4,7 +4,7 @@ using UniRx;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
-public class CharLobbyPathMover : CharBase, ISpecialOrderWaiter
+public class CharLobbyPathMover : CharBase, ISpecialOrderWaiter, IBreadPickup
 {
     [Header("Waypoints")]
     [SerializeField] private bool mIsInit = false;
@@ -46,6 +46,8 @@ public class CharLobbyPathMover : CharBase, ISpecialOrderWaiter
 
     public bool IsWaitingSpecialOrder =>
         mPausedWaypoint != null && mPausedWaypoint.WaypointType == Waypoint.eWaypointType.Wait_SpecialOrder;
+
+    public LobbyCharUI GetLobbyCharUI => GetComponentInChildren<LobbyCharUI>();
 
     private void Start()
     {

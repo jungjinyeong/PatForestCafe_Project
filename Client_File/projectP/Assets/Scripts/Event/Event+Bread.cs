@@ -3,12 +3,12 @@ namespace CEvent
     public class BreadPickup
     {
         public int tableId;
-        public CharNpc npc;
+        public IBreadPickup breadPickup;
 
-        public BreadPickup(int tableId, CharNpc npc)
+        public BreadPickup(int tableId, IBreadPickup breadPickup)
         {
             this.tableId = tableId;
-            this.npc = npc;
+            this.breadPickup = breadPickup;
         }
     }
 }

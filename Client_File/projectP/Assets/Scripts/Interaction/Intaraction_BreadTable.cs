@@ -31,7 +31,7 @@ public class Intaraction_BreadTable : MonoBehaviour
         MessageBroker.Default
             .Receive<CEvent.BreadPickup>()
             .Where(e => e.tableId == mTableId)
-            .Subscribe(e => HandleBreadPickupAsync(e.npc).Forget())
+            .Subscribe(e => HandleBreadPickupAsync(e.breadPickup).Forget())
             .AddTo(this);
     }
 
@@ -41,7 +41,7 @@ public class Intaraction_BreadTable : MonoBehaviour
         GameInstance.Model.Bread.Add(mTableId);
     }
 
-    private async UniTaskVoid HandleBreadPickupAsync(CharNpc npc)
+    private async UniTaskVoid HandleBreadPickupAsync(IBreadPickup breadPickup)
     {
         if (mActiveBreadQueue.Count == 0) return;
 
@@ -49,7 +49,9 @@ public class Intaraction_BreadTable : MonoBehaviour
 
         if (mActiveBreadQueue.Count == 0) return;
 
-        var lobbyUI = npc.GetComponentInChildren<LobbyCharUI>();
+        if(breadPickup == null) return;
+
+        var lobbyUI = breadPickup.GetLobbyCharUI;
         if (lobbyUI == null || !lobbyUI.CanAttachBread()) return;
 
         var bread = mActiveBreadQueue.Dequeue();

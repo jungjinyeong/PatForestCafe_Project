@@ -3,7 +3,7 @@ using UniRx;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
-public class CharNpc : CharBase, ISpecialOrderWaiter
+public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
 {
     [Header("Waypoints")]
     [SerializeField] private bool mIsInit = false;
@@ -33,6 +33,8 @@ public class CharNpc : CharBase, ISpecialOrderWaiter
     private WaypointGroup mCurrentGroup;
     private Waypoint mPausedWaypoint;
     private IDisposable mPauseDisposable;
+
+    public LobbyCharUI GetLobbyCharUI => GetComponentInChildren<LobbyCharUI>();
 
     private void Start()
     {
