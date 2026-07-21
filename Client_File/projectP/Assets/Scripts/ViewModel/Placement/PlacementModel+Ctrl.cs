@@ -47,5 +47,7 @@ public partial class PlacementModel
         mTarget = null;
         mArea = null;
         mIsPlacing.Value = false;
+
+        Physics2D.SyncTransforms();
     }
 }

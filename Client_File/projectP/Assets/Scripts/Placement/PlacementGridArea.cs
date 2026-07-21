@@ -1,23 +1,20 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlacementGridArea : MonoBehaviour
 {
-    [SerializeField] private Image mAreaImage;
+    [SerializeField] private SpriteRenderer mAreaSprite;
     [SerializeField] private float mCellSize = 1f;
 
     public bool TryGetSnappedPosition(Vector3 worldPos, out Vector3 snappedPos)
     {
         snappedPos = worldPos;
 
-        if (mAreaImage == null)
+        if (mAreaSprite == null)
             return false;
 
-        Vector3[] corners = new Vector3[4];
-        mAreaImage.rectTransform.GetWorldCorners(corners);
-
-        Vector3 min = corners[0];
-        Vector3 max = corners[2];
+        Bounds bounds = mAreaSprite.bounds;
+        Vector3 min = bounds.min;
+        Vector3 max = bounds.max;
 
         if (worldPos.x < min.x || worldPos.x > max.x || worldPos.y < min.y || worldPos.y > max.y)
             return false;

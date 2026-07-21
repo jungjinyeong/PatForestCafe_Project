@@ -18,7 +18,7 @@ public class SpawnManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject mLobbyCharUIPrefab;
 
-    private readonly List<CharNpc> mSpawnedNPCs = new();
+    private readonly List<CharLobbyPathMover> mSpawnedNPCs = new();
     private IDisposable mAutoSpawnDisposable;
 
     public void SetInfo(GameObject lobbyCharUIPrefab, GameObject[] npcPrefabs)
@@ -93,7 +93,7 @@ public class SpawnManager : MonoBehaviour
 
         npcObj.transform.localScale = new Vector3(3, 3, 1);
 
-        var npc = npcObj.GetComponent<CharNpc>();
+        var npc = npcObj.GetComponent<CharLobbyPathMover>();
         if (npc == null)
         {
             Logger.Error($"[SpawnManager] '{prefab.name}' has no CharNpc component.");
@@ -165,7 +165,7 @@ public class SpawnManager : MonoBehaviour
         ui.GetComponent<LobbyCharUI>().Init();
     }
 
-    public void ReturnToPool(CharNpc npc)
+    public void ReturnToPool(CharLobbyPathMover npc)
     {
         if (npc == null) return;
         mSpawnedNPCs.Remove(npc);

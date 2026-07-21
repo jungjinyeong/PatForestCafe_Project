@@ -222,7 +222,7 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
     private void ReturnToPool()
     {
         mIsMoving = false;
-        GameInstance.Spawn?.ReturnToPool(this);
+        //GameInstance.Spawn?.ReturnToPool(this);
     }
 
     private void TriggerPause(Waypoint triggerWaypoint)
