@@ -106,6 +106,7 @@ MonoBehaviour:
   - {fileID: 4941176436093392461}
   - {fileID: 4531229721419675402}
   mIsSpecialOrderZone: 0
+  mIsBreadFreeRoamZone: 1
 --- !u!1 &2769097538341724897
 GameObject:
   m_ObjectHideFlags: 0
@@ -216,6 +217,7 @@ MonoBehaviour:
   - {fileID: 2062484043490344032}
   - {fileID: 4333742526842092002}
   mIsSpecialOrderZone: 1
+  mIsBreadFreeRoamZone: 0
 --- !u!114 &1791101036701556690
 MonoBehaviour:
   m_ObjectHideFlags: 0

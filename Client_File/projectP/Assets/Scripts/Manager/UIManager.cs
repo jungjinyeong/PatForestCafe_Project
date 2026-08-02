@@ -17,6 +17,7 @@ public enum eUIType
     UIPopupOption = eUILayerType.Popup << 16,
     UIPopupSpecialDrinkProduction,
     PopupOrderDetail,
+    UIPopupBreadSelect,
 
     UIHudController = eUILayerType.AlwaysOnTop << 16,
     UILoading,

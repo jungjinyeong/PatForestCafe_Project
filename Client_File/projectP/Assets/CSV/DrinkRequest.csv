@@ -1,0 +1,5 @@
+Tid,DrinkTid,Weight
+int,int,int
+@아이디,@음료아이디,@가중치
+1,10001,1
+2,10002,1

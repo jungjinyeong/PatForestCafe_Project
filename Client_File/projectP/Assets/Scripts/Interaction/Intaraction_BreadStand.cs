@@ -5,7 +5,9 @@ using UniRx;
 using UnityEngine;
 using Extension;
 
-public class Intaraction_BreadTable : MonoBehaviour
+// 월드 탭으로 UIPopupBreadSelect를 여는 입력 경로(InputManager)를 지원하려면 BoxCollider2D가 필요하다.
+[RequireComponent(typeof(BoxCollider2D))]
+public class Intaraction_BreadStand : MonoBehaviour
 {
     [Header("ID")]
     [SerializeField] private int mTableId;
@@ -19,6 +21,8 @@ public class Intaraction_BreadTable : MonoBehaviour
 
     private readonly Queue<Intaraction_Bread> mActiveBreadQueue = new Queue<Intaraction_Bread>();
 
+    public int TableId => mTableId;
+
     public void Init()
     {
         if (mBreadPrefab != null)
@@ -26,7 +30,7 @@ public class Intaraction_BreadTable : MonoBehaviour
 
         GameInstance.Model.Bread.Register(mTableId);
 
-        mBtnAddBread.OnSubscribeOnClick(OnClickAddBread).AddTo(this);
+        mBtnAddBread.OnSubscribeOnClick(AddBread).AddTo(this);
 
         MessageBroker.Default
             .Receive<CEvent.BreadPickup>()
@@ -35,7 +39,8 @@ public class Intaraction_BreadTable : MonoBehaviour
             .AddTo(this);
     }
 
-    private void OnClickAddBread()
+    // mBtnAddBread(빠른 재고 채우기 버튼)와 UIPopupBreadSelect(월드 탭 → 빵 선택 팝업 확정) 양쪽에서 공용으로 쓴다.
+    public void AddBread()
     {
         SpawnBread();
         GameInstance.Model.Bread.Add(mTableId);

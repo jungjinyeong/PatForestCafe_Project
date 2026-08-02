@@ -24,15 +24,15 @@ public partial class GameModeLobby
             .Subscribe(OnWaypointGroupRegist)
             .AddTo(this);
 
-        InitBreadTables();
+        InitBreadStands();
 
         mStateMachine.ChangeState(eGameModeLobbyState.OpenLobbyUI);
     }
 
-    private void InitBreadTables()
+    private void InitBreadStands()
     {
-        foreach (var breadTable in FindObjectsByType<Intaraction_BreadTable>(FindObjectsSortMode.None))
-            breadTable.Init();
+        foreach (var breadStand in FindObjectsByType<Intaraction_BreadStand>(FindObjectsSortMode.None))
+            breadStand.Init();
     }
 
     private void OnEnterOpenLobbyUI()
