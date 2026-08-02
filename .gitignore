@@ -20,12 +20,11 @@ Client_File/projectPLibrary/LastSceneManagerSetup.txt/
 Client_File/projectP/Library/LibraryFormatVersion.txt/
 Client_File/projectP/UserSettings/
 
-# Packages 내부를 전체 무시
+!Client_File/projectP/Packages/
 Client_File/projectP/Packages/*
-
-# 단, 이 두 파일은 무시하지 않음 (!)
-!Packages/manifest.json
-!Packages/packages-lock.json
+!Client_File/projectP/Packages/manifest.json
+!Client_File/projectP/Packages/packages-lock.json
+Client_File/projectP/Packages/Microsoft.CodeAnalysis.Analyzers.5.3.0/*
 
 # Builds
 *.apk
