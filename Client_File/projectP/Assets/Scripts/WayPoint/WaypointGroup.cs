@@ -14,12 +14,14 @@ public class WaypointGroup : MonoBehaviour
     [Header("Option")]
     [SerializeField] private bool mIsSpecialOrderZone = false;
     [SerializeField] private bool mIsBreadFreeRoamZone = false;
+    [SerializeField] private bool mIsTerraceZone = false;
 
     public int Order => mOrder;
     public Waypoint[] Waypoints => mWaypoints;
 
     public bool IsSpecialOrderZone => mIsSpecialOrderZone;
     public bool IsBreadFreeRoamZone => mIsBreadFreeRoamZone;
+    public bool IsTerraceZone => mIsTerraceZone;
 
     public Waypoint GetSpawnPoint()
     {

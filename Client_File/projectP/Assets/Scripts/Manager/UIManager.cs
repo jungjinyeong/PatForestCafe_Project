@@ -18,6 +18,7 @@ public enum eUIType
     UIPopupSpecialDrinkProduction,
     PopupOrderDetail,
     UIPopupBreadSelect,
+    UIPopupOfflineIncome,
 
     UIHudController = eUILayerType.AlwaysOnTop << 16,
     UILoading,

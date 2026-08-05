@@ -205,3 +205,18 @@ public void Init()
 - Packages/manifest.json (패키지 의존성)
 
 위 파일 수정이 필요해 보이는 상황이면, 수정 대신 반드시 먼저 나에게 물어보세요.
+
+---
+
+## 게임 기획
+
+기획 문서는 `Docs/GameDesign/` 하위에 항목별로 분리되어 있습니다.
+
+- [장르 및 레퍼런스](Docs/GameDesign/GenreReference.md)
+- [개발 목표](Docs/GameDesign/DevGoals.md)
+- [게임 환경](Docs/GameDesign/GameEnvironment.md)
+- [게임 로비](Docs/GameDesign/Lobby.md)
+- [카운터](Docs/GameDesign/Counter.md)
+- [특별 음료 제작](Docs/GameDesign/SpecialDrinkProduction.md)
+- [가공섬](Docs/GameDesign/MaterialIsland.md)
+- [기획 구현 순서](Docs/GameDesign/ImplementationOrder.md) — 현재 프로젝트 코드 분석 기준 구현 우선순위

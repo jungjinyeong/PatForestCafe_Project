@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 public class LobbyCharUI : MonoBehaviour
@@ -13,6 +15,12 @@ public class LobbyCharUI : MonoBehaviour
 
     [Header("SpecialOrder")]
     [SerializeField] private GameObject mSpecialOrderObj;
+
+    [Header("Payment Effect")]
+    [SerializeField] private GameObject mCoinIconObj;
+    [SerializeField] private GameObject mSatisfactionIconObj;
+    [SerializeField] private float mCoinIconDuration = 0.6f;
+    [SerializeField] private float mSatisfactionIconDuration = 0.6f;
 
     [Header("Bread")]
     [SerializeField] private Transform mRootBreadTr;
@@ -55,6 +63,27 @@ public class LobbyCharUI : MonoBehaviour
         mIsSpecialOrderActive = isActive;
     }
 
+    public void PlayPaymentEffect(Action onComplete)
+    {
+        SetCoinIconActive(true);
+
+        Observable.Timer(TimeSpan.FromSeconds(mCoinIconDuration))
+            .Subscribe(_ =>
+            {
+                SetCoinIconActive(false);
+                SetSatisfactionIconActive(true);
+
+                Observable.Timer(TimeSpan.FromSeconds(mSatisfactionIconDuration))
+                    .Subscribe(__ =>
+                    {
+                        SetSatisfactionIconActive(false);
+                        onComplete?.Invoke();
+                    })
+                    .AddTo(this);
+            })
+            .AddTo(this);
+    }
+
     public bool CanAttachBread()
     {
         return mBreads.Count < GameInstance.Config.GetValue(eConfigType.BreadMaxCount);
@@ -83,6 +112,18 @@ public class LobbyCharUI : MonoBehaviour
         var breads = new List<Intaraction_Bread>(mBreads);
         mBreads.Clear();
         return breads;
+    }
+
+    private void SetCoinIconActive(bool isActive)
+    {
+        if (mCoinIconObj != null)
+            mCoinIconObj.SetActive(isActive);
+    }
+
+    private void SetSatisfactionIconActive(bool isActive)
+    {
+        if (mSatisfactionIconObj != null)
+            mSatisfactionIconObj.SetActive(isActive);
     }
 
     private void LateUpdate()

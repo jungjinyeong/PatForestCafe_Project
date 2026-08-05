@@ -12,4 +12,5 @@ public class ItemSaveEntry
 public class SaveData
 {
     public List<ItemSaveEntry> Items = new List<ItemSaveEntry>();
+    public long LastSaveUnixSeconds;
 }

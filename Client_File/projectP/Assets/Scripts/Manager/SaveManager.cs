@@ -8,9 +8,19 @@ public class SaveManager : MonoBehaviour
     private const string SaveFileName = "save.json";
     private const float AutoSaveIntervalSeconds = 30f;
 
+    [Header("Offline Income")]
+    [Tooltip("카운터 캐릭터 능력치 시스템이 도입되기 전까지 사용하는 임시 고정 초당 코인 수익")]
+    [SerializeField] private float mOfflineCoinPerSecond = 1f;
+    [Tooltip("오프라인 수익으로 인정하는 최대 경과 시간(초). 기본 8시간")]
+    [SerializeField] private float mOfflineMaxSeconds = 8 * 60 * 60;
+
     private string SavePath => Path.Combine(Application.persistentDataPath, SaveFileName);
 
     private IDisposable mAutoSaveDisposable;
+
+    private bool mHasPendingOfflineIncome;
+    private int mPendingOfflineGold;
+    private double mPendingOfflineSeconds;
 
     public void Init()
     {
@@ -53,6 +63,8 @@ public class SaveManager : MonoBehaviour
         foreach (var wealth in GameInstance.Model.Item.GetAllWealth())
             data.Items.Add(new ItemSaveEntry { Tid = wealth.Tid, Count = wealth.Count.Value });
 
+        data.LastSaveUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
         File.WriteAllText(SavePath, JsonUtility.ToJson(data));
         Logger.Log($"[SaveManager] 저장 완료: {SavePath}");
     }
@@ -71,6 +83,45 @@ public class SaveManager : MonoBehaviour
         foreach (var entry in data.Items)
             GameInstance.Model.Item.SetByTid(entry.Tid, entry.Count);
 
+        ApplyOfflineIncome(data.LastSaveUnixSeconds);
+
         Logger.Log($"[SaveManager] 불러오기 완료: {SavePath}");
+    }
+
+    /// <summary>
+    /// 대기 중인 오프라인 수익을 1회 소비한다. GameModeLobby의 로비 UI 초기화 단계에서 호출한다.
+    /// </summary>
+    public bool TryConsumePendingOfflineIncome(out int gold, out double offlineSeconds)
+    {
+        gold = mPendingOfflineGold;
+        offlineSeconds = mPendingOfflineSeconds;
+
+        if (!mHasPendingOfflineIncome)
+            return false;
+
+        mHasPendingOfflineIncome = false;
+        mPendingOfflineGold = 0;
+        mPendingOfflineSeconds = 0;
+        return true;
+    }
+
+    private void ApplyOfflineIncome(long lastSaveUnixSeconds)
+    {
+        if (lastSaveUnixSeconds <= 0) return;
+
+        long nowUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        double elapsedSeconds = nowUnixSeconds - lastSaveUnixSeconds;
+        double offlineSeconds = Math.Clamp(elapsedSeconds, 0d, (double)mOfflineMaxSeconds);
+
+        int gold = (int)(offlineSeconds * mOfflineCoinPerSecond);
+        if (gold <= 0) return;
+
+        GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
+
+        mHasPendingOfflineIncome = true;
+        mPendingOfflineGold = gold;
+        mPendingOfflineSeconds = offlineSeconds;
+
+        Logger.Log($"[SaveManager] 오프라인 수익 정산: {gold} Gold ({offlineSeconds:F0}초)");
     }
 }

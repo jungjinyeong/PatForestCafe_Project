@@ -40,6 +40,17 @@ public partial class GameModeLobby
         GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.UIRootLobby, new UIRootLobby.Param());
 
         GameInstance.UI.HudController.Init();
+
+        ShowPendingOfflineIncomeIfAny();
+    }
+
+    private void ShowPendingOfflineIncomeIfAny()
+    {
+        if (!GameInstance.Save.TryConsumePendingOfflineIncome(out int gold, out double offlineSeconds))
+            return;
+
+        GameInstance.UI.Open<UIPopupOfflineIncome, UIPopupOfflineIncome.Param>(eUIType.UIPopupOfflineIncome,
+            new UIPopupOfflineIncome.Param { Gold = gold, OfflineSeconds = offlineSeconds });
     }
 
     private void OnEnterWaitWaypointGroup()

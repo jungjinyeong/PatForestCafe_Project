@@ -319,8 +319,8 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
             MessageBroker.Default.Publish(new CEvent.BreadPickup(triggerWaypoint.TableId, this));
         else if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Trigger_Order)
         {
-            TryReceiveBreadGold();
-            ReceiveDefaultDrinkGold();
+            ProcessOrderPayment(triggerWaypoint);
+            return;
         }
 
         // Wait_SpecialOrder는 자동으로 재개되지 않고, 컨펌 버튼(ResumeFromSpecialOrderWait)으로만 재개된다.
@@ -330,6 +330,32 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
         mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(1.5f))
             .Subscribe(_ => ResumeFromPause())
             .AddTo(this);
+    }
+
+    private void ProcessOrderPayment(Waypoint triggerWaypoint)
+    {
+        TryReceiveBreadGold();
+
+        // 특별 주문 손님 구역(IsSpecialOrderZone)의 손님은 특별 음료 제작 시 이미 결제가 끝났으므로
+        // 카운터에서는 기본 음료 금액을 다시 청구하지 않는다.
+        if (!IsSpecialOrderCounterZone(triggerWaypoint))
+            ReceiveDefaultDrinkGold();
+
+        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
+        if (lobbyCharUI == null)
+        {
+            ResumeFromPause();
+            return;
+        }
+
+        lobbyCharUI.PlayPaymentEffect(ResumeFromPause);
+    }
+
+    private bool IsSpecialOrderCounterZone(Waypoint waypoint)
+    {
+        return waypoint.WaypointType == Waypoint.eWaypointType.Trigger_Order
+            && mCurrentGroup != null
+            && mCurrentGroup.IsSpecialOrderZone;
     }
 
     private void ResumeFromPause()
