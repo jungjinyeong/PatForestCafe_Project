@@ -195,7 +195,7 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
         if (category == Waypoint.eWaypointCategoryType.Exit)
         {
             if (!TryMoveToNextGroup())
-                mIsMoving = false;
+                DespawnToPool();
             return true;
         }
 
@@ -287,6 +287,20 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
 
         Init(nextGroup, waypoints);
         return true;
+    }
+
+    private void DespawnToPool()
+    {
+        mIsMoving = false;
+
+        mPauseDisposable?.Dispose();
+        mPauseDisposable = null;
+        mPausedWaypoint = null;
+
+        if (GameInstance.Spawn != null)
+            GameInstance.Spawn.ReturnToPool(this);
+        else
+            gameObject.SetActive(false);
     }
 
     private void TriggerPause(Waypoint triggerWaypoint)

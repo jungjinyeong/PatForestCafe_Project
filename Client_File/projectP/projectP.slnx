@@ -1,0 +1,9 @@
+﻿<Solution>
+  <Project Path="UniRx.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="UniRx.Examples.csproj" />
+  <Project Path="Assembly-CSharp-firstpass.csproj" />
+  <Project Path="Sirenix.OdinInspector.Modules.Unity.Addressables.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="Sirenix.OdinInspector.Modules.UnityMathematics.csproj" />
+</Solution>
