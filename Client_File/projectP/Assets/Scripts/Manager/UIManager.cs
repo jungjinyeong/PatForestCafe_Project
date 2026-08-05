@@ -19,6 +19,10 @@ public enum eUIType
     PopupOrderDetail,
     UIPopupBreadSelect,
     UIPopupOfflineIncome,
+    UIPopupRecipeBook,
+    UIPopupUpgrade,
+    UIPopupBreadMinigame,
+    UIPopupBreadProduction,
 
     UIHudController = eUILayerType.AlwaysOnTop << 16,
     UILoading,

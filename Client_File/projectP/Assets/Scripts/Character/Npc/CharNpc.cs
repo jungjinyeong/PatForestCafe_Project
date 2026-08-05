@@ -377,7 +377,10 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
         {
             var breadData = GameInstance.Model.Bread.Get(bread.TableId);
             if (breadData?.MenuItemRow != null)
-                GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add((int)breadData.MenuItemRow.Price);
+            {
+                int gold = GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier((int)breadData.MenuItemRow.Price);
+                GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
+            }
 
             bread.Despawn();
         }
@@ -388,7 +391,8 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
         var drinkData = GameInstance.Model.Drink.DefaultDrink;
         if (drinkData?.MenuItemRow == null) return;
 
-        GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add((int)drinkData.MenuItemRow.Price);
+        int gold = GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier((int)drinkData.MenuItemRow.Price);
+        GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
     }
 
     private void AdvanceToNextWaypoint()

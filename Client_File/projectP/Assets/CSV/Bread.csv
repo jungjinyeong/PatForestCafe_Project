@@ -1,4 +1,4 @@
-﻿Tid,@BreadName
-int,@string
-@아이디,@브레드명
-20001,@소금빵
+﻿Tid,@BreadName,BreadMaterial1,BreadMaterial2,BreadMaterial3,BreadMaterial4,BreadMaterial5
+int,@string,int,int,int,int,int
+@아이디,@브레드명,@빵재료1,@빵재료2,@빵재료3,@빵재료4,@빵재료5
+20001,@소금빵,200001,200002,200003,0,0

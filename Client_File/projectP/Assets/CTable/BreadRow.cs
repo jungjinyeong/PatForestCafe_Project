@@ -8,5 +8,10 @@ namespace CTable
     {
         public override int key => Tid;
         public int Tid;
+        public int BreadMaterial1;
+        public int BreadMaterial2;
+        public int BreadMaterial3;
+        public int BreadMaterial4;
+        public int BreadMaterial5;
     }
 }

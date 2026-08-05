@@ -12,5 +12,8 @@ public class ItemSaveEntry
 public class SaveData
 {
     public List<ItemSaveEntry> Items = new List<ItemSaveEntry>();
+    public List<ItemSaveEntry> Materials = new List<ItemSaveEntry>();
+    public List<int> DiscoveredRecipeTids = new List<int>();
+    public int GoldIncomeUpgradeLevel;
     public long LastSaveUnixSeconds;
 }

@@ -7,6 +7,9 @@ public class CommonModelManager : MonoBehaviour, IManager
     public ItemModel Item { get; private set; }
     public DrinkModel Drink { get; private set; }
     public PlacementModel Placement { get; private set; }
+    public RecipeBookModel RecipeBook { get; private set; }
+    public UpgradeModel Upgrade { get; private set; }
+    public MaterialModel Material { get; private set; }
 
     private readonly List<IModelBase> mModels = new List<IModelBase>();
 
@@ -16,6 +19,9 @@ public class CommonModelManager : MonoBehaviour, IManager
         Item  = Register(new ItemModel());
         Drink = Register(new DrinkModel());
         Placement = Register(new PlacementModel());
+        RecipeBook = Register(new RecipeBookModel());
+        Upgrade = Register(new UpgradeModel());
+        Material = Register(new MaterialModel());
     }
 
     public void Subscribe() { }
@@ -29,6 +35,9 @@ public class CommonModelManager : MonoBehaviour, IManager
         Item  = null;
         Drink = null;
         Placement = null;
+        RecipeBook = null;
+        Upgrade = null;
+        Material = null;
     }
 
     public void Destory()

@@ -39,9 +39,16 @@ public class Intaraction_BreadStand : MonoBehaviour
             .AddTo(this);
     }
 
-    // mBtnAddBread(빠른 재고 채우기 버튼)와 UIPopupBreadSelect(월드 탭 → 빵 선택 팝업 확정) 양쪽에서 공용으로 쓴다.
+    // mBtnAddBread(진열 버튼)와 UIPopupBreadSelect(월드 탭 → 빵 선택 팝업 확정) 양쪽에서 공용으로 쓴다.
+    // 빵 공장(UIPopupBreadProduction)에서 만든 생산 재고를 소비해야만 실제로 진열된다 — 재고가 없으면 아무 일도 일어나지 않는다.
     public void AddBread()
     {
+        if (!GameInstance.Model.Bread.TryConsumeProduced(mTableId))
+        {
+            Logger.Log($"[Intaraction_BreadStand] 생산된 빵 재고가 없습니다. Tid={mTableId}");
+            return;
+        }
+
         SpawnBread();
         GameInstance.Model.Bread.Add(mTableId);
     }

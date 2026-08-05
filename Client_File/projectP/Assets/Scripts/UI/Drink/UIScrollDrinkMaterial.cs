@@ -9,6 +9,7 @@ public class UIScrollDrinkMaterialData
 {
     public int Tid;
     public string Name;
+    public int OwnedCount;
 }
 
 public class UIScrollDrinkMaterial : UIScrollRow<UIScrollDrinkMaterialData>
@@ -28,6 +29,6 @@ public class UIScrollDrinkMaterial : UIScrollRow<UIScrollDrinkMaterialData>
         CurrentData = data;
         if (data == null) return;
 
-        mName.SetTextEx(data.Name);
+        mName.SetTextEx($"{data.Name} ({data.OwnedCount})");
     }
 }

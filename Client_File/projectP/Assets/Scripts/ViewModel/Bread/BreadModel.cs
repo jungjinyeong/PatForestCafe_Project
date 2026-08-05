@@ -44,6 +44,17 @@ public class BreadModel : IModelBase
             bread.Consume(count);
     }
 
+    public void AddProduced(int tableId, int count = 1)
+    {
+        if (mDicBreads.TryGetValue(tableId, out var bread))
+            bread.AddProduced(count);
+    }
+
+    public bool TryConsumeProduced(int tableId, int count = 1)
+    {
+        return mDicBreads.TryGetValue(tableId, out var bread) && bread.TryConsumeProduced(count);
+    }
+
     public void Dispose()
     {
         foreach (var bread in mDicBreads.Values)

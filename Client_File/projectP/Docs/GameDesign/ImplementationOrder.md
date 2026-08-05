@@ -16,11 +16,11 @@
 | 그리드 배치 시스템 | 구현됨 | `PlacementGridArea`, `PlaceableObject`, `PlacementModel(+Ctrl)` |
 | Day/Night 사이클 | 구현됨 | `DayNightManager`, `UIDayNightBg`, `TimeManager` |
 | 재화/저장 시스템 | 구현됨 | `ItemModel`, `SaveManager`, `SaveData` |
-| 가공섬 | 진입점만 존재, 콘텐츠 없음 | `UIRootMaterialIsland` (빈 껍데기) |
+| 가공섬 | 기본 수급(클릭 채집) + 빵 재료 미니게임(자리표시자) + 빵 공장(재료 조합) 코드+러프 프리팹 완료, 상점/재배형 공방 미구현 | `MaterialModel`, `UIRootMaterialIsland`, `UIPopupBreadMinigame`, `UIPopupBreadProduction` |
 | 카운터 구역 분리(특별/일반), 결제 연출(동전/만족 아이콘) | 코드 구현됨, 프리팹/씬 연결 필요 | `CharNpc`, `LobbyCharUI`, `WaypointGroup.IsTerraceZone` |
-| 오프라인 수익 정산 | 코드 구현됨 (고정 config 값 기반), 프리팹/씬 연결 필요 | `SaveManager`, `SaveData`, `UIPopupOfflineIncome` |
-| 레시피 도감(수집) | 미구현 | - |
-| 업그레이드 시스템(생산성/수익) | 미구현 | - |
+| 오프라인 수익 정산 | 코드+러프 프리팹 완료, `UIManager` 등록만 필요 | `SaveManager`, `SaveData`, `UIPopupOfflineIncome` |
+| 레시피 도감(수집) | 코드+러프 프리팹 완료, `UIManager` 등록/진입 버튼 필요 | `RecipeBookModel`, `UIPopupRecipeBook` |
+| 업그레이드 시스템(생산성/수익) | 골드 수익 배율 코드+러프 프리팹 완료(조리/계산 속도는 미구현), `UIManager` 등록/진입 버튼 필요 | `UpgradeModel`, `UIPopupUpgrade` |
 | 가공섬 콘텐츠(미니게임/상점/재배형 공방/고용) | 미구현 | - |
 
 ## 구현 순서
@@ -52,23 +52,55 @@
 ### 3단계 — 레시피 도감 (수집 요소)
 특별 음료 제작(`UIPopupSpecialDrinkProduction`)에서 이미 레시피 매칭 로직이 동작하고 있으므로,
 성공 시점에 "발견 여부"를 기록하기만 하면 되어 비교적 적은 비용으로 추가 가능하다.
-- 레시피 성공 시 발견 목록에 기록하는 모델 추가 (`ViewModel/Drink` 또는 신규 `RecipeBookModel`)
-- 도감 열람 UI 추가
+- [x] **발견 기록 모델** — `RecipeBookModel` 신규 추가: 발견한 `DrinkRow` Tid를 `HashSet<int>`로 관리 (`Discover`/`IsDiscovered`/`GetDiscoveredTids`/`SetDiscovered`). `CommonModelManager.RecipeBook`으로 등록하고, `UIPopupSpecialDrinkProduction.OnRecipeSuccess()`에서 성공한 `desiredDrinkTid`를 `Discover()` 하도록 연결함. `SaveData.DiscoveredRecipeTids`를 추가해 `SaveManager.Save()/Load()`에서 발견 목록을 영속화함. (`Assets/Scripts/ViewModel/Recipe/RecipeBookModel.cs`, `Assets/Scripts/Manager/CommonModelManager.cs`, `Assets/Scripts/UI/Drink/UIPopupSpecialDrinkProduction.cs`, `Assets/Scripts/Manager/SaveData.cs`, `Assets/Scripts/Manager/SaveManager.cs`)
+  - **에디터 작업**: 없음. 순수 코드 변경이라 Unity 에디터에서 별도로 연결할 것이 없고, 현재 상태로도 특별 음료 제작 성공 시 발견 기록/저장까지 정상 동작함.
+- [x] **도감 열람 UI (코드만)** — `UIPopupRecipeBook` 신규 추가: `UIScrollEx`로 전체 `DrinkRow` 목록을 뿌리고, 각 행(`UIScrollRecipeBook`)은 `RecipeBookModel.IsDiscovered()` 결과에 따라 발견한 음료는 이름을, 미발견 음료는 `"???"`를 표시함. `eUIType.UIPopupRecipeBook` 등록함. (`Assets/Scripts/UI/Drink/UIPopupRecipeBook.cs`, `Assets/Scripts/UI/Drink/UIScrollRecipeBook.cs`, `Assets/Scripts/Manager/UIManager.cs`)
+  - [x] **팝업 프리팹(러프)** — `Assets/Datas/UI/Lobby/Popup/UI_Popup_RecipeBook.prefab` + 행 프리팹 `Assets/Datas/UI/Lobby/UIScrollRecipeBook.prefab` 신규 추가. `UI_Popup_OfflineIncome.prefab`/`UI_Popup_SpecialDrinkProduction.prefab` 구조를 참고해 손으로 작성(스크롤뷰 + 닫기 버튼, 목록 전용이라 확인/초기화 버튼은 없음). `UIScrollRecipeBook.cs`/`UIPopupRecipeBook.cs`에 GUID 고정용 `.meta` 추가.
+  - **후속 작업(에디터, 필수)**: `UIManager.prefab`의 `mCachedUIDic`는 Odin Serializer 이진 직렬화라 손으로 편집 불가 — Unity 에디터에서 `eUIType.UIPopupRecipeBook → UI_Popup_RecipeBook`으로 드래그 등록하고, 프리팹을 Popup 캔버스 하위에 배치해야 실제로 열림. (`Assets/Resources/UIManager.prefab`)
+  - **후속 작업(에디터)**: 도감을 여는 진입점(로비 UI의 버튼 등)이 아직 없음 — 버튼 배치 후 `GameInstance.UI.Open<UIPopupRecipeBook, UIPopupRecipeBook.Param>(eUIType.UIPopupRecipeBook, new UIPopupRecipeBook.Param())` 호출 연결 필요.
+  - **후속 작업(비주얼)**: 러프 프리팹이므로 배치/사이즈/색상은 가안임. 발견/미발견 음료 아이콘, 잠금 표시 등 실제 아트 리소스로 교체 필요.
 
-### 4단계 — 업그레이드 시스템
-카운터 능력치(2단계)와 재화 시스템이 준비된 이후에 붙여야 효과를 수치로 연결할 수 있다.
-- 업그레이드 대상(조리 속도/계산 속도/생산성 등) 및 비용 테이블 설계 (테이블 추가 필요 → 사전 논의 대상)
-- 업그레이드 UI 및 적용 로직 추가
+### 4단계 — 업그레이드 시스템 (진행 중)
+조리 속도/계산 속도 같은 카운터 능력치 시스템이 아직 없어(2단계 참고), 사용자 확인 후
+**우선 골드 결제 수익 배율 업그레이드만** 구현. 조리/계산 속도 업그레이드는 해당 능력치 시스템이 생긴 뒤 별도 진행.
+- [x] **골드 수익 배율 업그레이드 모델** — `UpgradeModel` 신규 추가: `Level`, `GoldIncomeMultiplier`(`1 + Level * 0.1`), `GetNextUpgradeCost()`(`100 * 1.5^Level`), `ApplyGoldIncomeMultiplier(int)`, `TryUpgrade()`(골드 소모 후 레벨업). 레벨/비용/배율 수치는 CTable/CSV 대신 코드 내 상수로 임시 관리(기획 확정 후 정식 테이블로 교체 예정, 사전 협의됨). `CommonModelManager.Upgrade`로 등록. (`Assets/Scripts/ViewModel/Upgrade/UpgradeModel.cs`, `Assets/Scripts/Manager/CommonModelManager.cs`)
+- [x] **결제 골드에 배율 적용** — 빵 결제(`CharNpc.TryReceiveBreadGold`), 기본 음료 결제(`CharNpc.ReceiveDefaultDrinkGold`), 특별 음료 결제(`UIPopupSpecialDrinkProduction.OnRecipeSuccess`) 세 지점 모두 `GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier()`로 감싸 지급하도록 수정함. 오프라인 수익(`SaveManager.ApplyOfflineIncome`)은 이번 범위에서 제외(별도 `mOfflineCoinPerSecond` 값으로 관리 중). (`Assets/Scripts/Character/Npc/CharNpc.cs`, `Assets/Scripts/UI/Drink/UIPopupSpecialDrinkProduction.cs`)
+- [x] **업그레이드 레벨 세이브/로드** — `SaveData.GoldIncomeUpgradeLevel` 추가, `SaveManager.Save()/Load()`에서 저장·복원. (`Assets/Scripts/Manager/SaveData.cs`, `Assets/Scripts/Manager/SaveManager.cs`)
+  - **에디터 작업**: 없음. 순수 코드 변경이라 지금 상태로도 배율 적용/저장까지 정상 동작함.
+- [x] **업그레이드 UI (코드만)** — `UIPopupUpgrade` 신규 추가: 현재 레벨/골드 수익 배율/다음 업그레이드 비용을 텍스트로 표시하고, 버튼 클릭 시 `UpgradeModel.TryUpgrade()` 호출 후 텍스트를 갱신함. 골드 부족 시 로그만 남기고 무시. `eUIType.UIPopupUpgrade` 등록함. (`Assets/Scripts/UI/Common/UIPopupUpgrade.cs`, `Assets/Scripts/Manager/UIManager.cs`)
+  - [x] **팝업 프리팹(러프)** — `Assets/Datas/UI/Lobby/Popup/UI_Popup_Upgrade.prefab` 신규 추가. `UI_Popup_OfflineIncome.prefab` 구조를 참고해 손으로 작성(레벨/배율/다음 비용 텍스트 3개 + 업그레이드 버튼 + 닫기 버튼). `UIPopupUpgrade.cs`에 GUID 고정용 `.meta` 추가.
+  - **후속 작업(에디터, 필수)**: `UIManager.prefab`의 `mCachedUIDic`는 손으로 편집 불가 — Unity 에디터에서 `eUIType.UIPopupUpgrade → UI_Popup_Upgrade`로 드래그 등록하고 Popup 캔버스 하위에 배치해야 실제로 열림(= 등록 전까지는 실제로 레벨을 올릴 방법이 없어 항상 Level 0·배율 1배로 동작). (`Assets/Resources/UIManager.prefab`)
+  - **후속 작업(에디터)**: 업그레이드 팝업을 여는 진입점(로비 UI의 버튼 등)이 아직 없음 — 버튼 배치 후 `GameInstance.UI.Open<UIPopupUpgrade, UIPopupUpgrade.Param>(eUIType.UIPopupUpgrade, new UIPopupUpgrade.Param())` 호출 연결 필요.
+  - **후속 작업(비주얼)**: 러프 프리팹이므로 배치/사이즈/색상은 가안임.
+- [ ] **조리 속도 / 계산 속도 업그레이드** — 카운터 능력치 시스템 자체가 없어 보류. 능력치 시스템 설계 후 재논의.
 
-### 5단계 — 가공섬 콘텐츠 확장
-`UIRootMaterialIsland`가 빈 껍데기 상태이며, 로비/카운터 루프와 독립적으로 개발 가능해 가장 마지막에 배치한다.
+### 5단계 — 가공섬 콘텐츠 확장 (진행 중)
+`UIRootMaterialIsland`는 빈 껍데기였지만 진입 버튼(`UIHudController`의 로비 ↔ 가공섬 토글)은 이미 연결되어 있었음.
 기획서 순서(기본 수급 → 미니게임 → 상점 → 재배형 공방)를 그대로 따른다.
-1. 기본 수급 (자동/클릭 채집)
-2. 미니게임
-3. 상점 (재료 구매)
-4. 재배형 공방 + 고용탭 (일꾼 고용, 가장 복잡하므로 마지막)
+
+1. **기본 수급 (자동/클릭 채집)** — [x] 클릭 채집 + 제작 소모 연동까지 완료
+   - **재료 인벤토리** — `MaterialModel`/`MaterialData` 신규 추가: 기존 `CTable.DrinkMaterialRow`(재료 이름 테이블, CSV 변경 없음)의 Tid를 그대로 사용해 보유 수량을 `ReactiveProperty<int>`로 추적. `Get`/`GetAll`/`Gather`/`HasEnough`/`Consume`/`SetByTid` 제공. `CommonModelManager.Material`로 등록. (`Assets/Scripts/ViewModel/Material/MaterialData.cs`, `MaterialModel.cs`, `Assets/Scripts/Manager/CommonModelManager.cs`)
+   - **가공섬 클릭 채집 UI (코드만)** — `UIRootMaterialIsland`에 `UIScrollEx` 목록을 채워 재료별 이름/보유수량/채집 버튼(`UIScrollMaterialGather`)을 표시. 버튼 클릭 시 `MaterialModel.Gather()` 호출 후 목록 갱신. (`Assets/Scripts/UI/MaterialIsland/UIRootMaterialIsland.cs`, `Assets/Scripts/UI/MaterialIsland/UIScrollMaterialGather.cs`)
+   - **특별 음료 제작 소모 연동** — `UIPopupSpecialDrinkProduction`의 재료 선택 목록에 보유 수량을 함께 표시(`{이름} ({수량})`)하고, 보유량을 초과해 선택할 수 없도록 막음. 레시피 성공 시 선택한 재료를 `MaterialModel.Consume()`으로 실제 차감. 이전까지는 재료가 무제한으로 선택 가능했던 동작이 바뀜. (`Assets/Scripts/UI/Drink/UIPopupSpecialDrinkProduction.cs`, `Assets/Scripts/UI/Drink/UIScrollDrinkMaterial.cs`)
+   - **재료 인벤토리 세이브/로드** — `SaveData.Materials` 추가, `SaveManager.Save()/Load()`에서 저장·복원. (`Assets/Scripts/Manager/SaveData.cs`, `Assets/Scripts/Manager/SaveManager.cs`)
+   - [x] **채집 행 프리팹(러프)** — `Assets/Datas/UI/MaterialLand/UIScrollMaterialGather.prefab` 신규 추가(재료명+보유수량+채집버튼, `UIScrollItemDrinkMaterial.prefab` 패턴 참고). `UI_Root_MaterialLand.prefab`(기존에 있던 빈 껍데기)에 이 행을 쓰는 스크롤뷰를 직접 추가하고 `mScrollEx`/`mMaterialGatherRowPrefab` 필드까지 연결 완료. `UIScrollMaterialGather.cs`에 GUID 고정용 `.meta` 추가.
+   - **에디터 작업**: `UI_Root_MaterialLand.prefab`은 `UIManager.prefab`의 `mCachedUIDic`에 등록돼 있어야 열림(등록 여부 확인 필요, 안 돼 있으면 Unity 에디터에서 드래그 등록). 재료 초기 보유량이 전부 0이라, 가공섬에서 채집하기 전까지는 특별 음료 제작이 항상 "재료 부족"으로 막힘 — 밸런스(자동 채집 속도, 시작 보유량 등)는 기획 확정 필요.
+2. **미니게임 (빵 재료 획득) + 빵 공장 (재료 조합 제작)** — [x] 자리표시자 수준으로 완료 (컨셉 지시: "가공섬 빵 공장에서 재료를 조합해 빵을 만들고, 빵 재료는 미니게임에서 획득")
+   - **CTable/CSV 스키마 추가 (사용자 승인 완료)** — `Assets/CSV/BreadMaterial.csv`+`Assets/CTable/BreadMaterialRow.cs`/`BreadMaterialTable.cs` 신규(밀가루/버터/소금, `DrinkMaterialRow`와 동일 패턴). `Assets/CTable/BreadRow.cs`에 `BreadMaterial1~5` 슬롯 추가(`DrinkRow` 패턴), `BreadTable.cs` 파싱 갱신, `Assets/CSV/Bread.csv`에 컬럼 + 소금빵 레시피(밀가루+버터+소금) 데이터 추가.
+   - **재료 인벤토리 통합** — 새 Model을 만들지 않고 `MaterialModel`을 확장: `MaterialData.Create(int tid, string name)`로 팩토리를 일반화하고, `MaterialModel.Init()`에서 `DrinkMaterialRow`와 `BreadMaterialRow`를 모두 같은 딕셔너리에 로드. 음료 재료와 빵 재료가 같은 인벤토리에 저장되지만 획득 경로는 분리됨(음료 재료=가공섬 클릭 채집 목록, 빵 재료=미니게임 전용). 이를 위해 `UIRootMaterialIsland.RefreshMaterialList()`가 `MaterialModel.GetAll()` 대신 `DrinkMaterialRow` 테이블만 순회하도록 수정(빵 재료가 클릭 채집 목록에 잘못 노출되지 않도록). (`Assets/Scripts/ViewModel/Material/MaterialData.cs`, `MaterialModel.cs`, `Assets/Scripts/UI/MaterialIsland/UIRootMaterialIsland.cs`)
+   - **미니게임 자리표시자** — `UIPopupBreadMinigame` 신규: 실제 규칙(타이밍/퍼즐 등)은 미정이라 버튼 1회 클릭 시 즉시 완료 처리, `BreadMaterialRow` 중 랜덤 하나를 `MaterialModel.Gather()`로 지급. 규칙이 정해지면 `OnClickPlay()` 내부만 교체하면 됨. (`Assets/Scripts/UI/MaterialIsland/UIPopupBreadMinigame.cs`)
+   - **빵 공장(재료 조합)** — `UIPopupBreadProduction` 신규: `UIPopupSpecialDrinkProduction`과 동일한 재료 선택→매칭 패턴이지만 특정 NPC 주문에 묶이지 않고 전체 `BreadRow` 레시피를 대상으로 매칭(기존 `UIScrollDrinkMaterial` 행 재사용, 새 행 타입 안 만듦). 성공 시 재료 소모 + `BreadModel.Register()`(안전을 위해 항상 호출, 이미 등록돼 있으면 무동작) + `BreadModel.Add()`로 생산된 빵 수량 증가. 이 수량은 기존 `Intaraction_BreadStand`가 진열대 재고로 읽던 것과 같은 모델이지만, 현재 `Intaraction_BreadStand.AddBread()`는 이 생산 수량을 소비하지 않고 독자적으로 빵을 즉시 스폰하는 별도 동작이라 아직 서로 연결되어 있지 않음(진짜 갭, 아래 참고). (`Assets/Scripts/UI/MaterialIsland/UIPopupBreadProduction.cs`)
+   - `UIRootMaterialIsland`에 두 팝업을 여는 버튼(`mBtnOpenBreadMinigame`, `mBtnOpenBreadProduction`) 추가.
+   - **eUIType 등록**: `UIPopupBreadMinigame`, `UIPopupBreadProduction`. (`Assets/Scripts/Manager/UIManager.cs`)
+   - [x] **팝업 프리팹(러프)** — `Assets/Datas/UI/MaterialLand/UI_Popup_BreadMinigame.prefab`(텍스트+플레이 버튼, `UI_Popup_OfflineIncome.prefab` 패턴), `Assets/Datas/UI/MaterialLand/UI_Popup_BreadProduction.prefab`(재료 스크롤+선택 텍스트+만들기/초기화 버튼, `UI_Popup_SpecialDrinkProduction.prefab` 패턴 — 행 프리팹은 기존 `UIScrollItemDrinkMaterial.prefab` 재사용) 신규 추가. `UI_Root_MaterialLand.prefab`에 두 팝업을 여는 버튼도 배치하고 `mBtnOpenBreadMinigame`/`mBtnOpenBreadProduction` 필드까지 연결 완료. 새 스크립트 4개(`UIPopupBreadMinigame`, `UIPopupBreadProduction`, `UIScrollMaterialGather`, `UIScrollRecipeBook`)에 GUID 고정용 `.meta` 추가.
+   - **에디터 작업(필수)**: `UIManager.prefab`의 `mCachedUIDic`는 손으로 편집 불가 — Unity 에디터에서 `eUIType.UIPopupBreadMinigame`/`UIPopupBreadProduction` 둘 다 드래그 등록하고 Popup 캔버스 하위에 배치해야 실제로 열림.
+   - **에디터 작업(비주얼)**: 러프 프리팹이므로 배치/사이즈/색상은 가안임.
+   - [x] **진열대-생산량 연결(해결됨)** — `BreadData`/`BreadModel`에 `ProducedCount`(생산 재고)를 `Count`(진열 수량)와 분리 추가. `UIPopupBreadProduction` 성공 시 `AddProduced()`만 호출(자동으로 진열되지 않음). `Intaraction_BreadStand.AddBread()`는 `TryConsumeProduced()`로 생산 재고를 소비해야만 `SpawnBread()`+진열(`Add()`)을 진행 — 재고 없으면 무동작. 이전엔 `AddBread()`(`mBtnAddBread` 버튼/`UIPopupBreadSelect` 확정 양쪽)가 재료 소비 없이 무제한 진열 가능했는데, 이제 빵 공장에서 만든 만큼만 진열 가능하도록 동작이 바뀜. (`Assets/Scripts/ViewModel/Bread/BreadData.cs`, `BreadModel.cs`, `Assets/Scripts/Interaction/Intaraction_BreadStand.cs`, `Assets/Scripts/UI/MaterialIsland/UIPopupBreadProduction.cs`)
+3. 상점 (재료 구매) — 미착수, 재화로 재료 구매하는 구조라 신규 테이블 필요 가능성 있음 (사전 논의 대상)
+4. 재배형 공방 + 고용탭 (일꾼 고용, 가장 복잡하므로 마지막) — 미착수, 신규 테이블 필요 가능성 높음 (사전 논의 대상)
 
 ## 진행 시 유의사항
+- **새 팝업 5개(`UI_Popup_OfflineIncome`/`RecipeBook`/`Upgrade`/`BreadMinigame`/`BreadProduction`) 전부 프리팹까지는 만들어져 있지만, `UIManager.prefab`의 `mCachedUIDic` 등록만 공통으로 남아 있음.** 이 딕셔너리는 Odin Serializer 이진 직렬화라 텍스트로 편집 불가 — Unity 에디터에서 각 `eUIType`에 해당 프리팹을 드래그 등록하고 Popup 캔버스 하위에 배치해야 실제로 열림. 이 등록 전까지 각 기능의 백엔드 로직(저장/계산/소모 등)은 정상 동작하지만 화면에 UI가 뜨지 않음.
 - 2, 4, 5단계 모두 신규 데이터 테이블이 필요할 가능성이 높음 — `Assets/CTable`, `Assets/CSV`는 직접 수정 금지 대상이므로 착수 전 반드시 먼저 확인받을 것
 - 신규 Model/Controller는 `Assets/Scripts/ViewModel/` 하위에 `{Name}Model.cs` / `{Name}Model+Ctrl.cs` 구조로 추가
 - `GameInstance.Init()` 이후에만 유효한 매니저/모델 접근은 CLAUDE.md의 "GameInstance 의존 초기화 규칙"을 따를 것
