@@ -28,14 +28,7 @@ public class InputManager : MonoBehaviour, IManager
             var npc = boxCollider2D.GetComponentInParent<CharNpc>();
 
             if (npc != null)
-            {
-                if (npc.IsWaitingSpecialOrder)
-                {
-                    GameInstance.UI.Open<UIPopupOrderDetail, UIPopupOrderDetail.Param>(eUIType.PopupOrderDetail,
-                        new UIPopupOrderDetail.Param() { npc = boxCollider2D });
-                }
                 return;
-            }
 
             var breadStand = boxCollider2D.GetComponentInParent<Intaraction_BreadStand>();
             if (breadStand != null)

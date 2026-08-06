@@ -9,15 +9,16 @@
 
 | 영역 | 상태 | 관련 코드 |
 |---|---|---|
-| NPC 이동/웨이포인트 | 구현됨 | `CharNpc`, `WaypointGroup`, `WaypointPathfinder`, `SpawnManager` |
+| NPC 이동/웨이포인트 | 구현됨 (2026-08 자유 배회+행동 큐로 갱신) | `CharNpc`, `WaypointGroup`, `WaypointPathfinder`, `SpawnManager`, `NpcBehaviorRuleSet` |
 | 빵 진열/선택/픽업 | 구현됨 | `Intaraction_BreadStand`, `Intaraction_Bread`, `UIPopupBreadSelect`, `BreadModel` |
 | 기본 음료 자동 결제 | 구현됨 (단순 형태) | `CharNpc.ProcessArrivalCategoryLogic` (`Trigger_Order`) |
-| 특별 음료 주문 대기 + 제작 UI | 구현됨 | `ISpecialOrderWaiter`, `Wait_SpecialOrder`, `UIPopupSpecialDrinkProduction` |
+| 레시피 개발(재료 조합) | 구현됨 (2026-08 스페셜 주문 삭제 후 손님과 무관한 개발 UI로 전환) | `UIPopupSpecialDrinkProduction`, `RecipeBookModel`, `UIPopupRecipeBook` |
 | 그리드 배치 시스템 | 구현됨 | `PlacementGridArea`, `PlaceableObject`, `PlacementModel(+Ctrl)` |
 | Day/Night 사이클 | 구현됨 | `DayNightManager`, `UIDayNightBg`, `TimeManager` |
 | 재화/저장 시스템 | 구현됨 | `ItemModel`, `SaveManager`, `SaveData` |
 | 가공섬 | 기본 수급(클릭 채집) + 빵 재료 미니게임(자리표시자) + 빵 공장(재료 조합) 코드+러프 프리팹 완료, 상점/재배형 공방 미구현 | `MaterialModel`, `UIRootMaterialIsland`, `UIPopupBreadMinigame`, `UIPopupBreadProduction` |
-| 카운터 구역 분리(특별/일반), 결제 연출(동전/만족 아이콘) | 코드 구현됨, 프리팹/씬 연결 필요 | `CharNpc`, `LobbyCharUI`, `WaypointGroup.IsTerraceZone` |
+| 카운터 결제(기본 음료 자동 지급), 결제 연출(동전/만족 아이콘) | 코드 구현됨, 프리팹/씬 연결 필요 | `CharNpc`, `LobbyCharUI`, `WaypointGroup.IsTerraceZone` |
+| 주문받는 NPC(카운터 고정 캐릭터) | 스크립트만 구현됨(2026-08 신규), 캐릭터 프리팹/씬 배치 필요 | `CharStaff` |
 | 오프라인 수익 정산 | 코드+러프 프리팹 완료, `UIManager` 등록만 필요 | `SaveManager`, `SaveData`, `UIPopupOfflineIncome` |
 | 레시피 도감(수집) | 코드+러프 프리팹 완료, `UIManager` 등록/진입 버튼 필요 | `RecipeBookModel`, `UIPopupRecipeBook` |
 | 업그레이드 시스템(생산성/수익) | 골드 수익 배율 코드+러프 프리팹 완료(조리/계산 속도는 미구현), `UIManager` 등록/진입 버튼 필요 | `UpgradeModel`, `UIPopupUpgrade` |
@@ -30,11 +31,15 @@
 기획서의 "특별 주문 구역/일반 구역 분리", "결제 연출(동전/만족 아이콘)", "퇴장 후 테라스 이동"은 없다.
 로비 NPC 흐름의 마지막 단계이자 이후 오프라인 수익 정산의 기반이 되므로 가장 먼저 정리한다.
 
-- [x] **카운터 구역 분리** — `CharNpc.IsSpecialOrderCounterZone()` 추가: `Trigger_Order` 웨이포인트이면서 `mCurrentGroup.IsSpecialOrderZone == true`인 경우를 특별 주문 손님 구역으로 판정. 해당 구역에서는 특별 음료 제작 시 이미 결제가 끝난 것으로 보고 카운터에서 기본 음료 금액을 재청구하지 않도록 `ProcessOrderPayment()`에서 분기 처리함. (`Assets/Scripts/Character/Npc/CharNpc.cs`)
+- [x] ~~카운터 구역 분리~~ — **삭제됨(2026-08, 스페셜 주문 기획 삭제)**. `CharNpc.IsSpecialOrderCounterZone()`/`WaypointGroup.IsSpecialOrderZone`는 삭제되었고, `Trigger_Order` 도착은 이제 항상 무조건 기본 음료 금액을 청구한다(`ProcessOrderPayment()` 단순화). 특별 주문/일반 구역 구분 자체가 없어짐. (`Assets/Scripts/Character/Npc/CharNpc.cs`, `Assets/Scripts/WayPoint/WaypointGroup.cs`)
 - [x] **결제 연출** — `LobbyCharUI.PlayPaymentEffect(Action onComplete)` 추가: 동전 아이콘 표시 → (딜레이) → 만족 아이콘 표시 → (딜레이) → 완료 콜백 순서로 UniRx 타이머 기반 연출. `CharNpc.ProcessOrderPayment()`에서 결제 후 이 연출을 재생하고, 연출이 끝나면 `ResumeFromPause()`로 이동을 재개하도록 연결함. (`Assets/Scripts/UI/Lobby/LobbyCharUI.cs`)
   - **후속 작업(에디터)**: `mCoinIconObj` / `mSatisfactionIconObj` 필드에 실제 동전·만족 아이콘 오브젝트를 인스펙터에서 연결해야 화면에 표시됨. 현재는 필드가 비어 있어도 null 체크로 안전하게 스킵됨.
-- [x] **퇴장 후 테라스 이동 (기반 작업)** — `WaypointGroup.IsTerraceZone` 플래그 추가 (`IsSpecialOrderZone`/`IsBreadFreeRoamZone`과 동일한 패턴). NPC 이동은 이미 `Exit` 웨이포인트 도착 시 `WayPointManager.GetNextGroup(Order)`로 다음 그룹을 자동으로 찾아가는 범용 체인 구조(`CharNpc.TryMoveToNextGroup`)로 되어 있어, 별도 이동 로직 없이도 카운터보다 큰 Order 값을 가진 테라스 그룹을 씬에 배치하면 자동으로 연결됨.
+- [x] **퇴장 후 테라스 이동 (기반 작업)** — `WaypointGroup.IsTerraceZone` 플래그 추가. NPC 이동은 `Exit` 웨이포인트 도착 시 `WayPointManager.GetNextGroup(Order)`로 다음 그룹을 자동으로 찾아가는 범용 체인 구조(`CharNpc.TryMoveToNextGroup`)로 되어 있어, 별도 이동 로직 없이도 카운터보다 큰 Order 값을 가진 테라스 그룹을 씬에 배치하면 자동으로 연결됨. `IsTerraceZone`은 여전히 코드에서 읽는 곳 없는 씬 저작용 플래그(테라스 = 그냥 다음 체인 존의 Exit) — 실제로 머무는 연출은 미구현.
   - **후속 작업(에디터)**: 씬에 테라스용 `WaypointGroup`을 새로 만들고 `IsTerraceZone`을 체크, 카운터 그룹보다 큰 `Order` 값을 부여 + 마지막에 `Exit` 타입 웨이포인트 배치 필요. (코드 작업 아님, Unity 에디터에서 진행)
+- [x] **NPC 이동 모델을 고정 경로 → 자유 배회 + 행동 큐로 교체 (2026-08)** — 컨셉 지시(waypoint는 가구 프리팹에 배치, NPC는 정해진 구역을 자유롭게 배회, 스폰 시 행동 규칙을 큐에 넣고 하나씩 실행)에 맞춰 `CharNpc`의 고정 배열 순회(`mCurrentIndex`/`AdvanceToNextWaypoint` 등, 전부 삭제)를 행동 큐 기반 자유 배회로 교체. `Trigger_Bread`/`Trigger_Order` 웨이포인트는 가구 프리팹 자식으로 옮기고 `WaypointGroup.mZoneAreas`(`PlacementGridArea[]`) 범위 내에서 런타임 동적 스캔으로 수집, `WaypointGroup.TryGetRandomWaypoint()`로 매번 무작위 목표를 골라 기존 A*(`WaypointPathfinder`)로 이동. 스폰 시 `NpcBehaviorRuleSet.GetRandomQueue()`가 고정 규칙 세트(예: 빵 구입→음료 주문→테라스 퇴장)를 FIFO 큐로 부여, `CharNpc.AdvanceBehaviorQueue()`가 하나씩 실행. 존 간 이동(`Order` 체인)은 변경 없이 그대로 재사용. 옛 `WaypointGroup.mIsBreadFreeRoamZone`/`GetPathWaypoints()`/`GetBreadFreeRoamPath()`, `CharNpc.mBreadStopChance`는 새 모델에서 무의미해져 삭제됨. 자세한 매핑은 `.claude/context/cafe/npc-waypoint.md`의 "행동 큐 + 자유 배회 모델" 참고.
+  - **후속 작업(에디터, 필수)**: `Trigger_Bread`/`Trigger_Order` 웨이포인트를 가구 프리팹 자식으로 재배치하고 `mNeighbors` 재배선, 각 `WaypointGroup.mZoneAreas`를 담당 `PlacementGridArea`로 연결, `mStaticWaypoints`를 남은 고정 지점만 남도록 `FindWaypoint` 버튼으로 재수집. `Waypoint.Neighbors`는 씬 참조라 가구 이동/복제 시 자동 갱신되지 않으므로 수동 재연결 필요(가장 리스크 큰 부분).
+- [x] **웨이포인트 소유자 명확화 — 가구 + 주문받는 NPC (2026-08)** — 컨셉 지시("웨이포인트는 가구들과 주문받는 NPC들에만 붙어있을거야")에 맞춰, 카운터에서 손님을 응대하는 지점을 "카운터 가구"가 아니라 고정 배치된 "주문받는 NPC"가 소유하도록 명확화. 새 `CharStaff`(`Assets/Scripts/Character/Staff/CharStaff.cs`) 클래스 추가: `CharBase` 상속, 이동/AI 없음, `CharNpc`와 달리 `SpawnManager` 풀링 대상이 아니고 씬에 직접 배치되는 정적 캐릭터. `RescanDynamicWaypoints()`가 웨이포인트의 부모 오브젝트 종류(가구/NPC)를 구분하지 않고 위치+카테고리만으로 스캔하고, `CharNpc`의 상호작용 로직(`TriggerPause`/`ProcessOrderPayment`)도 `Waypoint.WaypointType`만 보고 동작하므로 **코드 변경 없이** 웨이포인트 소유자만 바꾸면 되는 구조였음이 이번에 확인됨. 부수 정리: `Waypoint.eWaypointType`의 죽은 세부 타입(`SpawnPoint_Order`/`SpawnPoint_Bread`/`Exit_Order`/`Exit_Bread`, 아무 로직도 참조하지 않던 값) 삭제, `WaypointGroup.cs`의 스페셜 주문 삭제 당시 갱신 누락된 주석("Wait" 잔존 언급) 정리.
+  - **후속 작업(에디터/아트, 필수)**: `CharStaff`를 붙인 실제 캐릭터 프리팹이 아직 없음 — 스프라이트/애니메이터 등 아트 리소스 필요(임시로 기존 캐릭터 리소스를 재사용해도 됨). 프리팹 완성 후 `Trigger_Order` 웨이포인트를 카운터 가구가 아니라 이 프리팹의 자식으로 옮기고, `WaypointGroup.mZoneAreas` 범위 안에 위치시켜야 자동 스캔에 잡힘. 씬에 직접 배치(스폰/풀링 대상 아님).
 
 ### 2단계 — 오프라인 수익 정산 (진행 중)
 카운터 캐릭터 능력치(조리 속도/계산 속도) 시스템이 아직 존재하지 않아, 사용자 확인 후
@@ -50,10 +55,11 @@
   - **후속 작업(밸런스)**: `SaveManager` 인스펙터의 `mOfflineCoinPerSecond`(기본 1), `mOfflineMaxSeconds`(기본 8시간) 값은 임시 기본값이므로 기획 확정 후 조정 필요.
 
 ### 3단계 — 레시피 도감 (수집 요소)
-특별 음료 제작(`UIPopupSpecialDrinkProduction`)에서 이미 레시피 매칭 로직이 동작하고 있으므로,
+레시피 개발(`UIPopupSpecialDrinkProduction`, 옛 특별 음료 제작 UI를 재사용)에서 이미 레시피 매칭 로직이 동작하고 있으므로,
 성공 시점에 "발견 여부"를 기록하기만 하면 되어 비교적 적은 비용으로 추가 가능하다.
-- [x] **발견 기록 모델** — `RecipeBookModel` 신규 추가: 발견한 `DrinkRow` Tid를 `HashSet<int>`로 관리 (`Discover`/`IsDiscovered`/`GetDiscoveredTids`/`SetDiscovered`). `CommonModelManager.RecipeBook`으로 등록하고, `UIPopupSpecialDrinkProduction.OnRecipeSuccess()`에서 성공한 `desiredDrinkTid`를 `Discover()` 하도록 연결함. `SaveData.DiscoveredRecipeTids`를 추가해 `SaveManager.Save()/Load()`에서 발견 목록을 영속화함. (`Assets/Scripts/ViewModel/Recipe/RecipeBookModel.cs`, `Assets/Scripts/Manager/CommonModelManager.cs`, `Assets/Scripts/UI/Drink/UIPopupSpecialDrinkProduction.cs`, `Assets/Scripts/Manager/SaveData.cs`, `Assets/Scripts/Manager/SaveManager.cs`)
-  - **에디터 작업**: 없음. 순수 코드 변경이라 Unity 에디터에서 별도로 연결할 것이 없고, 현재 상태로도 특별 음료 제작 성공 시 발견 기록/저장까지 정상 동작함.
+- [x] **발견 기록 모델** — `RecipeBookModel` 신규 추가: 발견한 `DrinkRow` Tid를 `HashSet<int>`로 관리 (`Discover`/`IsDiscovered`/`GetDiscoveredTids`/`SetDiscovered`). `CommonModelManager.RecipeBook`으로 등록하고, `UIPopupSpecialDrinkProduction.OnRecipeSuccess()`에서 발견된 `drinkTid`를 `Discover()` 하도록 연결함. `SaveData.DiscoveredRecipeTids`를 추가해 `SaveManager.Save()/Load()`에서 발견 목록을 영속화함. (`Assets/Scripts/ViewModel/Recipe/RecipeBookModel.cs`, `Assets/Scripts/Manager/CommonModelManager.cs`, `Assets/Scripts/UI/Drink/UIPopupSpecialDrinkProduction.cs`, `Assets/Scripts/Manager/SaveData.cs`, `Assets/Scripts/Manager/SaveManager.cs`)
+  - **업데이트(2026-08, 스페셜 주문 삭제)**: `UIPopupSpecialDrinkProduction`은 더 이상 특정 NPC의 `DesiredDrinkTid`를 목표로 받지 않는다. 대신 선택한 재료 조합과 일치하는 **미발견** `DrinkRow`를 전체 테이블에서 자동으로 찾아 발견 처리한다(`UIPopupBreadProduction`과 동일한 "전체 테이블 매칭" 패턴). 골드 보상은 제거(손님에게 파는 개념이 아니므로), 대신 "레시피 개발북" 아이템(신규 CTable `ItemRow` Tid=1002, `eItemType.Normal`)을 1개 소비해야 시도 가능 — 성공 시에만 소비. `UIPopupRecipeBook`에 "개발하기" 버튼을 추가해 도감에서 바로 진입 가능. 레시피 개발북 획득 경로는 아직 미구현(추후 논의).
+  - **에디터 작업**: 없음. `UIPopupRecipeBook`의 "개발하기" 버튼(`mBtnDevelopRecipe`)은 `UI_Popup_RecipeBook.prefab`에 `UI_Btn_Common` 프리팹(기존 "만들기"/"초기화" 버튼과 동일 소스)을 손으로 추가해 연결까지 완료함 — 스크롤뷰 영역을 살짝 줄이고(anchor y 0.05→0.18) 하단 중앙에 배치.
 - [x] **도감 열람 UI (코드만)** — `UIPopupRecipeBook` 신규 추가: `UIScrollEx`로 전체 `DrinkRow` 목록을 뿌리고, 각 행(`UIScrollRecipeBook`)은 `RecipeBookModel.IsDiscovered()` 결과에 따라 발견한 음료는 이름을, 미발견 음료는 `"???"`를 표시함. `eUIType.UIPopupRecipeBook` 등록함. (`Assets/Scripts/UI/Drink/UIPopupRecipeBook.cs`, `Assets/Scripts/UI/Drink/UIScrollRecipeBook.cs`, `Assets/Scripts/Manager/UIManager.cs`)
   - [x] **팝업 프리팹(러프)** — `Assets/Datas/UI/Lobby/Popup/UI_Popup_RecipeBook.prefab` + 행 프리팹 `Assets/Datas/UI/Lobby/UIScrollRecipeBook.prefab` 신규 추가. `UI_Popup_OfflineIncome.prefab`/`UI_Popup_SpecialDrinkProduction.prefab` 구조를 참고해 손으로 작성(스크롤뷰 + 닫기 버튼, 목록 전용이라 확인/초기화 버튼은 없음). `UIScrollRecipeBook.cs`/`UIPopupRecipeBook.cs`에 GUID 고정용 `.meta` 추가.
   - **후속 작업(에디터, 필수)**: `UIManager.prefab`의 `mCachedUIDic`는 Odin Serializer 이진 직렬화라 손으로 편집 불가 — Unity 에디터에서 `eUIType.UIPopupRecipeBook → UI_Popup_RecipeBook`으로 드래그 등록하고, 프리팹을 Popup 캔버스 하위에 배치해야 실제로 열림. (`Assets/Resources/UIManager.prefab`)
@@ -64,7 +70,8 @@
 조리 속도/계산 속도 같은 카운터 능력치 시스템이 아직 없어(2단계 참고), 사용자 확인 후
 **우선 골드 결제 수익 배율 업그레이드만** 구현. 조리/계산 속도 업그레이드는 해당 능력치 시스템이 생긴 뒤 별도 진행.
 - [x] **골드 수익 배율 업그레이드 모델** — `UpgradeModel` 신규 추가: `Level`, `GoldIncomeMultiplier`(`1 + Level * 0.1`), `GetNextUpgradeCost()`(`100 * 1.5^Level`), `ApplyGoldIncomeMultiplier(int)`, `TryUpgrade()`(골드 소모 후 레벨업). 레벨/비용/배율 수치는 CTable/CSV 대신 코드 내 상수로 임시 관리(기획 확정 후 정식 테이블로 교체 예정, 사전 협의됨). `CommonModelManager.Upgrade`로 등록. (`Assets/Scripts/ViewModel/Upgrade/UpgradeModel.cs`, `Assets/Scripts/Manager/CommonModelManager.cs`)
-- [x] **결제 골드에 배율 적용** — 빵 결제(`CharNpc.TryReceiveBreadGold`), 기본 음료 결제(`CharNpc.ReceiveDefaultDrinkGold`), 특별 음료 결제(`UIPopupSpecialDrinkProduction.OnRecipeSuccess`) 세 지점 모두 `GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier()`로 감싸 지급하도록 수정함. 오프라인 수익(`SaveManager.ApplyOfflineIncome`)은 이번 범위에서 제외(별도 `mOfflineCoinPerSecond` 값으로 관리 중). (`Assets/Scripts/Character/Npc/CharNpc.cs`, `Assets/Scripts/UI/Drink/UIPopupSpecialDrinkProduction.cs`)
+- [x] **결제 골드에 배율 적용** — 빵 결제(`CharNpc.TryReceiveBreadGold`), 기본 음료 결제(`CharNpc.ReceiveDefaultDrinkGold`) 두 지점에 `GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier()`로 감싸 지급하도록 수정함. 오프라인 수익(`SaveManager.ApplyOfflineIncome`)은 이번 범위에서 제외(별도 `mOfflineCoinPerSecond` 값으로 관리 중). (`Assets/Scripts/Character/Npc/CharNpc.cs`)
+  - **업데이트(2026-08)**: `UIPopupSpecialDrinkProduction.OnRecipeSuccess`(레시피 개발 성공)는 손님에게 파는 거래가 아니게 되어 골드 지급을 제거함 — 이제 순수 도감 발견 요소.
 - [x] **업그레이드 레벨 세이브/로드** — `SaveData.GoldIncomeUpgradeLevel` 추가, `SaveManager.Save()/Load()`에서 저장·복원. (`Assets/Scripts/Manager/SaveData.cs`, `Assets/Scripts/Manager/SaveManager.cs`)
   - **에디터 작업**: 없음. 순수 코드 변경이라 지금 상태로도 배율 적용/저장까지 정상 동작함.
 - [x] **업그레이드 UI (코드만)** — `UIPopupUpgrade` 신규 추가: 현재 레벨/골드 수익 배율/다음 업그레이드 비용을 텍스트로 표시하고, 버튼 클릭 시 `UpgradeModel.TryUpgrade()` 호출 후 텍스트를 갱신함. 골드 부족 시 로그만 남기고 무시. `eUIType.UIPopupUpgrade` 등록함. (`Assets/Scripts/UI/Common/UIPopupUpgrade.cs`, `Assets/Scripts/Manager/UIManager.cs`)
@@ -81,7 +88,7 @@
 1. **기본 수급 (자동/클릭 채집)** — [x] 클릭 채집 + 제작 소모 연동까지 완료
    - **재료 인벤토리** — `MaterialModel`/`MaterialData` 신규 추가: 기존 `CTable.DrinkMaterialRow`(재료 이름 테이블, CSV 변경 없음)의 Tid를 그대로 사용해 보유 수량을 `ReactiveProperty<int>`로 추적. `Get`/`GetAll`/`Gather`/`HasEnough`/`Consume`/`SetByTid` 제공. `CommonModelManager.Material`로 등록. (`Assets/Scripts/ViewModel/Material/MaterialData.cs`, `MaterialModel.cs`, `Assets/Scripts/Manager/CommonModelManager.cs`)
    - **가공섬 클릭 채집 UI (코드만)** — `UIRootMaterialIsland`에 `UIScrollEx` 목록을 채워 재료별 이름/보유수량/채집 버튼(`UIScrollMaterialGather`)을 표시. 버튼 클릭 시 `MaterialModel.Gather()` 호출 후 목록 갱신. (`Assets/Scripts/UI/MaterialIsland/UIRootMaterialIsland.cs`, `Assets/Scripts/UI/MaterialIsland/UIScrollMaterialGather.cs`)
-   - **특별 음료 제작 소모 연동** — `UIPopupSpecialDrinkProduction`의 재료 선택 목록에 보유 수량을 함께 표시(`{이름} ({수량})`)하고, 보유량을 초과해 선택할 수 없도록 막음. 레시피 성공 시 선택한 재료를 `MaterialModel.Consume()`으로 실제 차감. 이전까지는 재료가 무제한으로 선택 가능했던 동작이 바뀜. (`Assets/Scripts/UI/Drink/UIPopupSpecialDrinkProduction.cs`, `Assets/Scripts/UI/Drink/UIScrollDrinkMaterial.cs`)
+   - **레시피 개발 소모 연동** — `UIPopupSpecialDrinkProduction`(레시피 개발 UI)의 재료 선택 목록에 보유 수량을 함께 표시(`{이름} ({수량})`)하고, 보유량을 초과해 선택할 수 없도록 막음. 레시피 성공 시 선택한 재료를 `MaterialModel.Consume()`으로 실제 차감. 이전까지는 재료가 무제한으로 선택 가능했던 동작이 바뀜. (`Assets/Scripts/UI/Drink/UIPopupSpecialDrinkProduction.cs`, `Assets/Scripts/UI/Drink/UIScrollDrinkMaterial.cs`)
    - **재료 인벤토리 세이브/로드** — `SaveData.Materials` 추가, `SaveManager.Save()/Load()`에서 저장·복원. (`Assets/Scripts/Manager/SaveData.cs`, `Assets/Scripts/Manager/SaveManager.cs`)
    - [x] **채집 행 프리팹(러프)** — `Assets/Datas/UI/MaterialLand/UIScrollMaterialGather.prefab` 신규 추가(재료명+보유수량+채집버튼, `UIScrollItemDrinkMaterial.prefab` 패턴 참고). `UI_Root_MaterialLand.prefab`(기존에 있던 빈 껍데기)에 이 행을 쓰는 스크롤뷰를 직접 추가하고 `mScrollEx`/`mMaterialGatherRowPrefab` 필드까지 연결 완료. `UIScrollMaterialGather.cs`에 GUID 고정용 `.meta` 추가.
    - **에디터 작업**: `UI_Root_MaterialLand.prefab`은 `UIManager.prefab`의 `mCachedUIDic`에 등록돼 있어야 열림(등록 여부 확인 필요, 안 돼 있으면 Unity 에디터에서 드래그 등록). 재료 초기 보유량이 전부 0이라, 가공섬에서 채집하기 전까지는 특별 음료 제작이 항상 "재료 부족"으로 막힘 — 밸런스(자동 채집 속도, 시작 보유량 등)는 기획 확정 필요.
@@ -100,6 +107,7 @@
 4. 재배형 공방 + 고용탭 (일꾼 고용, 가장 복잡하므로 마지막) — 미착수, 신규 테이블 필요 가능성 높음 (사전 논의 대상)
 
 ## 진행 시 유의사항
+- **CTable/CSV 추가 이력(승인 완료)**: 스페셜 주문 삭제(2026-08) 작업 중 "레시피 개발북" 아이템을 위해 `Assets/CTable/TableEnum.cs`의 `eItemType`에 `Normal` 추가, `Assets/CSV/Item.csv`에 `Tid=1002` 행 추가(사용자 승인됨). 획득 경로(드랍/구매 등)는 아직 미구현.
 - **새 팝업 5개(`UI_Popup_OfflineIncome`/`RecipeBook`/`Upgrade`/`BreadMinigame`/`BreadProduction`) 전부 프리팹까지는 만들어져 있지만, `UIManager.prefab`의 `mCachedUIDic` 등록만 공통으로 남아 있음.** 이 딕셔너리는 Odin Serializer 이진 직렬화라 텍스트로 편집 불가 — Unity 에디터에서 각 `eUIType`에 해당 프리팹을 드래그 등록하고 Popup 캔버스 하위에 배치해야 실제로 열림. 이 등록 전까지 각 기능의 백엔드 로직(저장/계산/소모 등)은 정상 동작하지만 화면에 UI가 뜨지 않음.
 - 2, 4, 5단계 모두 신규 데이터 테이블이 필요할 가능성이 높음 — `Assets/CTable`, `Assets/CSV`는 직접 수정 금지 대상이므로 착수 전 반드시 먼저 확인받을 것
 - 신규 Model/Controller는 `Assets/Scripts/ViewModel/` 하위에 `{Name}Model.cs` / `{Name}Model+Ctrl.cs` 구조로 추가

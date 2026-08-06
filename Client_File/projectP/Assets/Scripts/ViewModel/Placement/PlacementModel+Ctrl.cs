@@ -2,6 +2,20 @@ using UnityEngine;
 
 public partial class PlacementModel
 {
+    public void ToggleEditMode()
+    {
+        SetEditMode(!mIsEditMode.Value);
+    }
+
+    public void SetEditMode(bool isEdit)
+    {
+        // 배치 모드를 끄는데 드래그 중이었다면 원래 위치로 되돌리고 정리한다.
+        if (!isEdit && mIsPlacing.Value)
+            Cancel();
+
+        mIsEditMode.Value = isEdit;
+    }
+
     public void BeginPlacement(Transform target, PlacementGridArea area)
     {
         if (target == null || area == null)

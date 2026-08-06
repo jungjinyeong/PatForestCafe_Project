@@ -4,12 +4,17 @@ using TMPro;
 using UniRx;
 using Extension;
 
+// 스페셜 주문 기획이 삭제되어, 이 팝업은 이제 손님 주문과 무관한 "레시피 개발" UI로 재사용된다.
+// 재료 선택→매칭 방식은 그대로(UIPopupBreadProduction과 동일 패턴): 목표 레시피를 미리 지정하지 않고,
+// 선택한 재료 조합과 일치하는 미발견 DrinkRow가 있으면 자동으로 발견 처리한다.
+// 프리팹(UI_Popup_SpecialDrinkProduction.prefab)의 스크립트 GUID를 유지하기 위해 클래스/파일명은 바꾸지 않았다.
 public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialDrinkProduction.Param>
 {
     public struct Param
     {
-        public BoxCollider2D npc;
     }
+
+    private const int RecipeBookItemTid = 1002;
 
     [Header("Scroll")]
     [SerializeField] private UIScrollEx mScrollEx;
@@ -20,7 +25,6 @@ public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialD
     [SerializeField] private UIButtonEx mBtnConfirmRecipe;
     [SerializeField] private UIButtonEx mBtnResetRecipe;
 
-    private BoxCollider2D mNpcCollider;
     private readonly Dictionary<int, int> mSelectedMaterialCounts = new();
 
     public override eUIType GetUIType() => eUIType.UIPopupSpecialDrinkProduction;
@@ -46,7 +50,6 @@ public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialD
 
     public void Set(Param param)
     {
-        mNpcCollider = param.npc;
     }
 
     private void SetupMaterialScroll()
@@ -121,34 +124,39 @@ public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialD
 
     private void OnClickConfirmRecipe()
     {
-        if (mNpcCollider == null) return;
-
-        var waiter = mNpcCollider.GetComponentInParent<ISpecialOrderWaiter>();
-        var lobbyCharUI = mNpcCollider.GetComponentInChildren<LobbyCharUI>();
-        if (waiter == null || lobbyCharUI == null) return;
-
-        var desiredDrinkRow = GameInstance.Table.Get<CTable.DrinkRow>(lobbyCharUI.DesiredDrinkTid);
-        if (desiredDrinkRow == null)
+        if (!GameInstance.Model.Item.HasEnough(RecipeBookItemTid, 1))
         {
-            Logger.Warning($"[UIPopupSpecialDrinkProduction] 원하는 DrinkRow를 찾을 수 없습니다. Tid={lobbyCharUI.DesiredDrinkTid}");
+            Logger.Log("[UIPopupSpecialDrinkProduction] 레시피 개발북이 부족합니다.");
             return;
         }
 
-        if (IsRecipeMatch(desiredDrinkRow))
-            OnRecipeSuccess(lobbyCharUI.DesiredDrinkTid, waiter);
-        else
-            OnRecipeFail();
+        var drinkGroup = GameInstance.Table.GetTable<CTable.DrinkRow>();
+        if (drinkGroup == null) return;
+
+        foreach (var drinkRow in drinkGroup.All.Values)
+        {
+            if (GameInstance.Model.RecipeBook.IsDiscovered(drinkRow.Tid))
+                continue;
+
+            if (IsRecipeMatch(drinkRow))
+            {
+                OnRecipeSuccess(drinkRow.Tid);
+                return;
+            }
+        }
+
+        OnRecipeFail();
     }
 
-    private bool IsRecipeMatch(CTable.DrinkRow desiredDrinkRow)
+    private bool IsRecipeMatch(CTable.DrinkRow drinkRow)
     {
         var required = new[]
         {
-            desiredDrinkRow.DrinkMaterial1,
-            desiredDrinkRow.DrinkMaterial2,
-            desiredDrinkRow.DrinkMaterial3,
-            desiredDrinkRow.DrinkMaterial4,
-            desiredDrinkRow.DrinkMaterial5,
+            drinkRow.DrinkMaterial1,
+            drinkRow.DrinkMaterial2,
+            drinkRow.DrinkMaterial3,
+            drinkRow.DrinkMaterial4,
+            drinkRow.DrinkMaterial5,
         };
 
         var requiredCounts = new Dictionary<int, int>();
@@ -159,7 +167,7 @@ public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialD
             requiredCounts[tid] = count + 1;
         }
 
-        if (requiredCounts.Count != mSelectedMaterialCounts.Count)
+        if (requiredCounts.Count == 0 || requiredCounts.Count != mSelectedMaterialCounts.Count)
             return false;
 
         foreach (var pair in requiredCounts)
@@ -171,29 +179,23 @@ public class UIPopupSpecialDrinkProduction : UIWndBase, IUIParam<UIPopupSpecialD
         return true;
     }
 
-    private void OnRecipeSuccess(int desiredDrinkTid, ISpecialOrderWaiter waiter)
+    private void OnRecipeSuccess(int drinkTid)
     {
-        var menuItemRow = GameInstance.Model.Drink.Get(desiredDrinkTid)?.MenuItemRow;
-        if (menuItemRow != null)
-        {
-            int gold = GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier((int)menuItemRow.Price);
-            GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
-        }
-
-        GameInstance.Model.RecipeBook.Discover(desiredDrinkTid);
-
         foreach (var pair in mSelectedMaterialCounts)
             GameInstance.Model.Material.Consume(pair.Key, pair.Value);
 
-        waiter.ResumeFromSpecialOrderWait();
+        GameInstance.Model.Item.Consume(RecipeBookItemTid, 1);
+        GameInstance.Model.RecipeBook.Discover(drinkTid);
 
-        GameInstance.UI.Close(eUIType.UIPopupSpecialDrinkProduction);
-        GameInstance.UI.Close(eUIType.PopupOrderDetail);
+        Logger.Log($"[UIPopupSpecialDrinkProduction] 레시피 개발 성공. Tid={drinkTid}");
+
+        ResetSelectedMaterials();
+        SetupMaterialScroll();
     }
 
     private void OnRecipeFail()
     {
-        Logger.Log("[UIPopupSpecialDrinkProduction] 재료 조합이 일치하지 않습니다.");
+        Logger.Log("[UIPopupSpecialDrinkProduction] 재료 조합이 일치하는 미발견 레시피가 없습니다.");
         ResetSelectedMaterials();
     }
 }

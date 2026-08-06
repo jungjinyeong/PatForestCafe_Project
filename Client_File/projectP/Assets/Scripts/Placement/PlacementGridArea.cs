@@ -5,6 +5,13 @@ public class PlacementGridArea : MonoBehaviour
     [SerializeField] private SpriteRenderer mAreaSprite;
     [SerializeField] private float mCellSize = 1f;
 
+    public Bounds Bounds => mAreaSprite != null ? mAreaSprite.bounds : default;
+
+    public bool Contains(Vector3 worldPos)
+    {
+        return mAreaSprite != null && mAreaSprite.bounds.Contains(worldPos);
+    }
+
     public bool TryGetSnappedPosition(Vector3 worldPos, out Vector3 snappedPos)
     {
         snappedPos = worldPos;

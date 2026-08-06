@@ -5,16 +5,7 @@ using UnityEngine;
 
 public class LobbyCharUI : MonoBehaviour
 {
-    public struct Param
-    {
-        public bool IsSpecialOrder;
-        public int DesiredDrinkTid;
-    }
-
     private const int SortingOrder = 1002;
-
-    [Header("SpecialOrder")]
-    [SerializeField] private GameObject mSpecialOrderObj;
 
     [Header("Payment Effect")]
     [SerializeField] private GameObject mCoinIconObj;
@@ -25,12 +16,6 @@ public class LobbyCharUI : MonoBehaviour
     [Header("Bread")]
     [SerializeField] private Transform mRootBreadTr;
     public Transform RootBreadTr => mRootBreadTr;
-
-    private bool mIsSpecialOrderActive = false;
-    public bool IsSpecialOrderActive => mIsSpecialOrderActive;
-
-    private int mDesiredDrinkTid = -1;
-    public int DesiredDrinkTid => mDesiredDrinkTid;
 
     private readonly List<Intaraction_Bread> mBreads = new List<Intaraction_Bread>();
     public IReadOnlyList<Intaraction_Bread> Breads => mBreads;
@@ -46,21 +31,6 @@ public class LobbyCharUI : MonoBehaviour
 
     public void Init()
     {
-        SetSpecialOrderActive(false);
-    }
-
-    public void SetParam(Param param)
-    {
-        SetSpecialOrderActive(param.IsSpecialOrder);
-        mDesiredDrinkTid = param.IsSpecialOrder ? param.DesiredDrinkTid : -1;
-    }
-
-    public void SetSpecialOrderActive(bool isActive)
-    {
-        if (mSpecialOrderObj != null)
-            mSpecialOrderObj.SetActive(isActive);
-
-        mIsSpecialOrderActive = isActive;
     }
 
     public void PlayPaymentEffect(Action onComplete)

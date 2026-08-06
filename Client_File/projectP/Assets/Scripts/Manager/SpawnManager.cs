@@ -59,27 +59,20 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnInGroup(WaypointGroup group)
     {
-        if (group == null || group.Waypoints == null || group.Waypoints.Length == 0) return;
+        if (group == null) return;
 
-        var spawnPoints = new List<Waypoint>();
-        foreach (var wp in group.Waypoints)
-        {
-            if (wp != null && wp.GetCategoryType() == Waypoint.eWaypointCategoryType.SpwanPoint)
-                spawnPoints.Add(wp);
-        }
-
-        if (spawnPoints.Count == 0)
+        var spawnPoints = group.GetSpawnPoints();
+        if (spawnPoints == null || spawnPoints.Length == 0)
         {
             Logger.Warning($"[SpawnManager] '{group.name}' has no SpawnPoint waypoints.");
             return;
         }
 
-        var pathWaypoints = group.GetPathWaypoints();
         foreach (var spawnPoint in spawnPoints)
-            SpawnNPC(spawnPoint, pathWaypoints, group);
+            SpawnNPC(spawnPoint, group);
     }
 
-    private void SpawnNPC(Waypoint spawnPoint, Waypoint[] pathWaypoints, WaypointGroup group)
+    private void SpawnNPC(Waypoint spawnPoint, WaypointGroup group)
     {
         var prefab = mNpcPrefabs[UnityEngine.Random.Range(0, mNpcPrefabs.Length)];
 
@@ -101,52 +94,12 @@ public class SpawnManager : MonoBehaviour
             return;
         }
 
-        var initWaypoints = new Waypoint[1 + pathWaypoints.Length];
-        initWaypoints[0] = spawnPoint;
-        for (int i = 0; i < pathWaypoints.Length; i++)
-            initWaypoints[i + 1] = pathWaypoints[i];
-
-        npc.Init(group, initWaypoints);
+        npc.Init(group, spawnPoint);
 
         if (!mSpawnedNPCs.Contains(npc))
             mSpawnedNPCs.Add(npc);
 
         AttachLobbyCharUI(npcObj);
-    }
-
-    public bool DecideSpecialOrder(WaypointGroup group)
-    {
-        return CanAssignSpecialOrder(group) && UnityEngine.Random.value < 0.5f;
-    }
-
-    private bool CanAssignSpecialOrder(WaypointGroup group)
-    {
-        if (!HasSpecialOrderZone(group))
-            return false;
-
-        int maxSpecialOrderNpc = GameInstance.Config.GetValue(eConfigType.MaxSpecialOrderNpc);
-        int currentSpecialOrderCount = 0;
-
-        foreach (var npc in mSpawnedNPCs)
-        {
-            if (npc == null) continue;
-
-            var lobbyCharUI = npc.GetComponentInChildren<LobbyCharUI>();
-            if (lobbyCharUI != null && lobbyCharUI.IsSpecialOrderActive)
-                currentSpecialOrderCount++;
-        }
-
-        return currentSpecialOrderCount < maxSpecialOrderNpc;
-    }
-
-    private bool HasSpecialOrderZone(WaypointGroup group)
-    {
-        if(group != null)
-        {
-            return group.IsSpecialOrderZone;
-        }
-
-        return false;
     }
 
     private void AttachLobbyCharUI(GameObject npcObj)
@@ -196,19 +149,12 @@ public class SpawnManager : MonoBehaviour
             return;
 
         var group = GameInstance.WayPoint?.GetFirstGroup();
-        if (group == null || group.Waypoints == null || group.Waypoints.Length == 0) return;
+        if (group == null) return;
 
-        var spawnPoints = new List<Waypoint>();
-        foreach (var wp in group.Waypoints)
-        {
-            if (wp != null && wp.GetCategoryType() == Waypoint.eWaypointCategoryType.SpwanPoint)
-                spawnPoints.Add(wp);
-        }
+        var spawnPoints = group.GetSpawnPoints();
+        if (spawnPoints == null || spawnPoints.Length == 0) return;
 
-        if (spawnPoints.Count == 0) return;
-
-        var pathWaypoints = group.GetPathWaypoints();
-        SpawnNPC(spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Count)], pathWaypoints, group);
+        SpawnNPC(spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Length)], group);
     }
 
     public void DespawnAll()

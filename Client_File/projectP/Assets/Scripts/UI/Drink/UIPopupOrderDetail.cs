@@ -60,17 +60,17 @@ public class UIPopupOrderDetail : UIWndBase, IUIParam<UIPopupOrderDetail.Param>
 
     }
 
+    // 스페셜 주문 기획이 삭제되어 이 팝업은 더 이상 InputManager에서 열리지 않는다(도달 불가능한 죽은 코드).
+    // UI_Popup_OrderDetail.prefab의 스크립트 참조(GUID)가 깨지지 않도록 파일/클래스는 남겨두고
+    // 컴파일만 유지한다 — 프리팹 정리는 Unity 에디터에서 진행할 것.
     private void OnClickOpenSpecialDrink()
     {
         UIMgr.Open<UIPopupSpecialDrinkProduction, UIPopupSpecialDrinkProduction.Param>(eUIType.UIPopupSpecialDrinkProduction,
-            new UIPopupSpecialDrinkProduction.Param { npc = mNpcCollider });
+            new UIPopupSpecialDrinkProduction.Param());
     }
 
     private void OnClickConfirm()
     {
-        var waiter = mNpcCollider != null ? mNpcCollider.GetComponentInParent<ISpecialOrderWaiter>() : null;
-        waiter?.ResumeFromSpecialOrderWait();
-
         SelfClose();
     }
 }

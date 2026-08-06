@@ -44,6 +44,9 @@ public class PlaceableObject : MonoBehaviour
         if (mArea == null || Camera.main == null)
             return;
 
+        if (!GameInstance.Model.Placement.IsEditMode.Value)
+            return;
+
         if (GameInstance.Model.Placement.IsPlacing.Value)
             return;
 

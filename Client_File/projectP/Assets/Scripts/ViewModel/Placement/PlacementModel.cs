@@ -9,6 +9,9 @@ public partial class PlacementModel : IModelBase
     public IReadOnlyReactiveProperty<bool> IsValidPosition => mIsValidPosition;
     private readonly ReactiveProperty<bool> mIsValidPosition = new ReactiveProperty<bool>(false);
 
+    public IReadOnlyReactiveProperty<bool> IsEditMode => mIsEditMode;
+    private readonly ReactiveProperty<bool> mIsEditMode = new ReactiveProperty<bool>(false);
+
     private Transform mTarget;
     private PlacementGridArea mArea;
     private Vector3 mOriginPosition;
@@ -19,5 +22,6 @@ public partial class PlacementModel : IModelBase
     {
         mIsPlacing.Dispose();
         mIsValidPosition.Dispose();
+        mIsEditMode.Dispose();
     }
 }

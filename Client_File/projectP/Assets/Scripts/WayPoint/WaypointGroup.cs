@@ -1,33 +1,63 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using UniRx;
 using UnityEngine;
-
-// TODO
-// npc들이 겹치는 범위도 설정하면 좋을 것 같음.
 
 public class WaypointGroup : MonoBehaviour
 {
     [SerializeField] private int mOrder;
-    [Header("Waypoints")]
-    [SerializeField] private Waypoint[] mWaypoints;
+    [Header("Static Waypoints (SpwanPoint / Exit)")]
+    [SerializeField] private Waypoint[] mStaticWaypoints;
+
+    [Header("Zone Areas (가구 배치 영역, 이 존에 속한 Trigger 웨이포인트를 스캔할 범위)")]
+    [SerializeField] private PlacementGridArea[] mZoneAreas;
 
     [Header("Option")]
-    [SerializeField] private bool mIsSpecialOrderZone = false;
-    [SerializeField] private bool mIsBreadFreeRoamZone = false;
     [SerializeField] private bool mIsTerraceZone = false;
 
-    public int Order => mOrder;
-    public Waypoint[] Waypoints => mWaypoints;
+    private readonly List<Waypoint> mDynamicTriggerWaypoints = new List<Waypoint>();
+    private CompositeDisposable mDisposables;
 
-    public bool IsSpecialOrderZone => mIsSpecialOrderZone;
-    public bool IsBreadFreeRoamZone => mIsBreadFreeRoamZone;
+    public int Order => mOrder;
+    public Waypoint[] StaticWaypoints => mStaticWaypoints;
+
     public bool IsTerraceZone => mIsTerraceZone;
+
+    public void Init()
+    {
+        RescanDynamicWaypoints();
+
+        mDisposables?.Dispose();
+        mDisposables = new CompositeDisposable();
+
+        GameInstance.Model.Placement.IsPlacing
+            .Where(isPlacing => !isPlacing)
+            .Subscribe(_ => RescanDynamicWaypoints())
+            .AddTo(mDisposables);
+    }
+
+    public void RescanDynamicWaypoints()
+    {
+        mDynamicTriggerWaypoints.Clear();
+
+        if (mZoneAreas == null || mZoneAreas.Length == 0)
+            return;
+
+        foreach (var wp in FindObjectsByType<Waypoint>(FindObjectsSortMode.None))
+        {
+            if (wp == null || wp.GetCategoryType() != Waypoint.eWaypointCategoryType.Trigger)
+                continue;
+
+            if (IsInsideAnyZoneArea(wp.transform.position))
+                mDynamicTriggerWaypoints.Add(wp);
+        }
+    }
 
     public Waypoint GetSpawnPoint()
     {
-        if (mWaypoints == null) return null;
+        if (mStaticWaypoints == null) return null;
 
-        foreach (var wp in mWaypoints)
+        foreach (var wp in mStaticWaypoints)
         {
             if (wp != null && wp.GetCategoryType() == Waypoint.eWaypointCategoryType.SpwanPoint)
                 return wp;
@@ -35,54 +65,69 @@ public class WaypointGroup : MonoBehaviour
         return null;
     }
 
-    // 빵 자유 배회 존은 여러 Trigger_Bread 중 하나를 랜덤으로만 방문하고 바로 Exit로 향하도록
-    // 경로를 줄여서 반환한다. (일반 존은 모든 경로 웨이포인트를 순서대로 반환)
-    public Waypoint[] GetPathWaypoints()
+    public Waypoint[] GetSpawnPoints()
     {
-        if (mWaypoints == null) return null;
+        var spawnPoints = new List<Waypoint>();
+        if (mStaticWaypoints == null) return spawnPoints.ToArray();
 
-        if (mIsBreadFreeRoamZone)
-            return GetBreadFreeRoamPath();
-
-        var path = new List<Waypoint>();
-        foreach (var wp in mWaypoints)
+        foreach (var wp in mStaticWaypoints)
         {
-            if (wp == null || wp.GetCategoryType() == Waypoint.eWaypointCategoryType.SpwanPoint)
-                continue;
-
-            path.Add(wp);
+            if (wp != null && wp.GetCategoryType() == Waypoint.eWaypointCategoryType.SpwanPoint)
+                spawnPoints.Add(wp);
         }
-        return path.ToArray();
+        return spawnPoints.ToArray();
     }
 
-    private Waypoint[] GetBreadFreeRoamPath()
+    // 자유 배회용 목표 탐색: SpwanPoint/Exit는 씬 고정(mStaticWaypoints)에서,
+    // Trigger(가구/주문받는 NPC에 배치된 웨이포인트)는 런타임 동적 스캔 풀(mDynamicTriggerWaypoints)에서 찾는다.
+    public bool TryGetRandomWaypoint(Waypoint.eWaypointCategoryType category, Waypoint.eWaypointType? specificType, out Waypoint result)
     {
-        var breadTriggers = new List<Waypoint>();
-        Waypoint exitWaypoint = null;
+        result = null;
 
-        foreach (var wp in mWaypoints)
+        var pool = category == Waypoint.eWaypointCategoryType.Trigger ? mDynamicTriggerWaypoints : (IEnumerable<Waypoint>)mStaticWaypoints;
+        if (pool == null) return false;
+
+        var candidates = new List<Waypoint>();
+        foreach (var wp in pool)
         {
-            if (wp == null) continue;
+            if (wp == null || wp.GetCategoryType() != category)
+                continue;
 
-            if (wp.WaypointType == Waypoint.eWaypointType.Trigger_Bread)
-                breadTriggers.Add(wp);
-            else if (exitWaypoint == null && wp.GetCategoryType() == Waypoint.eWaypointCategoryType.Exit)
-                exitWaypoint = wp;
+            if (specificType.HasValue && wp.WaypointType != specificType.Value)
+                continue;
+
+            candidates.Add(wp);
         }
 
-        if (breadTriggers.Count == 0)
-            return exitWaypoint != null ? new[] { exitWaypoint } : new Waypoint[0];
+        if (candidates.Count == 0)
+            return false;
 
-        var chosen = breadTriggers[UnityEngine.Random.Range(0, breadTriggers.Count)];
+        result = candidates[Random.Range(0, candidates.Count)];
+        return true;
+    }
 
-        return exitWaypoint != null ? new[] { chosen, exitWaypoint } : new[] { chosen };
+    private bool IsInsideAnyZoneArea(Vector3 worldPos)
+    {
+        foreach (var area in mZoneAreas)
+        {
+            if (area != null && area.Contains(worldPos))
+                return true;
+        }
+        return false;
     }
 
 #if UNITY_EDITOR
+    // Trigger 웨이포인트는 가구/주문받는 NPC 프리팹으로 이동했으므로, 이 버튼은 남은 고정 웨이포인트(SpwanPoint/Exit)만 수집한다.
     [Button("FindWaypoint")]
     private void FindWaypoint()
     {
-        mWaypoints = GetComponentsInChildren<Waypoint>();
+        var found = new List<Waypoint>();
+        foreach (var wp in GetComponentsInChildren<Waypoint>())
+        {
+            if (wp != null && wp.GetCategoryType() != Waypoint.eWaypointCategoryType.Trigger)
+                found.Add(wp);
+        }
+        mStaticWaypoints = found.ToArray();
     }
 #endif
 }

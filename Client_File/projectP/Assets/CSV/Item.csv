@@ -2,3 +2,4 @@
 int,Enum(eItemType),string,string,string
 @아이디,@아이템타입,@아이템명,@아이템아틀라스,@아이템아이콘
 1001,Money,골드,ItemAtlas,Gold
+1002,Normal,레시피 개발북,ItemAtlas,RecipeBook

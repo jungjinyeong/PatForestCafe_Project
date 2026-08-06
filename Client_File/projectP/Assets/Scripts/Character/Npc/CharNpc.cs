@@ -2,14 +2,9 @@ using System;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-using Sirenix.OdinInspector;
 
-public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
+public class CharNpc : CharBase, IBreadPickup
 {
-    [Header("Waypoints")]
-    [SerializeField] private bool mIsInit = false;
-    [SerializeField] private Waypoint[] mWaypoints;
-
     [Header("Movement")]
     [SerializeField] private float mMoveSpeed = 3f;
     [SerializeField] private float mArrivalThreshold = 0.1f;
@@ -19,18 +14,6 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
     [SerializeField] private float mAvoidanceLookAhead = 0.5f;
     [SerializeField] private float mAvoidanceAngle = 45f;
 
-    [Header("Loop")]
-    [SerializeField] private bool mLoop = true;
-    [SerializeField] private bool mReverseOnEnd = false;
-
-    [Header("Random Stop (Trigger_Bread)")]
-    [SerializeField] [Range(0f, 1f)] private float mBreadStopChance = 0.5f;
-
-    [Header("Gizmo")]
-    [SerializeField] private Color mPathColor = Color.green;
-
-    private int mCurrentIndex = 0;
-    private bool mMovingForward = true;
     private bool mIsMoving = true;
 
     private WaypointGroup mCurrentGroup;
@@ -41,20 +24,12 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
     private List<Waypoint> mSubPath;
     private int mSubPathIndex;
 
+    private Queue<eNpcBehaviorStepType> mBehaviorQueue;
+
     public Waypoint CurrentWaypoint => mCurrentWaypoint;
     public bool IsMoving => mIsMoving;
 
-    public bool IsWaitingSpecialOrder =>
-        mPausedWaypoint != null && mPausedWaypoint.WaypointType == Waypoint.eWaypointType.Wait_SpecialOrder;
-
     public LobbyCharUI GetLobbyCharUI => GetComponentInChildren<LobbyCharUI>();
-
-    private void Start()
-    {
-        if (mIsInit == false) return;
-
-        Init(mWaypoints);
-    }
 
     private void Update()
     {
@@ -63,55 +38,25 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
         MoveTowardsSubTarget();
     }
 
-    public void Init(WaypointGroup group, Waypoint[] waypoints)
+    public void Init(WaypointGroup group, Waypoint spawnPoint)
     {
-        mCurrentGroup = group;
-        Init(waypoints);
+        mBehaviorQueue = NpcBehaviorRuleSet.GetRandomQueue();
+        EnterGroup(group, spawnPoint);
     }
 
-    public void Init(Waypoint[] waypoints)
+    private void EnterGroup(WaypointGroup group, Waypoint entryPoint)
     {
-        if (waypoints == null || waypoints.Length == 0)
-        {
-            mIsMoving = false;
-            return;
-        }
+        mCurrentGroup = group;
 
-        mWaypoints = waypoints;
-
-        transform.position = mWaypoints[0].transform.position;
-        mCurrentWaypoint = mWaypoints[0];
-        mCurrentIndex = 0;
-        mMovingForward = true;
+        transform.position = entryPoint.transform.position;
+        mCurrentWaypoint = entryPoint;
         mIsMoving = true;
         mSubPath = null;
 
         if (mAnimator2D != null)
             mAnimator2D.PlayAnimation("Run");
 
-        OnReachedRouteWaypoint(mWaypoints[0]);
-    }
-
-    public void ResumeFromSpecialOrderWait()
-    {
-        if (!IsWaitingSpecialOrder)
-            return;
-
-        GetComponentInChildren<LobbyCharUI>()?.SetSpecialOrderActive(false);
-        ResumeFromPause();
-    }
-
-    [Button("ReStart", ButtonSizes.Large)]
-    public void ResetPath()
-    {
-        if (mWaypoints == null || mWaypoints.Length == 0) return;
-
-        mCurrentIndex = 0;
-        mMovingForward = true;
-        mIsMoving = true;
-        transform.position = mWaypoints[0].transform.position;
-        mCurrentWaypoint = mWaypoints[0];
-        mSubPath = null;
+        OnReachedRouteWaypoint(entryPoint);
     }
 
     private void MoveTowardsSubTarget()
@@ -126,7 +71,7 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
             mSubPathIndex++;
 
             if (mSubPathIndex >= mSubPath.Count)
-                OnReachedRouteWaypoint(mWaypoints[mCurrentIndex]);
+                OnReachedRouteWaypoint(mSubPath[mSubPath.Count - 1]);
 
             return;
         }
@@ -177,7 +122,7 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
 
         bool isPaused = ProcessArrivalCategoryLogic(arrived);
         if (!isPaused)
-            AdvanceToNextWaypoint();
+            AdvanceBehaviorQueue();
     }
 
     private bool ProcessArrivalCategoryLogic(Waypoint arrived)
@@ -186,11 +131,6 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
             return false;
 
         var category = arrived.GetCategoryType();
-
-        if (category == Waypoint.eWaypointCategoryType.SpwanPoint)
-        {
-            ApplySpecialOrderParam();
-        }
 
         if (category == Waypoint.eWaypointCategoryType.Exit)
         {
@@ -201,69 +141,11 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
 
         if (category == Waypoint.eWaypointCategoryType.Trigger)
         {
-            bool shouldStop = arrived.WaypointType == Waypoint.eWaypointType.Trigger_Bread
-                ? UnityEngine.Random.value < mBreadStopChance
-                : true;
-
-            if (shouldStop)
-            {
-                TriggerPause(arrived);
-                return true;
-            }
-        }
-
-        if (category == Waypoint.eWaypointCategoryType.Wait)
-        {
-            bool shouldStop = CanEnterWait(arrived);
-
-            if (shouldStop)
-            {
-                TriggerPause(arrived);
-                return true;
-            }
+            TriggerPause(arrived);
+            return true;
         }
 
         return false;
-    }
-
-    private void ApplySpecialOrderParam()
-    {
-        if (GameInstance.Spawn == null) return;
-
-        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
-        if (lobbyCharUI == null) return;
-
-        bool isSpecialOrder = GameInstance.Spawn.DecideSpecialOrder(mCurrentGroup);
-        int desiredDrinkTid = isSpecialOrder ? GameInstance.Model.Drink.GetRandomSpecialOrderTid() : -1;
-
-        if (desiredDrinkTid < 0)
-            isSpecialOrder = false;
-
-        lobbyCharUI.SetParam(new LobbyCharUI.Param
-        {
-            IsSpecialOrder = isSpecialOrder,
-            DesiredDrinkTid = desiredDrinkTid,
-        });
-    }
-
-    private bool CanEnterWait(Waypoint waypoint)
-    {
-        switch (waypoint.WaypointType)
-        {
-            case Waypoint.eWaypointType.Wait_SpecialOrder:
-                return TryEnterSpecialOrderWait();
-            default:
-                return false;
-        }
-    }
-
-    private bool TryEnterSpecialOrderWait()
-    {
-        if (mCurrentGroup == null || !mCurrentGroup.IsSpecialOrderZone)
-            return false;
-
-        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
-        return lobbyCharUI != null && lobbyCharUI.IsSpecialOrderActive;
     }
 
     private bool TryMoveToNextGroup()
@@ -279,13 +161,7 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
         if (spawnPoint == null)
             return false;
 
-        var pathWaypoints = nextGroup.GetPathWaypoints();
-        var waypoints = new Waypoint[1 + pathWaypoints.Length];
-        waypoints[0] = spawnPoint;
-        for (int i = 0; i < pathWaypoints.Length; i++)
-            waypoints[i + 1] = pathWaypoints[i];
-
-        Init(nextGroup, waypoints);
+        EnterGroup(nextGroup, spawnPoint);
         return true;
     }
 
@@ -319,27 +195,19 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
             MessageBroker.Default.Publish(new CEvent.BreadPickup(triggerWaypoint.TableId, this));
         else if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Trigger_Order)
         {
-            ProcessOrderPayment(triggerWaypoint);
+            ProcessOrderPayment();
             return;
         }
-
-        // Wait_SpecialOrder는 자동으로 재개되지 않고, 컨펌 버튼(ResumeFromSpecialOrderWait)으로만 재개된다.
-        if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Wait_SpecialOrder)
-            return;
 
         mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(1.5f))
             .Subscribe(_ => ResumeFromPause())
             .AddTo(this);
     }
 
-    private void ProcessOrderPayment(Waypoint triggerWaypoint)
+    private void ProcessOrderPayment()
     {
         TryReceiveBreadGold();
-
-        // 특별 주문 손님 구역(IsSpecialOrderZone)의 손님은 특별 음료 제작 시 이미 결제가 끝났으므로
-        // 카운터에서는 기본 음료 금액을 다시 청구하지 않는다.
-        if (!IsSpecialOrderCounterZone(triggerWaypoint))
-            ReceiveDefaultDrinkGold();
+        ReceiveDefaultDrinkGold();
 
         var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
         if (lobbyCharUI == null)
@@ -351,13 +219,6 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
         lobbyCharUI.PlayPaymentEffect(ResumeFromPause);
     }
 
-    private bool IsSpecialOrderCounterZone(Waypoint waypoint)
-    {
-        return waypoint.WaypointType == Waypoint.eWaypointType.Trigger_Order
-            && mCurrentGroup != null
-            && mCurrentGroup.IsSpecialOrderZone;
-    }
-
     private void ResumeFromPause()
     {
         mPauseDisposable?.Dispose();
@@ -365,7 +226,7 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
 
         mPausedWaypoint = null;
         mIsMoving = true;
-        AdvanceToNextWaypoint();
+        AdvanceBehaviorQueue();
     }
 
     private void TryReceiveBreadGold()
@@ -395,97 +256,49 @@ public class CharNpc : CharBase, ISpecialOrderWaiter, IBreadPickup
         GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
     }
 
-    private void AdvanceToNextWaypoint()
+    // 큐에서 다음 행동 규칙을 하나씩 꺼내 목표 웨이포인트를 찾고 그쪽으로 이동을 시작한다.
+    // 목표를 찾지 못하면(해당 가구가 아직 존에 배치되지 않은 경우 등) 다음 규칙으로 넘어가고,
+    // 큐가 모두 비면 존의 Exit 웨이포인트로 향해 퇴장한다.
+    private void AdvanceBehaviorQueue()
     {
         if (mAnimator2D != null)
             mAnimator2D.PlayAnimation("Run");
 
-        if (mMovingForward)
+        while (mBehaviorQueue != null && mBehaviorQueue.Count > 0)
         {
-            if (mCurrentIndex < mWaypoints.Length - 1)
-                mCurrentIndex++;
-            else
-                OnReachedEnd();
-        }
-        else
-        {
-            if (mCurrentIndex > 0)
-                mCurrentIndex--;
-            else
-                OnReachedStart();
-        }
+            var step = mBehaviorQueue.Dequeue();
 
-        if (!mIsMoving) return;
-
-        BeginSegmentTo(mWaypoints[mCurrentIndex]);
-    }
-
-    private void OnReachedEnd()
-    {
-        if (mReverseOnEnd)
-        {
-            mMovingForward = false;
-            mCurrentIndex--;
-        }
-        else if (mLoop)
-        {
-            mCurrentIndex = 0;
-        }
-        else
-        {
-            mIsMoving = false;
-        }
-    }
-
-    private void OnReachedStart()
-    {
-        if (mReverseOnEnd)
-        {
-            mMovingForward = true;
-            mCurrentIndex++;
-        }
-        else if (mLoop)
-        {
-            mCurrentIndex = mWaypoints.Length - 1;
-        }
-        else
-        {
-            mIsMoving = false;
-        }
-    }
-
-#if UNITY_EDITOR
-    private void OnDrawGizmos()
-    {
-        if (mWaypoints == null || mWaypoints.Length < 2) return;
-
-        Gizmos.color = mPathColor;
-        for (int i = 0; i < mWaypoints.Length - 1; i++)
-        {
-            if (mWaypoints[i] != null && mWaypoints[i + 1] != null)
+            if (TryGetTargetForStep(step, out var target))
             {
-                Gizmos.DrawLine(mWaypoints[i].transform.position, mWaypoints[i + 1].transform.position);
-
-                Vector3 mid = (mWaypoints[i].transform.position + mWaypoints[i + 1].transform.position) * 0.5f;
-                Vector3 dir = (mWaypoints[i + 1].transform.position - mWaypoints[i].transform.position).normalized;
-                DrawArrow(mid, dir, 0.3f);
+                BeginSegmentTo(target);
+                return;
             }
         }
 
-        if (mLoop && mWaypoints[mWaypoints.Length - 1] != null && mWaypoints[0] != null)
+        if (mCurrentGroup != null && mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Exit, null, out var exit))
         {
-            Gizmos.color = new Color(mPathColor.r, mPathColor.g, mPathColor.b, 0.4f);
-            Gizmos.DrawLine(mWaypoints[mWaypoints.Length - 1].transform.position, mWaypoints[0].transform.position);
+            BeginSegmentTo(exit);
+            return;
         }
+
+        DespawnToPool();
     }
 
-    private void DrawArrow(Vector3 position, Vector3 direction, float size)
+    private bool TryGetTargetForStep(eNpcBehaviorStepType step, out Waypoint target)
     {
-        if (direction == Vector3.zero) return;
-        Vector3 right = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 150, 0) * Vector3.forward;
-        Vector3 left  = Quaternion.LookRotation(direction) * Quaternion.Euler(0, -150, 0) * Vector3.forward;
-        Gizmos.DrawRay(position, right * size);
-        Gizmos.DrawRay(position, left * size);
+        target = null;
+        if (mCurrentGroup == null) return false;
+
+        switch (step)
+        {
+            case eNpcBehaviorStepType.BuyBread:
+                return mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Trigger, Waypoint.eWaypointType.Trigger_Bread, out target);
+            case eNpcBehaviorStepType.OrderDrink:
+                return mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Trigger, Waypoint.eWaypointType.Trigger_Order, out target);
+            case eNpcBehaviorStepType.ExitToTerrace:
+                return mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Exit, null, out target);
+            default:
+                return false;
+        }
     }
-#endif
 }

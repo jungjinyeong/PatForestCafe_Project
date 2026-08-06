@@ -13,7 +13,8 @@
 
     public enum eItemType
     {
-        Money
+        Money,
+        Normal
     }
 
     public enum eMoneyType
