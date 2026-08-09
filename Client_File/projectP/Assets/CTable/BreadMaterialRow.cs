@@ -9,5 +9,6 @@ namespace CTable
         public override int key => Tid;
         public int Tid;
         public string Name;
+        public long Price;
     }
 }

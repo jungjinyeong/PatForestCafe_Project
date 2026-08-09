@@ -69,6 +69,10 @@ public class SaveManager : MonoBehaviour
         data.DiscoveredRecipeTids.AddRange(GameInstance.Model.RecipeBook.GetDiscoveredTids());
         data.GoldIncomeUpgradeLevel = GameInstance.Model.Upgrade.Level;
 
+        data.HiredWorkerCount = GameInstance.Model.Workshop.HiredWorkerCount.Value;
+        foreach (var slot in GameInstance.Model.Workshop.Slots)
+            data.WorkshopSlotMaterialTids.Add(slot.MaterialTid.Value);
+
         data.LastSaveUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         File.WriteAllText(SavePath, JsonUtility.ToJson(data));
@@ -94,6 +98,10 @@ public class SaveManager : MonoBehaviour
 
         GameInstance.Model.RecipeBook.SetDiscovered(data.DiscoveredRecipeTids);
         GameInstance.Model.Upgrade.SetLevel(data.GoldIncomeUpgradeLevel);
+
+        GameInstance.Model.Workshop.SetHiredWorkerCount(data.HiredWorkerCount);
+        for (int i = 0; i < data.WorkshopSlotMaterialTids.Count; i++)
+            GameInstance.Model.Workshop.SetSlotMaterial(i, data.WorkshopSlotMaterialTids[i]);
 
         ApplyOfflineIncome(data.LastSaveUnixSeconds);
 

@@ -11,6 +11,7 @@ public class UIRootLobby : UIWndBase
     [Header("Placement")]
     [SerializeField] private UIButtonEx mBtnTogglePlacementMode;
     [SerializeField] private UIPlacementConfirm mPlacementConfirm;
+    [SerializeField] private UIFurnitureList mFurnitureList;
 
     public override eUIType GetUIType() => eUIType.UIRootLobby;
 
@@ -25,6 +26,9 @@ public class UIRootLobby : UIWndBase
         // mPlacementConfirm은 별도 프리팹(UI_PlacementConfirm)이라 로비 UI에 수동으로 붙이기 전까지 비어있을 수 있음.
         if (mPlacementConfirm != null)
             mPlacementConfirm.Init();
+
+        if (mFurnitureList != null)
+            mFurnitureList.Init();
 
         mBtnTogglePlacementMode.OnSubscribeOnClick(OnClickTogglePlacementMode).AddTo(this);
     }

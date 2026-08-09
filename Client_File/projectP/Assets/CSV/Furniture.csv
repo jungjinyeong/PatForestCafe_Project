@@ -1,0 +1,4 @@
+Tid,Name,Atlas,Icon,PrefabPath,Price
+int,string,string,string,string,long
+@아이디,@가구명,@아이템아틀라스,@아이템아이콘,@프리팹경로,@골드비용
+30001,테이블,FurnitureAtlas,TableIcon,Worlds/Table,1000

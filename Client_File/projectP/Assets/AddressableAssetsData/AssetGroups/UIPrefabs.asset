@@ -14,7 +14,62 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: UIPrefabs
   m_GUID: 6590e8ab1ce837b47affa7602706b5d6
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 10afcf60e6074ed98b26ecb96921b81d
+    m_Address: UIPrefabs/UI_Popup_Upgrade
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1ec06f044d90f524eaa2ad3daabf4e88
+    m_Address: UIPrefabs/UI_Root_Lobby
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 33bb1df68d8097e4fb4da6429e7c4323
+    m_Address: UIPrefabs/UI_Root_MaterialIsland
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3f1568d978f149e4991ef70a49cf1182
+    m_Address: UIPrefabs/UI_Popup_BreadProduction
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 814fec75716ce524eb206dc7d0a81772
+    m_Address: UIPrefabs/UI_HudController
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9227728f950b474c92b2c41e3c58a8c0
+    m_Address: UIPrefabs/UI_Popup_OfflineIncome
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b0d3c7ef59a41e64e8936ea24550a74f
+    m_Address: UIPrefabs/UI_Popup_OrderDetail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bf0fc065a8f3cf34e9e0aef6676b57e8
+    m_Address: UIPrefabs/LobbyCharUI
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c1ae9104527ce35419462c958f2ee88c
+    m_Address: UIPrefabs/UI_Popup_SpecialDrinkProduction
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ca2bc2e745f04fb58df22bfae32f4600
+    m_Address: UIPrefabs/UI_Popup_BreadMinigame
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ecb9a0e232114ebab5573855206cf46d
+    m_Address: UIPrefabs/UI_Popup_RecipeBook
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 50a14d6e0cac9554a8b608e24836664d, type: 2}
   m_SchemaSet:

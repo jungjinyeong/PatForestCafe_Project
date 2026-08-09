@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class LobbyCharUI : MonoBehaviour
 {
-    private const int SortingOrder = 1002;
+    private const int SortingOrder = 0;
 
     [Header("Payment Effect")]
     [SerializeField] private GameObject mCoinIconObj;

@@ -14,6 +14,8 @@ public class UIRootMaterialIsland : UIWndBase
     [Header("Buttons")]
     [SerializeField] private UIButtonEx mBtnOpenBreadMinigame;
     [SerializeField] private UIButtonEx mBtnOpenBreadProduction;
+    [SerializeField] private UIButtonEx mBtnOpenMaterialShop;
+    [SerializeField] private UIButtonEx mBtnOpenWorkshop;
 
     public override eUIType GetUIType() => eUIType.UIRootMaterialIsland;
 
@@ -26,6 +28,8 @@ public class UIRootMaterialIsland : UIWndBase
 
         mBtnOpenBreadMinigame.OnSubscribeOnClick(OnClickOpenBreadMinigame).AddTo(this);
         mBtnOpenBreadProduction.OnSubscribeOnClick(OnClickOpenBreadProduction).AddTo(this);
+        mBtnOpenMaterialShop.OnSubscribeOnClick(OnClickOpenMaterialShop).AddTo(this);
+        mBtnOpenWorkshop.OnSubscribeOnClick(OnClickOpenWorkshop).AddTo(this);
     }
 
     public override void Open()
@@ -57,6 +61,16 @@ public class UIRootMaterialIsland : UIWndBase
     private void OnClickOpenBreadProduction()
     {
         GameInstance.UI.Open<UIPopupBreadProduction, UIPopupBreadProduction.Param>(eUIType.UIPopupBreadProduction, new UIPopupBreadProduction.Param());
+    }
+
+    private void OnClickOpenMaterialShop()
+    {
+        GameInstance.UI.Open<UIPopupMaterialShop, UIPopupMaterialShop.Param>(eUIType.UIPopupMaterialShop, new UIPopupMaterialShop.Param());
+    }
+
+    private void OnClickOpenWorkshop()
+    {
+        GameInstance.UI.Open<UIPopupWorkshop, UIPopupWorkshop.Param>(eUIType.UIPopupWorkshop, new UIPopupWorkshop.Param());
     }
 
     // 클릭 채집 목록은 음료 재료 전용이다. 빵 재료는 UIPopupBreadMinigame으로만 획득한다.

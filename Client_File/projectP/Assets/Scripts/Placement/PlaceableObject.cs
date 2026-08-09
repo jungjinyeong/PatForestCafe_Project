@@ -58,10 +58,28 @@ public class PlaceableObject : MonoBehaviour
         if (Physics2D.OverlapPoint(worldPos) != mCollider)
             return;
 
+        GameInstance.Model.Placement.BeginPlacement(transform, mArea);
+        StartDragTracking();
+    }
+
+    /// <summary>
+    /// 가구 목록의 + 버튼으로 새로 생성된 인스턴스를 곧바로 배치 모드로 전환한다.
+    /// 포인터 클릭으로 시작되는 OnPointerDown과 달리 클릭 판정 없이 바로 드래그 추적을 건다.
+    /// </summary>
+    public void BeginPlacementFromSpawn(PlacementGridArea area)
+    {
+        if (area == null)
+            return;
+
+        mArea = area;
+        GameInstance.Model.Placement.BeginPlacement(transform, mArea);
+        StartDragTracking();
+    }
+
+    private void StartDragTracking()
+    {
         mDragDisposables = new CompositeDisposable();
         mIsDragging = true;
-
-        GameInstance.Model.Placement.BeginPlacement(transform, mArea);
 
         GameInstance.Model.Placement.IsValidPosition
             .Subscribe(UpdateVisual)
