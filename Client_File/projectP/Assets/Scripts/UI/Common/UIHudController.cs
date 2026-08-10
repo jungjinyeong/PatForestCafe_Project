@@ -6,6 +6,10 @@ public class UIHudController : MonoBehaviour
 {
     [SerializeField] private UITopbarInfo mTopbarInfo;
 
+    [Header("Only Lobby")]
+    [SerializeField] private UIButtonEx mBtnBread;
+
+
     [Header("Material Island Toggle")]
     [SerializeField] private UIButtonEx mBtnToggleMaterialIsland;
     [SerializeField] private GameObject mIconGoToMaterialIsland;
@@ -23,6 +27,8 @@ public class UIHudController : MonoBehaviour
         mTopbarInfo.Init();
 
         mBtnToggleMaterialIsland.OnSubscribeOnClick(OnClickToggleMaterialIsland).AddTo(this);
+
+        mBtnBread.OnSubscribeOnClick(OnClickBread).AddTo(this);
 
         mIsInMaterialIsland = false;
         RefreshToggleIcon();
@@ -47,5 +53,11 @@ public class UIHudController : MonoBehaviour
 
         if (mIconGoToLobby != null)
             mIconGoToLobby.SetActive(mIsInMaterialIsland);
+    }
+
+    private void OnClickBread()
+    {
+        GameInstance.UI.Open<UIPopupBreadSelect, UIPopupBreadSelect.Param>(eUIType.UIPopupBreadSelect, 
+            new UIPopupBreadSelect.Param());
     }
 }

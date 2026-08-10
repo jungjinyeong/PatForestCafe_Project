@@ -31,7 +31,7 @@ RectTransform:
   m_Children:
   - {fileID: 6700000000000011}
   - {fileID: 6700000000000021}
-  - {fileID: 6700000000000031}
+  - {fileID: 8503029818264282292}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -49,11 +49,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 539bd520d3f0427e9e6cbb2a9d0e0ca4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIScrollFurniture
   mName: {fileID: 6700000000000013}
   mPrice: {fileID: 6700000000000023}
-  mBtnAdd: {fileID: 6700000000000032}
+  mBtnAdd: {fileID: 7107916875814203410}
 --- !u!1 &6700000000000010
 GameObject:
   m_ObjectHideFlags: 0
@@ -109,7 +109,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -121,8 +121,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Furniture
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: de3ffd8ec94fd1f44bed34f7005abfa9, type: 2}
+  m_sharedMaterial: {fileID: 738068047728643008, guid: de3ffd8ec94fd1f44bed34f7005abfa9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -157,6 +157,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -245,7 +246,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -255,10 +256,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '0'
+  m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: de3ffd8ec94fd1f44bed34f7005abfa9, type: 2}
+  m_sharedMaterial: {fileID: 738068047728643008, guid: de3ffd8ec94fd1f44bed34f7005abfa9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -293,6 +294,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -334,6 +336,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6700000000000002}
     m_Modifications:
+    - target: {fileID: 1242179145773438566, guid: 8b481910ca4cfdc43b50240744c779b8, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 3916550725428638393, guid: 8b481910ca4cfdc43b50240744c779b8, type: 3}
       propertyPath: m_Name
       value: UI_Btn_Add
@@ -427,12 +433,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8b481910ca4cfdc43b50240744c779b8, type: 3}
---- !u!224 &6700000000000031 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 8509297563890656426, guid: 8b481910ca4cfdc43b50240744c779b8, type: 3}
-  m_PrefabInstance: {fileID: 6700000000000030}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6700000000000032 stripped
+--- !u!114 &7107916875814203410 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7112214193399803916, guid: 8b481910ca4cfdc43b50240744c779b8, type: 3}
   m_PrefabInstance: {fileID: 6700000000000030}
@@ -441,5 +442,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cdc7934d629305544861405e32b859ea, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEx
+--- !u!224 &8503029818264282292 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8509297563890656426, guid: 8b481910ca4cfdc43b50240744c779b8, type: 3}
+  m_PrefabInstance: {fileID: 6700000000000030}
+  m_PrefabAsset: {fileID: 0}

@@ -2,24 +2,24 @@ using UnityEngine;
 
 public class PlacementGridArea : MonoBehaviour
 {
-    [SerializeField] private SpriteRenderer mAreaSprite;
+    [SerializeField] private BoxCollider2D mAreaCollider;
     [SerializeField] private float mCellSize = 1f;
 
-    public Bounds Bounds => mAreaSprite != null ? mAreaSprite.bounds : default;
+    public Bounds Bounds => mAreaCollider != null ? mAreaCollider.bounds : default;
 
     public bool Contains(Vector3 worldPos)
     {
-        return mAreaSprite != null && mAreaSprite.bounds.Contains(worldPos);
+        return mAreaCollider != null && mAreaCollider.bounds.Contains(worldPos);
     }
 
     public bool TryGetSnappedPosition(Vector3 worldPos, out Vector3 snappedPos)
     {
         snappedPos = worldPos;
 
-        if (mAreaSprite == null)
+        if (mAreaCollider == null)
             return false;
 
-        Bounds bounds = mAreaSprite.bounds;
+        Bounds bounds = mAreaCollider.bounds;
         Vector3 min = bounds.min;
         Vector3 max = bounds.max;
 
