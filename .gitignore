@@ -53,3 +53,16 @@ Client_File/projectP/Packages/Microsoft.CodeAnalysis.Analyzers.5.3.0/*
 # OS
 .DS_Store
 Thumbs.db
+Client_File/projectP/Assets/Plugins/Demigiant/DOTween/DOTween.dll.mdb.meta
+Client_File/projectP/Assets/Plugins/Demigiant/DOTween/Editor/DOTweenEditor.dll.mdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Attributes.pdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Editor.pdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/Sirenix.Reflection.Editor.pdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/Sirenix.Serialization.Config.pdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/Sirenix.Serialization.pdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/Sirenix.Utilities.Editor.pdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/Sirenix.Utilities.pdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/NoEditor/Sirenix.Serialization.pdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/NoEditor/Sirenix.Utilities.pdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/NoEmitAndNoEditor/Sirenix.Serialization.pdb.meta
+Client_File/projectP/Assets/Plugins/Sirenix/Assemblies/NoEmitAndNoEditor/Sirenix.Utilities.pdb.meta
