@@ -20,6 +20,7 @@ public class WaypointGroup : MonoBehaviour
 
     public int Order => mOrder;
     public Waypoint[] StaticWaypoints => mStaticWaypoints;
+    public PlacementGridArea[] ZoneAreas => mZoneAreas;
 
     public bool IsTerraceZone => mIsTerraceZone;
 

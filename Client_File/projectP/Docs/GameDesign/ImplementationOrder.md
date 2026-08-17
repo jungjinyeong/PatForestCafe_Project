@@ -10,10 +10,11 @@
 | 영역 | 상태 | 관련 코드 |
 |---|---|---|
 | NPC 이동/웨이포인트 | 구현됨 (2026-08 자유 배회+행동 큐로 갱신) | `CharNpc`, `WaypointGroup`, `WaypointPathfinder`, `SpawnManager`, `NpcBehaviorRuleSet` |
-| 빵 진열/선택/픽업 | 구현됨 | `Intaraction_BreadStand`, `Intaraction_Bread`, `UIPopupBreadSelect`, `BreadModel` |
+| 빵 진열/선택/픽업 | 구현됨 (2026-08-18: 진열 재고 세이브/로드 추가, 선택 팝업 행 프리팹 `UIScrollBread.prefab` 분리 + 리스타일) | `Intaraction_BreadStand`, `Intaraction_Bread`, `UIPopupBreadSelect`, `BreadModel` |
 | 기본 음료 자동 결제 | 구현됨 (단순 형태) | `CharNpc.ProcessArrivalCategoryLogic` (`Trigger_Order`) |
 | 레시피 개발(재료 조합) | 구현됨 (2026-08 스페셜 주문 삭제 후 손님과 무관한 개발 UI로 전환) | `UIPopupSpecialDrinkProduction`, `RecipeBookModel`, `UIPopupRecipeBook` |
-| 그리드 배치 시스템 | 구현됨 | `PlacementGridArea`, `PlaceableObject`, `PlacementModel(+Ctrl)` |
+| 그리드 배치 시스템 | 구현됨 (2026-08-17: 가구 배치 위치 세이브/로드, 미확정 가구 취소 시 골드 환불 추가) | `PlacementGridArea`, `PlaceableObject`, `PlacementModel(+Ctrl)` |
+| 로비 층 확장 (온천탑형, 1~5층+공용 테라스 6층) | 코드 구현됨(층 언락/라우팅/카메라/가구 배치 포함), 씬 배치는 테라스만 완료(2~5층 미배치) | `FloorModel`, `LobbyFloorCameraController`, `UIFloorUnlock`, `WayPointManager`, `CharNpc`, `UIFurnitureList` |
 | Day/Night 사이클 | 구현됨 | `DayNightManager`, `UIDayNightBg`, `TimeManager` |
 | 재화/저장 시스템 | 구현됨 | `ItemModel`, `SaveManager`, `SaveData` |
 | 가공섬 | 기본 수급(클릭 채집) + 빵 재료 미니게임(자리표시자) + 빵 공장(재료 조합) 코드+러프 프리팹 완료, 상점/재배형 공방 미구현 | `MaterialModel`, `UIRootMaterialIsland`, `UIPopupBreadMinigame`, `UIPopupBreadProduction` |
@@ -106,9 +107,29 @@
 3. 상점 (재료 구매) — 미착수, 재화로 재료 구매하는 구조라 신규 테이블 필요 가능성 있음 (사전 논의 대상)
 4. 재배형 공방 + 고용탭 (일꾼 고용, 가장 복잡하므로 마지막) — 미착수, 신규 테이블 필요 가능성 높음 (사전 논의 대상)
 
+### 6단계 — 로비 층 확장 (온천탑형, 진행 중)
+컨셉 지시("복슬복슬 온천탕"처럼 로비를 1~5층 + 공용 테라스(6층)로 확장)에 맞춰 스크롤형 다층 로비 구조를 구현.
+내비게이션은 스크롤형(한 씬에 6개 층, 카메라가 세로로 이동), 손님 동선은 1~5층 중 무작위 한 층만 방문한 뒤
+항상 테라스로 퇴장(순차 1→2→...→6 아님), 층별로 독립된 카운터/빵 진열대를 가지며, 2~6층은 골드로 순차 언락되는
+구조로 사전 확정함.
+
+- [x] **층 언락 진행도 모델** — `FloorModel` 신규: `HighestUnlockedFloor`(1층 무료 시작), `IsUnlocked(floor)`, `TryUnlockNextFloor()`(골드 소모 후 다음 층 언락). 언락 비용은 기획 확정 전이라 코드 내 고정 배열(`500/1000/2000/4000/8000`)로 관리(`UpgradeModel`/재배형 공방과 동일한 "기획 확정 전 임시" 패턴). `CommonModelManager.Floor`로 등록, `SaveData.HighestUnlockedFloor`로 영속화. (`Assets/Scripts/ViewModel/Floor/FloorModel.cs`, `CommonModelManager.cs`, `SaveManager.cs`)
+- [x] **층별 웨이포인트 라우팅** — `WaypointGroup.Order`를 층 번호로 재사용(1~5=일반 층, 6=테라스, 별도 필드 추가 없음). `WayPointManager`의 옛 순차 체인(`GetNextGroup`/`GetFirstGroup`)을 `GetRandomUnlockedFloorGroup()`(스폰 시 언락된 층 중 무작위 선택)과 `GetTerraceGroup()`(방문 후 목적지)으로 교체하고 둘 다 `FloorModel.IsUnlocked`로 필터링. `CharNpc.TryMoveToNextGroup()`은 "다음 Order"가 아니라 항상 테라스로 이동하도록 변경, `SpawnManager`의 두 스폰 경로 모두 `GetRandomUnlockedFloorGroup()`을 사용하도록 수정. (`WayPointManager.cs`, `CharNpc.cs`, `SpawnManager.cs`, `WaypointGroup.cs`)
+- [x] **스크롤 카메라 + 층별 가구 배치 연결** — `LobbyFloorCameraController` 신규: 층 간 세로 스크롤 카메라 + 현재 보고 있는 층의 `PlacementGridArea`를 `CurrentFloorArea`로 노출. `UIFurnitureList`가 기존 `FindFirstObjectByType<PlacementGridArea>()`(층이 여러 개면 임의의 층이 걸림) 대신 이 값을 쓰도록 수정. `UIRootLobby.Init()`에서 `mFurnitureList`보다 먼저 초기화됨(가구 구매 시 "지금 보고 있는 층"이 필요하므로). (`Assets/Scripts/UI/Lobby/LobbyFloorCameraController.cs`, `UIFurnitureList.cs`, `UIRootLobby.cs`)
+- [x] **가구 배치 영속화 + 취소 버그 수정** — `PlacementModel`에 배치 확정된 가구 레지스트리(`RegisterPlacement`/`UpdatePlacementPosition`/`RestorePlacement`) 추가, `SaveData.PlacedFurniture`로 저장/복원. `UIFurnitureList.RespawnSavedFurniture()`가 로드 시 저장된 좌표를 실제로 포함하는 `PlacementGridArea`를 찾아 각 가구를 해당 층에 재연결(층마다 영역이 달라 좌표 포함 여부로 판별해야 함). 겸사겸사 발견된 버그도 수정: 구매 직후(한 번도 배치 확정 안 된) 가구를 취소하면 씬에서 조용히 사라지며 골드만 날아가던 문제 → `PlacementModel.Cancel()`이 이 경우 골드를 환불하고 오브젝트도 정리하도록 수정. (`PlacementModel.cs`, `PlacementModel+Ctrl.cs`, `PlaceableObject.cs`, `UIFurnitureList.cs`, `SaveData.cs`, `SaveManager.cs`)
+- [x] **빵 진열 재고 세이브/로드** — `SaveData.Breads`(Count/ProducedCount) 추가. `BreadModel` 항목은 씬의 `Intaraction_BreadStand.Register()` 이후에야 존재해 로드 시점에 바로 적용할 수 없으므로 캐싱(`SaveManager`의 대기 목록) 후 `GameModeLobby+FSM.InitBreadStands()`에서 `ApplyPendingBreadData()` → 각 진열대 `SyncDisplayToSavedCount()`로 실제 빵 오브젝트 개수까지 복원. (`SaveManager.cs`, `BreadModel.cs`, `BreadData.cs`, `Intaraction_BreadStand.cs`, `GameModeLobby+FSM.cs`)
+- [x] **층 언락 UI (코드만)** — `UIFloorUnlock` 신규: 현재 언락 층 수/다음 언락 비용 표시 + 언락 버튼(`UIPopupUpgrade`와 동일한 "현재 상태 + 다음 비용 + 버튼" 패턴). `eUIType.UIFloorUnlock` 등록. 프리팹은 아직 없고 스크립트 GUID만 고정해둠(`.cs.meta`). (`Assets/Scripts/UI/Common/UIFloorUnlock.cs`)
+- 진행 중(2026-08-18) — `Assets/Scenes/MainLobby.unity`에 테라스용 `WaypointGroup`(Order 6, `IsTerraceZone`) 배치 완료, 기존 1층 그룹의 Order를 0→1로 수정. 2~5층 `WaypointGroup`은 아직 씬에 없음.
+
+**후속 작업(에디터, 필수)**:
+- 2~5층 `WaypointGroup`(Order 2~5) + 층별 `CharStaff`(카운터) + `Intaraction_BreadStand`(빵 진열대) + `PlacementGridArea` 배치(기존 프리팹을 반복 배치, 신규 코드 불필요).
+- `LobbyFloorCameraController`를 메인 카메라에 붙이고 층 이동(스크롤) 트리거 연결.
+- `UIFloorUnlock` 러프 프리팹 제작 후 `UIManager.prefab`의 `mCachedUIDic`에 `eUIType.UIFloorUnlock`으로 등록 + 진입 버튼 연결.
+- 층 배경 아트, 잠금 층 오버레이 비주얼.
+
 ## 진행 시 유의사항
 - **CTable/CSV 추가 이력(승인 완료)**: 스페셜 주문 삭제(2026-08) 작업 중 "레시피 개발북" 아이템을 위해 `Assets/CTable/TableEnum.cs`의 `eItemType`에 `Normal` 추가, `Assets/CSV/Item.csv`에 `Tid=1002` 행 추가(사용자 승인됨). 획득 경로(드랍/구매 등)는 아직 미구현.
-- **새 팝업 5개(`UI_Popup_OfflineIncome`/`RecipeBook`/`Upgrade`/`BreadMinigame`/`BreadProduction`) 전부 프리팹까지는 만들어져 있지만, `UIManager.prefab`의 `mCachedUIDic` 등록만 공통으로 남아 있음.** 이 딕셔너리는 Odin Serializer 이진 직렬화라 텍스트로 편집 불가 — Unity 에디터에서 각 `eUIType`에 해당 프리팹을 드래그 등록하고 Popup 캔버스 하위에 배치해야 실제로 열림. 이 등록 전까지 각 기능의 백엔드 로직(저장/계산/소모 등)은 정상 동작하지만 화면에 UI가 뜨지 않음.
+- **새 팝업 5개(`UI_Popup_OfflineIncome`/`RecipeBook`/`Upgrade`/`BreadMinigame`/`BreadProduction`) 전부 프리팹까지는 만들어져 있지만, `UIManager.prefab`의 `mCachedUIDic` 등록만 공통으로 남아 있음.** 이 딕셔너리는 Odin Serializer 이진 직렬화라 텍스트로 편집 불가 — Unity 에디터에서 각 `eUIType`에 해당 프리팹을 드래그 등록하고 Popup 캔버스 하위에 배치해야 실제로 열림. 이 등록 전까지 각 기능의 백엔드 로직(저장/계산/소모 등)은 정상 동작하지만 화면에 UI가 뜨지 않음. `UIFloorUnlock`(6단계)은 이 5개와 달리 프리팹조차 아직 없어 프리팹 제작부터 필요함.
 - 2, 4, 5단계 모두 신규 데이터 테이블이 필요할 가능성이 높음 — `Assets/CTable`, `Assets/CSV`는 직접 수정 금지 대상이므로 착수 전 반드시 먼저 확인받을 것
 - 신규 Model/Controller는 `Assets/Scripts/ViewModel/` 하위에 `{Name}Model.cs` / `{Name}Model+Ctrl.cs` 구조로 추가
 - `GameInstance.Init()` 이후에만 유효한 매니저/모델 접근은 CLAUDE.md의 "GameInstance 의존 초기화 규칙"을 따를 것

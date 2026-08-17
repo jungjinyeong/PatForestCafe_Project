@@ -24,31 +24,33 @@ public class WayPointManager : MonoBehaviour
         MessageBroker.Default.Publish(new CEvent.WaypointGroupRegist(mWaypointGroups.ToArray()));
     }
 
-    public WaypointGroup GetFirstGroup()
+    // 손님 스폰 대상 선택용: 테라스가 아니고 언락된 층 중 무작위 하나.
+    public WaypointGroup GetRandomUnlockedFloorGroup()
     {
-        WaypointGroup first = null;
+        var candidates = new List<WaypointGroup>();
         foreach (var group in mWaypointGroups)
         {
-            if (group == null)
+            if (group == null || group.IsTerraceZone)
                 continue;
 
-            if (first == null || group.Order < first.Order)
-                first = group;
+            if (GameInstance.Model.Floor.IsUnlocked(group.Order))
+                candidates.Add(group);
         }
-        return first;
+
+        if (candidates.Count == 0)
+            return null;
+
+        return candidates[UnityEngine.Random.Range(0, candidates.Count)];
     }
 
-    public WaypointGroup GetNextGroup(int currentOrder)
+    // 손님이 층 방문을 마친 뒤 항상 향하는 목적지. 테라스가 아직 언락되지 않았으면 null(그 자리에서 퇴장 처리).
+    public WaypointGroup GetTerraceGroup()
     {
-        WaypointGroup next = null;
         foreach (var group in mWaypointGroups)
         {
-            if (group == null || group.Order <= currentOrder)
-                continue;
-
-            if (next == null || group.Order < next.Order)
-                next = group;
+            if (group != null && group.IsTerraceZone && GameInstance.Model.Floor.IsUnlocked(group.Order))
+                return group;
         }
-        return next;
+        return null;
     }
 }

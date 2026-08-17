@@ -21,6 +21,31 @@ public class PlaceableObject : MonoBehaviour
     private CompositeDisposable mDragDisposables;
     private bool mIsDragging;
 
+    // 구매로 스폰된 가구인지 식별하는 값. 0이면 배치 영속화 대상이 아닌(세이브/로드 대상 아닌) 오브젝트로 취급한다.
+    private int mFurnitureTid;
+    // PlacementModel.mDicPlacedFurniture의 키. 최초 배치 확정 전까지는 -1(미발급).
+    private int mPlacementId = -1;
+
+    public int FurnitureTid => mFurnitureTid;
+    public int PlacementId => mPlacementId;
+
+    public void SetFurnitureTid(int tid)
+    {
+        mFurnitureTid = tid;
+    }
+
+    public void SetPlacementId(int placementId)
+    {
+        mPlacementId = placementId;
+    }
+
+    // 세이브 복원 시 드래그를 시작하지 않고 영역만 채운다. mArea는 원래 BeginPlacementFromSpawn(구매 스폰)에서만
+    // 런타임으로 채워지는데, 복원된 가구는 이 경로를 타지 않아 mArea가 비어있으면 이후 재배치 드래그가 막힌다.
+    public void SetArea(PlacementGridArea area)
+    {
+        mArea = area;
+    }
+
     private void Awake()
     {
         mCollider = GetComponent<BoxCollider2D>();

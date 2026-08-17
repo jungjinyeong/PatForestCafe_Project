@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UniRx;
@@ -21,6 +22,11 @@ public class SaveManager : MonoBehaviour
     private bool mHasPendingOfflineIncome;
     private int mPendingOfflineGold;
     private double mPendingOfflineSeconds;
+
+    // BreadModel 항목은 GameInstance.Init() 시점(Load 호출 시점)이 아니라
+    // GameModeLobby+FSM.InitBreadStands()에서 씬의 진열대가 Register()한 뒤에야 존재하므로,
+    // 로드 시점엔 바로 적용하지 못하고 캐싱해뒀다가 InitBreadStands() 이후 ApplyPendingBreadData()로 적용한다.
+    private List<BreadSaveEntry> mPendingBreadSaveEntries;
 
     public void Init()
     {
@@ -66,12 +72,20 @@ public class SaveManager : MonoBehaviour
         foreach (var material in GameInstance.Model.Material.GetAll())
             data.Materials.Add(new ItemSaveEntry { Tid = material.Tid, Count = material.Count.Value });
 
+        foreach (var bread in GameInstance.Model.Bread.GetAll())
+            data.Breads.Add(new BreadSaveEntry { Tid = bread.TId, Count = bread.Count.Value, ProducedCount = bread.ProducedCount.Value });
+
+        foreach (var kvp in GameInstance.Model.Placement.GetAllPlacements())
+            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position });
+
         data.DiscoveredRecipeTids.AddRange(GameInstance.Model.RecipeBook.GetDiscoveredTids());
         data.GoldIncomeUpgradeLevel = GameInstance.Model.Upgrade.Level;
 
         data.HiredWorkerCount = GameInstance.Model.Workshop.HiredWorkerCount.Value;
         foreach (var slot in GameInstance.Model.Workshop.Slots)
             data.WorkshopSlotMaterialTids.Add(slot.MaterialTid.Value);
+
+        data.HighestUnlockedFloor = GameInstance.Model.Floor.HighestUnlockedFloor;
 
         data.LastSaveUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
@@ -96,6 +110,11 @@ public class SaveManager : MonoBehaviour
         foreach (var entry in data.Materials)
             GameInstance.Model.Material.SetByTid(entry.Tid, entry.Count);
 
+        mPendingBreadSaveEntries = data.Breads;
+
+        foreach (var entry in data.PlacedFurniture)
+            GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position);
+
         GameInstance.Model.RecipeBook.SetDiscovered(data.DiscoveredRecipeTids);
         GameInstance.Model.Upgrade.SetLevel(data.GoldIncomeUpgradeLevel);
 
@@ -103,9 +122,26 @@ public class SaveManager : MonoBehaviour
         for (int i = 0; i < data.WorkshopSlotMaterialTids.Count; i++)
             GameInstance.Model.Workshop.SetSlotMaterial(i, data.WorkshopSlotMaterialTids[i]);
 
+        GameInstance.Model.Floor.SetHighestUnlockedFloor(data.HighestUnlockedFloor);
+
         ApplyOfflineIncome(data.LastSaveUnixSeconds);
 
         Logger.Log($"[SaveManager] 불러오기 완료: {SavePath}");
+    }
+
+    /// <summary>
+    /// 로드해둔 빵 진열/생산 재고를 BreadModel에 적용한다.
+    /// BreadModel 항목은 씬의 Intaraction_BreadStand가 Register()해야 생기므로,
+    /// GameModeLobby+FSM.InitBreadStands()에서 모든 진열대를 등록한 직후 호출해야 한다.
+    /// </summary>
+    public void ApplyPendingBreadData()
+    {
+        if (mPendingBreadSaveEntries == null) return;
+
+        foreach (var entry in mPendingBreadSaveEntries)
+            GameInstance.Model.Bread.SetByTid(entry.Tid, entry.Count, entry.ProducedCount);
+
+        mPendingBreadSaveEntries = null;
     }
 
     /// <summary>

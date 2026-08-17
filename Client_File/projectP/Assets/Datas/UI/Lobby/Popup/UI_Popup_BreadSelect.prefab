@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.4509804, g: 0.31764707, b: 0.21176471, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -121,7 +121,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3053262674234595056}
   - component: {fileID: 8038328609220894259}
-  - component: {fileID: 6182503504934595520}
+  - component: {fileID: 544725840453653153}
+  - component: {fileID: 3016451983030893250}
   m_Layer: 0
   m_Name: bg
   m_TagString: Untagged
@@ -158,7 +159,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2289184881788989869}
   m_CullTransparentMesh: 1
---- !u!114 &6182503504934595520
+--- !u!114 &544725840453653153
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -167,24 +168,42 @@ MonoBehaviour:
   m_GameObject: {fileID: 2289184881788989869}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.7058824, g: 0.49803922, b: 0.3372549, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 0}
-  m_UVRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3016451983030893250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2289184881788989869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.4509804, g: 0.31764707, b: 0.21176471, a: 0.5}
+  m_EffectDistance: {x: 10, y: 10}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3645635071310063255
 GameObject:
   m_ObjectHideFlags: 0
@@ -238,7 +257,7 @@ MonoBehaviour:
   mBtnClose: {fileID: 3630045879388995991}
   mBtnBgClose: {fileID: 6932692870779723898}
   mScrollEx: {fileID: 417583387914239742}
-  mBreadRowPrefab: {fileID: 609846801655743784}
+  mBreadRowPrefab: {fileID: 100100000, guid: c069b9b7527e4a16accc810d187dbb8c, type: 3}
 --- !u!1 &7075448014416781748
 GameObject:
   m_ObjectHideFlags: 0
@@ -301,7 +320,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.003921569}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -812,11 +831,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1504631014257850178, guid: 7f7e4c33c7f22014497b49fdaaa8ab87, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 1031.7905
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 1504631014257850178, guid: 7f7e4c33c7f22014497b49fdaaa8ab87, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 148.34897
+      value: -11.5
       objectReference: {fileID: 0}
     - target: {fileID: 1504631014257850178, guid: 7f7e4c33c7f22014497b49fdaaa8ab87, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -923,11 +942,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -88
+      value: -12.200012
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -86
+      value: -14.299988
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

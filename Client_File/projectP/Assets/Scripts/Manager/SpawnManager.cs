@@ -47,14 +47,14 @@ public class SpawnManager : MonoBehaviour
             return;
         }
 
-        var firstGroup = GameInstance.WayPoint?.GetFirstGroup();
-        if (firstGroup == null)
+        var group = GameInstance.WayPoint?.GetRandomUnlockedFloorGroup();
+        if (group == null)
         {
-            Logger.Warning("[SpawnManager] No WaypointGroup registered.");
+            Logger.Warning("[SpawnManager] No unlocked floor WaypointGroup registered.");
             return;
         }
 
-        SpawnInGroup(firstGroup);
+        SpawnInGroup(group);
     }
 
     private void SpawnInGroup(WaypointGroup group)
@@ -148,7 +148,7 @@ public class SpawnManager : MonoBehaviour
         if (mNpcPrefabs == null || mNpcPrefabs.Length == 0)
             return;
 
-        var group = GameInstance.WayPoint?.GetFirstGroup();
+        var group = GameInstance.WayPoint?.GetRandomUnlockedFloorGroup();
         if (group == null) return;
 
         var spawnPoints = group.GetSpawnPoints();

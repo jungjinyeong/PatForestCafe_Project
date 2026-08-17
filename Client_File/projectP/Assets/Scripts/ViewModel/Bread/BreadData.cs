@@ -56,6 +56,16 @@ public class BreadData
         mCount.Value = Mathf.Max(0, mCount.Value - count);
     }
 
+    public void SetCount(int count)
+    {
+        mCount.Value = Mathf.Max(0, count);
+    }
+
+    public void SetProduced(int count)
+    {
+        mProducedCount.Value = Mathf.Max(0, count);
+    }
+
     public void AddProduced(int count = 1)
     {
         mProducedCount.Value += count;

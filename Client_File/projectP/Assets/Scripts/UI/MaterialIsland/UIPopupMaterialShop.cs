@@ -46,7 +46,11 @@ public class UIPopupMaterialShop : UIWndBase, IUIParam<UIPopupMaterialShop.Param
         }
 
         gold.Consume((int)shopRow.CurrentData.Price);
-        GameInstance.Model.Material.Gather(shopRow.CurrentData.Tid);
+
+        if (shopRow.CurrentData.EntryType == eShopEntryType.Item)
+            GameInstance.Model.Item.Add(shopRow.CurrentData.Tid);
+        else
+            GameInstance.Model.Material.Gather(shopRow.CurrentData.Tid);
 
         RefreshList();
     }
@@ -59,14 +63,27 @@ public class UIPopupMaterialShop : UIWndBase, IUIParam<UIPopupMaterialShop.Param
         if (drinkMaterialGroup != null)
         {
             foreach (var row in drinkMaterialGroup.All.Values)
-                dataList.Add(new UIScrollMaterialShopData { Tid = row.Tid, Name = row.Name, Price = row.Price });
+                dataList.Add(new UIScrollMaterialShopData { Tid = row.Tid, Name = row.Name, Price = row.Price, EntryType = eShopEntryType.Material });
         }
 
         var breadMaterialGroup = GameInstance.Table.GetTable<CTable.BreadMaterialRow>();
         if (breadMaterialGroup != null)
         {
             foreach (var row in breadMaterialGroup.All.Values)
-                dataList.Add(new UIScrollMaterialShopData { Tid = row.Tid, Name = row.Name, Price = row.Price });
+                dataList.Add(new UIScrollMaterialShopData { Tid = row.Tid, Name = row.Name, Price = row.Price, EntryType = eShopEntryType.Material });
+        }
+
+        // Money(골드)는 골드로 사는 게 의미가 없으므로 제외 — 그 외 일반 아이템(레시피 개발북 등)만 상점에 노출한다.
+        var itemGroup = GameInstance.Table.GetTable<CTable.ItemRow>();
+        if (itemGroup != null)
+        {
+            foreach (var row in itemGroup.All.Values)
+            {
+                if (row.ItemType == CTable.eItemType.Money)
+                    continue;
+
+                dataList.Add(new UIScrollMaterialShopData { Tid = row.Tid, Name = row.ItemName, Price = row.Price, EntryType = eShopEntryType.Item });
+            }
         }
 
         mScrollEx.SetData(dataList);

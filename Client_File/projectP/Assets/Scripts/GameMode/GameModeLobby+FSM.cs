@@ -31,8 +31,16 @@ public partial class GameModeLobby
 
     private void InitBreadStands()
     {
-        foreach (var breadStand in FindObjectsByType<Intaraction_BreadStand>(FindObjectsSortMode.None))
+        var breadStands = FindObjectsByType<Intaraction_BreadStand>(FindObjectsSortMode.None);
+
+        foreach (var breadStand in breadStands)
             breadStand.Init();
+
+        GameInstance.Save.ApplyPendingBreadData();
+
+        // Count(진열 수량)를 세이브 값으로 되돌린 뒤에야 실제 빵 오브젝트 개수를 맞출 수 있으므로 순서 중요.
+        foreach (var breadStand in breadStands)
+            breadStand.SyncDisplayToSavedCount();
     }
 
     private void OnEnterOpenLobbyUI()

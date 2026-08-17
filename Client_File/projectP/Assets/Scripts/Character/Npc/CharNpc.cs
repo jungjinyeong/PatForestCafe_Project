@@ -14,7 +14,12 @@ public class CharNpc : CharBase, IBreadPickup
     [SerializeField] private float mAvoidanceLookAhead = 0.5f;
     [SerializeField] private float mAvoidanceAngle = 45f;
 
+    [Header("Terrace")]
+    [SerializeField] private float mTerraceLingerMinSeconds = 3f;
+    [SerializeField] private float mTerraceLingerMaxSeconds = 6f;
+
     private bool mIsMoving = true;
+    private bool mHasLingeredInTerrace;
 
     private WaypointGroup mCurrentGroup;
     private Waypoint mCurrentWaypoint;
@@ -41,6 +46,7 @@ public class CharNpc : CharBase, IBreadPickup
     public void Init(WaypointGroup group, Waypoint spawnPoint)
     {
         mBehaviorQueue = NpcBehaviorRuleSet.GetRandomQueue();
+        mHasLingeredInTerrace = false;
         EnterGroup(group, spawnPoint);
     }
 
@@ -148,12 +154,14 @@ public class CharNpc : CharBase, IBreadPickup
         return false;
     }
 
+    // 손님 동선: 층(비-테라스) 방문을 마치면 항상 테라스로 향한다(순차 Order 체인이 아님).
+    // 이미 테라스에 있다면 더 갈 곳이 없어 false(호출 측에서 디스폰 처리).
     private bool TryMoveToNextGroup()
     {
-        if (mCurrentGroup == null || GameInstance.WayPoint == null)
+        if (mCurrentGroup == null || GameInstance.WayPoint == null || mCurrentGroup.IsTerraceZone)
             return false;
 
-        var nextGroup = GameInstance.WayPoint.GetNextGroup(mCurrentGroup.Order);
+        var nextGroup = GameInstance.WayPoint.GetTerraceGroup();
         if (nextGroup == null)
             return false;
 
@@ -275,6 +283,12 @@ public class CharNpc : CharBase, IBreadPickup
             }
         }
 
+        if (mCurrentGroup != null && mCurrentGroup.IsTerraceZone && !mHasLingeredInTerrace)
+        {
+            LingerInTerrace();
+            return;
+        }
+
         if (mCurrentGroup != null && mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Exit, null, out var exit))
         {
             BeginSegmentTo(exit);
@@ -282,6 +296,32 @@ public class CharNpc : CharBase, IBreadPickup
         }
 
         DespawnToPool();
+    }
+
+    // 테라스 존(IsTerraceZone) 도착 시 행동 큐가 소진되면 곧장 Exit로 나가지 않고 한 번만 잠시 머무른다.
+    // mHasLingeredInTerrace로 재입장/재확인 시 중복 실행을 막는다.
+    private void LingerInTerrace()
+    {
+        mHasLingeredInTerrace = true;
+        mIsMoving = false;
+
+        if (mAnimator2D != null)
+            mAnimator2D.PlayAnimation("Idle");
+
+        float lingerSeconds = UnityEngine.Random.Range(mTerraceLingerMinSeconds, mTerraceLingerMaxSeconds);
+
+        mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(lingerSeconds))
+            .Subscribe(_ => ResumeFromTerraceLinger())
+            .AddTo(this);
+    }
+
+    private void ResumeFromTerraceLinger()
+    {
+        mPauseDisposable?.Dispose();
+        mPauseDisposable = null;
+
+        mIsMoving = true;
+        AdvanceBehaviorQueue();
     }
 
     private bool TryGetTargetForStep(eNpcBehaviorStepType step, out Waypoint target)

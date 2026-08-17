@@ -3,11 +3,18 @@ using TMPro;
 using Extension;
 using UniRx;
 
+public enum eShopEntryType
+{
+    Material,
+    Item,
+}
+
 public class UIScrollMaterialShopData
 {
     public int Tid;
     public string Name;
     public long Price;
+    public eShopEntryType EntryType;
 }
 
 public class UIScrollMaterialShop : UIScrollRow<UIScrollMaterialShopData>

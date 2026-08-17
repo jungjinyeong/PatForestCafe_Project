@@ -1,5 +1,5 @@
-﻿Tid,ItemType,ItemName,Atlas,Icon
-int,Enum(eItemType),string,string,string
-@아이디,@아이템타입,@아이템명,@아이템아틀라스,@아이템아이콘
-1001,Money,골드,ItemAtlas,Gold
-1002,Normal,레시피 개발북,ItemAtlas,RecipeBook
+﻿Tid,ItemType,ItemName,Atlas,Icon,Price
+int,Enum(eItemType),string,string,string,long
+@아이디,@아이템타입,@아이템명,@아이템아틀라스,@아이템아이콘,@골드가격
+1001,Money,골드,ItemAtlas,Gold,0
+1002,Normal,레시피 개발북,ItemAtlas,RecipeBook,500

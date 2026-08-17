@@ -25,6 +25,7 @@ public enum eUIType
     UIPopupBreadProduction,
     UIPopupMaterialShop,
     UIPopupWorkshop,
+    UIFloorUnlock,
 
     UIHudController = eUILayerType.AlwaysOnTop << 16,
     UILoading,

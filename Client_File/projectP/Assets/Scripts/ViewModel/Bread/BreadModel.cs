@@ -32,6 +32,17 @@ public class BreadModel : IModelBase
         return mDicBreads.TryGetValue(tableId, out var bread) ? bread : null;
     }
 
+    public IEnumerable<BreadData> GetAll() => mDicBreads.Values;
+
+    public void SetByTid(int tableId, int count, int producedCount)
+    {
+        if (!mDicBreads.TryGetValue(tableId, out var bread))
+            return;
+
+        bread.SetCount(count);
+        bread.SetProduced(producedCount);
+    }
+
     public void Add(int tableId, int count = 1)
     {
         if (mDicBreads.TryGetValue(tableId, out var bread))

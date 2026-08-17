@@ -17,40 +17,64 @@ public class AddressableSetupTool : EditorWindow
         CustomPrefix,
     }
 
-    private List<UnityEngine.Object> mSelectedAssets = new List<UnityEngine.Object>();
+    [Serializable]
+    private class FolderRule
+    {
+        public string FolderPath = "";
+        public string Extensions = "";
+        public string GroupName = "";
+        public eAddressMode AddressMode = eAddressMode.ResourcesRelativePath;
+        public string CustomPrefix = "";
+        public string LabelsInput = "";
+        public bool MoveOutOfResources = false;
+        public string MoveTargetRoot = "Assets/AddressableAssets";
+    }
+
+    [Serializable]
+    private class FileEntry
+    {
+        public string AssetPath = "";
+        public string OwnerFolderPath = "";
+        public bool Include = true;
+        public string GroupName = "";
+        public string Address = "";
+        public string LabelsInput = "";
+        public bool IsOverridden = false;
+    }
+
+    [Serializable]
+    private class ConfigData
+    {
+        public List<FolderRule> FolderRules = new List<FolderRule>();
+        public List<FileEntry> FileEntries = new List<FileEntry>();
+    }
+
+    private const string CONFIG_PATH = "Assets/Editor/AddressableSetupToolConfig.json";
+
+    private ConfigData mConfig = new ConfigData();
     private string[] mGroupNames = new string[0];
-    private int mGroupIndex = 0;
-    private string mNewGroupName = "";
 
-    private eAddressMode mAddressMode = eAddressMode.ResourcesRelativePath;
-    private string mCustomPrefix = "";
-    private string mLabelsInput = "";
-
-    private bool mMoveOutOfResources = false;
-    private string mMoveTargetRoot = "Assets/AddressableAssets";
-
-    private Vector2 mSelectedScroll;
-    private Vector2 mEntryScroll;
+    private Vector2 mFolderScroll;
+    private Vector2 mFileScroll;
 
     [MenuItem("Tools/Addressables/어드레서블 세팅 툴")]
     public static void Open()
     {
         var window = GetWindow<AddressableSetupTool>("어드레서블 세팅 툴");
-        window.minSize = new Vector2(420, 500);
-        window.RefreshSelection();
+        window.minSize = new Vector2(520, 650);
+        window.LoadConfig();
         window.RefreshGroupNames();
     }
 
     private void OnEnable()
     {
-        RefreshSelection();
+        LoadConfig();
         RefreshGroupNames();
     }
 
-    private void OnSelectionChange()
+    private void OnDisable()
     {
-        RefreshSelection();
-        Repaint();
+        SaveConfig();
     }
 
     private void OnGUI()
@@ -62,262 +86,276 @@ public class AddressableSetupTool : EditorWindow
             return;
         }
 
-        DrawSelectedAssets();
+        DrawFolderRules();
         EditorGUILayout.Space(8);
-        DrawGroupSelector(settings);
-        EditorGUILayout.Space(8);
-        DrawAddressOptions();
-        EditorGUILayout.Space(8);
-        DrawLabelOptions();
-        EditorGUILayout.Space(8);
-        DrawMoveOptions();
+        DrawFileTable();
         EditorGUILayout.Space(12);
 
-        using (new EditorGUI.DisabledScope(mSelectedAssets.Count == 0))
+        int includeCount = mConfig.FileEntries.Count(e => e.Include);
+        using (new EditorGUI.DisabledScope(includeCount == 0))
         {
-            if (GUILayout.Button($"선택한 {mSelectedAssets.Count}개 에셋을 어드레서블로 등록", GUILayout.Height(32)))
+            if (GUILayout.Button($"체크된 {includeCount}개 파일을 어드레서블로 등록", GUILayout.Height(32)))
             {
-                RegisterSelected(settings);
+                RegisterAll(settings);
             }
         }
-
-        EditorGUILayout.Space(12);
-        DrawGroupEntries(settings);
     }
 
-    private void DrawSelectedAssets()
+    private void DrawFolderRules()
     {
-        EditorGUILayout.LabelField("선택된 에셋 (Project 창에서 선택)", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("등록된 폴더", EditorStyles.boldLabel);
 
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("현재 선택으로 새로고침"))
-                RefreshSelection();
-            if (GUILayout.Button("비우기", GUILayout.Width(60)))
-                mSelectedAssets.Clear();
+            if (GUILayout.Button("+ 폴더 추가"))
+                mConfig.FolderRules.Add(new FolderRule());
+            if (GUILayout.Button("전체 스캔", GUILayout.Width(100)))
+                ScanAll();
+            if (GUILayout.Button("설정 저장", GUILayout.Width(80)))
+                SaveConfig();
         }
 
-        mSelectedScroll = EditorGUILayout.BeginScrollView(mSelectedScroll, GUILayout.Height(120));
-        for (int i = mSelectedAssets.Count - 1; i >= 0; i--)
+        string groupHint = mGroupNames.Length > 0 ? string.Join(", ", mGroupNames) : "(없음)";
+        EditorGUILayout.HelpBox($"기존 그룹: {groupHint}\n그룹 이름을 새로 입력하면 등록 시 자동 생성됩니다.", MessageType.Info);
+
+        mFolderScroll = EditorGUILayout.BeginScrollView(mFolderScroll, GUILayout.Height(240));
+        FolderRule toRemove = null;
+        foreach (var rule in mConfig.FolderRules)
         {
-            var asset = mSelectedAssets[i];
-            if (asset == null)
+            using (new EditorGUILayout.VerticalScope("box"))
             {
-                mSelectedAssets.RemoveAt(i);
-                continue;
-            }
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    var folderAsset = string.IsNullOrEmpty(rule.FolderPath)
+                        ? null
+                        : AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(rule.FolderPath);
 
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                EditorGUILayout.ObjectField(asset, typeof(UnityEngine.Object), false);
-                if (GUILayout.Button("x", GUILayout.Width(22)))
-                    mSelectedAssets.RemoveAt(i);
-            }
-        }
-        EditorGUILayout.EndScrollView();
-    }
+                    var newFolderAsset = EditorGUILayout.ObjectField("폴더", folderAsset, typeof(UnityEngine.Object), false);
+                    if (newFolderAsset != folderAsset)
+                    {
+                        string path = AssetDatabase.GetAssetPath(newFolderAsset);
+                        if (!string.IsNullOrEmpty(path) && AssetDatabase.IsValidFolder(path))
+                            rule.FolderPath = path;
+                    }
 
-    private void DrawGroupSelector(AddressableAssetSettings settings)
-    {
-        EditorGUILayout.LabelField("대상 그룹", EditorStyles.boldLabel);
+                    if (GUILayout.Button("x", GUILayout.Width(22)))
+                        toRemove = rule;
+                }
 
-        if (mGroupNames.Length == 0)
-            RefreshGroupNames();
-
-        mGroupIndex = EditorGUILayout.Popup("그룹", mGroupIndex, mGroupNames);
-
-        if (IsNewGroupSelected())
-        {
-            mNewGroupName = EditorGUILayout.TextField("새 그룹 이름", mNewGroupName);
-        }
-    }
-
-    private void DrawAddressOptions()
-    {
-        EditorGUILayout.LabelField("주소(Address) 규칙", EditorStyles.boldLabel);
-        mAddressMode = (eAddressMode)EditorGUILayout.EnumPopup("규칙 선택", mAddressMode);
-
-        switch (mAddressMode)
-        {
-            case eAddressMode.ResourcesRelativePath:
-                EditorGUILayout.HelpBox("Resources 폴더 기준 상대 경로를 주소로 사용합니다. (예: Furniture/Furniture_Table)\n테이블의 PrefabPath 값과 동일한 규칙이라 기존 데이터와 그대로 호환됩니다.", MessageType.Info);
-                break;
-            case eAddressMode.FileName:
-                EditorGUILayout.HelpBox("파일 이름만 주소로 사용합니다. (예: Furniture_Table)", MessageType.Info);
-                break;
-            case eAddressMode.CustomPrefix:
-                mCustomPrefix = EditorGUILayout.TextField("접두사(Prefix)", mCustomPrefix);
-                EditorGUILayout.HelpBox("접두사/파일이름 형태로 주소를 만듭니다. (예: UI/버튼이름)", MessageType.Info);
-                break;
-        }
-    }
-
-    private void DrawLabelOptions()
-    {
-        EditorGUILayout.LabelField("라벨 (선택)", EditorStyles.boldLabel);
-        mLabelsInput = EditorGUILayout.TextField("콤마(,)로 구분", mLabelsInput);
-    }
-
-    private void DrawMoveOptions()
-    {
-        EditorGUILayout.LabelField("Resources 폴더 처리", EditorStyles.boldLabel);
-        mMoveOutOfResources = EditorGUILayout.ToggleLeft("Resources 폴더 안에 있으면 아래 경로로 실제 이동", mMoveOutOfResources);
-        using (new EditorGUI.DisabledScope(!mMoveOutOfResources))
-        {
-            mMoveTargetRoot = EditorGUILayout.TextField("이동 대상 루트", mMoveTargetRoot);
-        }
-        EditorGUILayout.HelpBox("Resources 폴더의 에셋은 항상 빌드에 포함되므로, 어드레서블로 관리하려면 폴더 밖으로 옮기는 것을 권장합니다.", MessageType.None);
-    }
-
-    private void DrawGroupEntries(AddressableAssetSettings settings)
-    {
-        var group = GetSelectedExistingGroup(settings);
-        if (group == null)
-            return;
-
-        EditorGUILayout.LabelField($"'{group.Name}' 그룹의 등록된 에셋 ({group.entries.Count}개)", EditorStyles.boldLabel);
-
-        mEntryScroll = EditorGUILayout.BeginScrollView(mEntryScroll, GUILayout.Height(160));
-        AddressableAssetEntry toRemove = null;
-        foreach (var entry in group.entries.OrderBy(e => e.address))
-        {
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                EditorGUILayout.LabelField(entry.address, GUILayout.Width(180));
-                EditorGUILayout.LabelField(entry.AssetPath, EditorStyles.miniLabel);
-                if (GUILayout.Button("제거", GUILayout.Width(50)))
-                    toRemove = entry;
+                rule.Extensions = EditorGUILayout.TextField("확장자 필터 (콤마, 비우면 전체)", rule.Extensions);
+                rule.GroupName = EditorGUILayout.TextField("그룹 이름", rule.GroupName);
+                rule.AddressMode = (eAddressMode)EditorGUILayout.EnumPopup("주소 규칙", rule.AddressMode);
+                if (rule.AddressMode == eAddressMode.CustomPrefix)
+                    rule.CustomPrefix = EditorGUILayout.TextField("접두사", rule.CustomPrefix);
+                rule.LabelsInput = EditorGUILayout.TextField("라벨 (콤마 구분)", rule.LabelsInput);
+                rule.MoveOutOfResources = EditorGUILayout.ToggleLeft("Resources 폴더면 아래 경로로 이동", rule.MoveOutOfResources);
+                using (new EditorGUI.DisabledScope(!rule.MoveOutOfResources))
+                    rule.MoveTargetRoot = EditorGUILayout.TextField("이동 대상 루트", rule.MoveTargetRoot);
             }
         }
         EditorGUILayout.EndScrollView();
 
         if (toRemove != null)
         {
-            settings.RemoveAssetEntry(toRemove.guid);
-            AssetDatabase.SaveAssets();
+            mConfig.FolderRules.Remove(toRemove);
+            mConfig.FileEntries.RemoveAll(e => e.OwnerFolderPath == toRemove.FolderPath);
+            SaveConfig();
         }
     }
 
-    private void RefreshSelection()
+    private void DrawFileTable()
     {
-        mSelectedAssets = Selection.objects
-            .Where(o => o != null)
-            .Where(o => !string.IsNullOrEmpty(AssetDatabase.GetAssetPath(o)))
-            .Where(o => AssetDatabase.GetAssetPath(o).StartsWith("Assets/"))
-            .Distinct()
-            .ToList();
-    }
+        EditorGUILayout.LabelField($"파일 목록 (총 {mConfig.FileEntries.Count}개)", EditorStyles.boldLabel);
 
-    private void RefreshGroupNames()
-    {
-        var settings = AddressableAssetSettingsDefaultObject.Settings;
-        var names = settings != null
-            ? settings.groups.Where(g => g != null && !g.ReadOnly).Select(g => g.Name).ToList()
-            : new List<string>();
-
-        names.Add("+ 새 그룹 생성");
-        mGroupNames = names.ToArray();
-
-        if (mGroupIndex >= mGroupNames.Length)
-            mGroupIndex = 0;
-    }
-
-    private bool IsNewGroupSelected()
-    {
-        return mGroupNames.Length > 0 && mGroupIndex == mGroupNames.Length - 1;
-    }
-
-    private AddressableAssetGroup GetSelectedExistingGroup(AddressableAssetSettings settings)
-    {
-        if (IsNewGroupSelected() || mGroupNames.Length == 0)
-            return null;
-
-        return settings.FindGroup(mGroupNames[mGroupIndex]);
-    }
-
-    private AddressableAssetGroup GetOrCreateTargetGroup(AddressableAssetSettings settings)
-    {
-        if (!IsNewGroupSelected())
-            return settings.FindGroup(mGroupNames[mGroupIndex]);
-
-        if (string.IsNullOrWhiteSpace(mNewGroupName))
+        mFileScroll = EditorGUILayout.BeginScrollView(mFileScroll, GUILayout.Height(260));
+        foreach (var rule in mConfig.FolderRules)
         {
-            EditorUtility.DisplayDialog("알림", "새 그룹 이름을 입력하세요.", "확인");
-            return null;
-        }
+            var entries = mConfig.FileEntries
+                .Where(e => e.OwnerFolderPath == rule.FolderPath)
+                .OrderBy(e => e.AssetPath)
+                .ToList();
 
-        var existing = settings.FindGroup(mNewGroupName);
-        if (existing != null)
-            return existing;
-
-        return settings.CreateGroup(mNewGroupName, false, false, true, null,
-            typeof(BundledAssetGroupSchema), typeof(ContentUpdateGroupSchema));
-    }
-
-    private void RegisterSelected(AddressableAssetSettings settings)
-    {
-        if (mSelectedAssets.Count == 0)
-            return;
-
-        var group = GetOrCreateTargetGroup(settings);
-        if (group == null)
-            return;
-
-        var labels = mLabelsInput.Split(',')
-            .Select(l => l.Trim())
-            .Where(l => l.Length > 0)
-            .ToArray();
-
-        foreach (var label in labels)
-        {
-            if (!settings.GetLabels().Contains(label))
-                settings.AddLabel(label);
-        }
-
-        int count = 0;
-        foreach (var asset in mSelectedAssets)
-        {
-            string path = AssetDatabase.GetAssetPath(asset);
-            if (string.IsNullOrEmpty(path))
+            if (entries.Count == 0)
                 continue;
 
-            if (mMoveOutOfResources && path.Contains("/Resources/"))
+            EditorGUILayout.LabelField(rule.FolderPath, EditorStyles.miniBoldLabel);
+
+            foreach (var entry in entries)
             {
-                string movedPath = MoveOutOfResources(path);
-                if (string.IsNullOrEmpty(movedPath))
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    entry.Include = EditorGUILayout.Toggle(entry.Include, GUILayout.Width(18));
+                    EditorGUILayout.LabelField(Path.GetFileName(entry.AssetPath), GUILayout.Width(150));
+
+                    EditorGUI.BeginChangeCheck();
+                    string newGroup = EditorGUILayout.TextField(entry.GroupName, GUILayout.Width(110));
+                    string newAddress = EditorGUILayout.TextField(entry.Address);
+                    string newLabels = EditorGUILayout.TextField(entry.LabelsInput, GUILayout.Width(110));
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        entry.GroupName = newGroup;
+                        entry.Address = newAddress;
+                        entry.LabelsInput = newLabels;
+                        entry.IsOverridden = newGroup != rule.GroupName
+                            || newAddress != BuildAddress(rule, entry.AssetPath)
+                            || newLabels != rule.LabelsInput;
+                    }
+
+                    using (new EditorGUI.DisabledScope(!entry.IsOverridden))
+                    {
+                        if (GUILayout.Button("리셋", GUILayout.Width(45)))
+                            ApplyRuleDefaults(rule, entry);
+                    }
+                }
+            }
+        }
+        EditorGUILayout.EndScrollView();
+    }
+
+    private void ScanAll()
+    {
+        var previousByPath = mConfig.FileEntries
+            .GroupBy(e => e.AssetPath)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        var newEntries = new List<FileEntry>();
+
+        foreach (var rule in mConfig.FolderRules)
+        {
+            if (string.IsNullOrEmpty(rule.FolderPath) || !AssetDatabase.IsValidFolder(rule.FolderPath))
+                continue;
+
+            var extensions = new HashSet<string>(
+                rule.Extensions.Split(',').Select(e => e.Trim().TrimStart('.')).Where(e => e.Length > 0),
+                StringComparer.OrdinalIgnoreCase);
+
+            var guids = AssetDatabase.FindAssets("", new[] { rule.FolderPath });
+            foreach (var guid in guids)
+            {
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                if (AssetDatabase.IsValidFolder(assetPath))
                     continue;
-                path = movedPath;
+
+                string ext = Path.GetExtension(assetPath).TrimStart('.');
+                if (ext.Equals("cs", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (extensions.Count > 0 && !extensions.Contains(ext))
+                    continue;
+
+                if (previousByPath.TryGetValue(assetPath, out var existing) && existing.OwnerFolderPath == rule.FolderPath)
+                {
+                    newEntries.Add(existing);
+                }
+                else
+                {
+                    var entry = new FileEntry
+                    {
+                        AssetPath = assetPath,
+                        OwnerFolderPath = rule.FolderPath,
+                    };
+                    ApplyRuleDefaults(rule, entry);
+                    newEntries.Add(entry);
+                }
+            }
+        }
+
+        mConfig.FileEntries = newEntries;
+        SaveConfig();
+    }
+
+    private void ApplyRuleDefaults(FolderRule rule, FileEntry entry)
+    {
+        entry.GroupName = rule.GroupName;
+        entry.Address = BuildAddress(rule, entry.AssetPath);
+        entry.LabelsInput = rule.LabelsInput;
+        entry.IsOverridden = false;
+    }
+
+    private void RegisterAll(AddressableAssetSettings settings)
+    {
+        int count = 0;
+        var groupCache = new Dictionary<string, AddressableAssetGroup>();
+
+        foreach (var entry in mConfig.FileEntries)
+        {
+            if (!entry.Include || string.IsNullOrWhiteSpace(entry.GroupName))
+                continue;
+
+            string assetPath = entry.AssetPath;
+            var rule = mConfig.FolderRules.FirstOrDefault(r => r.FolderPath == entry.OwnerFolderPath);
+
+            if (rule != null && rule.MoveOutOfResources && assetPath.Contains("/Resources/"))
+            {
+                string moved = MoveOutOfResources(assetPath, rule.MoveTargetRoot);
+                if (string.IsNullOrEmpty(moved))
+                    continue;
+                assetPath = moved;
+                entry.AssetPath = moved;
             }
 
-            string guid = AssetDatabase.AssetPathToGUID(path);
+            string guid = AssetDatabase.AssetPathToGUID(assetPath);
             if (string.IsNullOrEmpty(guid))
                 continue;
 
-            var entry = settings.CreateOrMoveEntry(guid, group, false, false);
-            entry.address = BuildAddress(path);
+            if (!groupCache.TryGetValue(entry.GroupName, out var group))
+            {
+                group = GetOrCreateGroupByName(settings, entry.GroupName);
+                groupCache[entry.GroupName] = group;
+            }
+            if (group == null)
+                continue;
+
+            var addrEntry = settings.CreateOrMoveEntry(guid, group, false, false);
+            addrEntry.address = entry.Address;
+
+            var labels = entry.LabelsInput.Split(',').Select(l => l.Trim()).Where(l => l.Length > 0);
             foreach (var label in labels)
-                entry.SetLabel(label, true, false, false);
+            {
+                if (!settings.GetLabels().Contains(label))
+                    settings.AddLabel(label);
+                addrEntry.SetLabel(label, true, false, false);
+            }
 
             count++;
         }
 
         settings.SetDirty(AddressableAssetSettings.ModificationEvent.BatchModification, null, true, true);
         AssetDatabase.SaveAssets();
+        SaveConfig();
         RefreshGroupNames();
 
-        EditorUtility.DisplayDialog("완료", $"{count}개 에셋을 '{group.Name}' 그룹에 등록했습니다.", "확인");
+        EditorUtility.DisplayDialog("완료", $"{count}개 에셋을 등록했습니다.", "확인");
         Repaint();
     }
 
-    private string BuildAddress(string assetPath)
+    private AddressableAssetGroup GetOrCreateGroupByName(AddressableAssetSettings settings, string name)
     {
-        switch (mAddressMode)
+        var existing = settings.FindGroup(name);
+        if (existing != null)
+            return existing;
+
+        return settings.CreateGroup(name, false, false, true, null,
+            typeof(BundledAssetGroupSchema), typeof(ContentUpdateGroupSchema));
+    }
+
+    private void RefreshGroupNames()
+    {
+        var settings = AddressableAssetSettingsDefaultObject.Settings;
+        mGroupNames = settings != null
+            ? settings.groups.Where(g => g != null && !g.ReadOnly).Select(g => g.Name).ToArray()
+            : new string[0];
+    }
+
+    private string BuildAddress(FolderRule rule, string assetPath)
+    {
+        switch (rule.AddressMode)
         {
             case eAddressMode.FileName:
                 return Path.GetFileNameWithoutExtension(assetPath);
             case eAddressMode.CustomPrefix:
                 string fileName = Path.GetFileNameWithoutExtension(assetPath);
-                return string.IsNullOrEmpty(mCustomPrefix) ? fileName : $"{mCustomPrefix.TrimEnd('/')}/{fileName}";
+                return string.IsNullOrEmpty(rule.CustomPrefix) ? fileName : $"{rule.CustomPrefix.TrimEnd('/')}/{fileName}";
             case eAddressMode.ResourcesRelativePath:
             default:
                 return GetResourcesRelativePath(assetPath);
@@ -340,7 +378,7 @@ public class AddressableSetupTool : EditorWindow
         return relative;
     }
 
-    private string MoveOutOfResources(string assetPath)
+    private string MoveOutOfResources(string assetPath, string targetRoot)
     {
         const string marker = "/Resources/";
         int idx = assetPath.IndexOf(marker, StringComparison.Ordinal);
@@ -348,7 +386,7 @@ public class AddressableSetupTool : EditorWindow
             return assetPath;
 
         string relative = assetPath.Substring(idx + marker.Length);
-        string targetPath = $"{mMoveTargetRoot.TrimEnd('/')}/{relative}";
+        string targetPath = $"{targetRoot.TrimEnd('/')}/{relative}";
 
         string targetDir = Path.GetDirectoryName(targetPath)?.Replace("\\", "/");
         if (!string.IsNullOrEmpty(targetDir))
@@ -377,6 +415,30 @@ public class AddressableSetupTool : EditorWindow
             if (!AssetDatabase.IsValidFolder(next))
                 AssetDatabase.CreateFolder(current, parts[i]);
             current = next;
+        }
+    }
+
+    private void SaveConfig()
+    {
+        string dir = Path.GetDirectoryName(CONFIG_PATH);
+        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            Directory.CreateDirectory(dir);
+
+        string json = JsonUtility.ToJson(mConfig, true);
+        File.WriteAllText(CONFIG_PATH, json);
+        AssetDatabase.Refresh();
+    }
+
+    private void LoadConfig()
+    {
+        if (File.Exists(CONFIG_PATH))
+        {
+            string json = File.ReadAllText(CONFIG_PATH);
+            mConfig = JsonUtility.FromJson<ConfigData>(json) ?? new ConfigData();
+        }
+        else
+        {
+            mConfig = new ConfigData();
         }
     }
 }
