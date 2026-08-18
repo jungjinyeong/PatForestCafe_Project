@@ -1,6 +1,7 @@
 using System;
 using UniRx;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Extension;
 
 // 6층 온천탑 스크롤 카메라. 층 이동 목표 Y좌표는 GameInstance.WayPoint에 등록된 WaypointGroup(Order=층 번호)의
@@ -11,8 +12,10 @@ public class LobbyFloorCameraController : MonoBehaviour
     [SerializeField] private Camera mCamera;
     [SerializeField] private float mMoveSpeed = 5f;
     [SerializeField] private UIButtonEx[] mFloorButtons; // index 0 = 1층 ... index 5 = 6층(테라스)
+    [SerializeField] private float mScrollThrottleSeconds = 0.2f; // 휠 한 번(노치)당 한 층만 이동하도록 하는 디바운스 간격
 
     private IDisposable mMoveDisposable;
+    private int mCurrentFloor = FloorModel.FirstFloor;
 
     // UIFurnitureList가 "지금 보고 있는 층"에 가구를 배치하기 위해 참조한다.
     public PlacementGridArea CurrentFloorArea { get; private set; }
@@ -26,6 +29,7 @@ public class LobbyFloorCameraController : MonoBehaviour
     public void Init()
     {
         SubscribeFloorButtons();
+        SubscribeScrollInput();
 
         var firstFloor = FindGroupByFloor(FloorModel.FirstFloor);
         if (firstFloor != null)
@@ -34,9 +38,12 @@ public class LobbyFloorCameraController : MonoBehaviour
 
     public void MoveToFloor(int floor)
     {
+        floor = Mathf.Clamp(floor, FloorModel.FirstFloor, FloorModel.LastFloor);
+
         var group = FindGroupByFloor(floor);
         if (group == null) return;
 
+        mCurrentFloor = floor;
         CurrentFloorArea = GetPrimaryArea(group);
 
         // 층 이동마다 새로 구독하는 자리라 AddTo(this)를 쓰면 매번 CompositeDisposable에 쌓이기만 하고
@@ -61,6 +68,17 @@ public class LobbyFloorCameraController : MonoBehaviour
             int floor = i + 1;
             mFloorButtons[i]?.OnSubscribeOnClick(() => MoveToFloor(floor)).AddTo(this);
         }
+    }
+
+    private void SubscribeScrollInput()
+    {
+        Observable.EveryUpdate()
+            .Where(_ => Mouse.current != null)
+            .Select(_ => Mouse.current.scroll.ReadValue().y)
+            .Where(delta => Mathf.Abs(delta) > 0.01f)
+            .ThrottleFirst(TimeSpan.FromSeconds(mScrollThrottleSeconds))
+            .Subscribe(delta => MoveToFloor(mCurrentFloor + (delta > 0f ? 1 : -1)))
+            .AddTo(this);
     }
 
     private void SnapToFloor(WaypointGroup group)
