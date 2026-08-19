@@ -47,6 +47,23 @@ CTable/CSV는 실제 파일 생성 전 컬럼안을 제안하고 사용자 승�
 
 CTable/CSV는 이번에도 실제 파일 생성 전 컬럼안을 제안하고 사용자 승인을 받았다.
 
+## 갭 채우기 사례 — DrinkRow.Weight(계산대 랜덤 구매 확률) (2026-08)
+
+컨셉 지시("계산대에서 손님이 해금된 레시피 중 랜덤으로 음료 구매")를 위해 `CharNpc.ReceiveRandomUnlockedDrinkGold()`(옛 `ReceiveDefaultDrinkGold`)를 추가했을 때, 처음엔 `RecipeBookModel.GetDiscoveredTids() ∪ {DrinkModel.DefaultDrink.TId}` 풀에서 균등 확률로 뽑았다. 사용자가 "확률은 테이블에 지정해줘"라고 요청해 다음으로 확장(사용자 승인됨, 기본 음료 가중치를 더 높게):
+
+1. `Assets/CSV/Drink.csv`/`Assets/CTable/DrinkRow.cs`/`DrinkTable.cs`에 `Weight`(int) 컬럼 추가(맨 뒤). 기본 음료(Tid=10001, 아이스 아메리카노) `Weight=5`, 나머지 11개 `Weight=1` — 초기값, 밸런스는 CSV에서 숫자만 조정하면 됨.
+2. 새 Model 없이 **기존 `DrinkModel`/`RecipeBookModel` 조합만으로 해결** — `CharNpc.ReceiveRandomUnlockedDrinkGold()`가 스트리밍 가중치 추첨(reservoir sampling, 각 항목을 `weight/누적합` 확률로 교체)으로 확장됨. `Weight <= 0`인 행은 추첨에서 제외(향후 "일시 품절" 같은 개념에 재사용 가능).
+
+CTable/CSV는 이번에도 실제 파일 생성 전 컬럼안을 제안하고 사용자 승인을 받았다.
+
+## 버그 수정 사례 — UIPopupBreadSelect 텍스트 미표시 + UIScrollEx 잔여 템플릿 행 (2026-08)
+
+`UI_Popup_BreadSelect.prefab`에서 빵 이름 텍스트가 안 보이는 문제 발견. 원인: `mBreadRowPrefab`이 `UIScrollBread`가 아니라 재료 선택용 `UIScrollItemDrinkMaterial.prefab`(컴포넌트: `UIScrollDrinkMaterial`)의 중첩 인스턴스를 잘못 참조 — `UIScrollRow<T>.SetData(object)`의 `(T)data` 캐스팅(`UIScrollBreadData → UIScrollDrinkMaterialData`)이 `InvalidCastException`을 던져 루프가 첫 행에서 멈추고 전부 플레이스홀더 텍스트로 남음. **사용자가 프리팹 쪽(컴포넌트 스왑)은 에디터에서 직접 수정함.**
+
+조사 중 발견한 부수 문제(공용 `UIScrollEx`, `Assets/Scripts/UI/Scroll/UIScrollEx.cs`) — 사용자 요청으로 같이 수정:
+- 행 템플릿(`mRowPrefab`)이 `Content` 트랜스폼의 실제 자식으로 상시 배치되는 이 프로젝트의 손-저작 패턴상, `Init()`이 재호출되거나 이전 상태가 남아있으면 `Content` 밑에 여분의 행이 계속 쌓이거나 템플릿 자체가 데이터 행과 별개로 화면에 노출될 수 있었다.
+- `UIScrollEx.Init()`을 "재호출 시 `Content`의 기존 자식을 전부 정리(`Destroy`, 새로 등록하는 `mRowPrefab` 자신은 제외) + `mActiveRows`/`mRowPool` 초기화 + `mRowPrefab.SetActive(false)`"로 변경. `UIScrollEx`를 쓰는 모든 팝업(재료 선택, 빵 선택, 레시피북 등)에 공통 적용되는 수정.
+
 ## 참고
 
 - `DrinkRow.DrinkMaterial1~5`는 0을 "빈 슬롯"으로 취급한다(`UIPopupSpecialDrinkProduction.IsRecipeMatch`). `BreadRow.BreadMaterial1~5`도 `UIPopupBreadProduction.IsRecipeMatch`에서 동일하게 취급한다.

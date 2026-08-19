@@ -52,10 +52,34 @@ public class UIScrollEx : UIBase
         layout.childForceExpandHeight = mChildForceExpandHeight;
     }
 
+    // 재호출(팝업 재오픈 등)에도 깨끗한 상태로 시작하도록, 이전에 남아있던 콘텐츠 자식(예전 행 인스턴스,
+    // 손으로 배치해둔 행 템플릿 등)을 전부 지운다. 새로 등록하는 rowPrefab 자신은 지우지 않고,
+    // 대신 화면에 그대로 남아 보이지 않도록 비활성화한다(Instantiate 템플릿으로만 쓰임).
     public void Init(GameObject rowPrefab)
     {
         mRowPrefab = rowPrefab;
-        Clear();
+
+        mActiveRows.Clear();
+        mRowPool.Clear();
+        ClearContentChildren();
+
+        if (mRowPrefab != null)
+            mRowPrefab.SetActive(false);
+    }
+
+    private void ClearContentChildren()
+    {
+        var content = mScrollRect.content;
+        if (content == null) return;
+
+        for (int i = content.childCount - 1; i >= 0; i--)
+        {
+            var child = content.GetChild(i);
+            if (mRowPrefab != null && child.gameObject == mRowPrefab)
+                continue;
+
+            Destroy(child.gameObject);
+        }
     }
 
     public void SetOnSelect(Action<UIScrollRow> onSelectAction)

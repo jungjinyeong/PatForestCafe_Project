@@ -53,7 +53,7 @@ MonoBehaviour:
   mBtnClose: {fileID: 7112214193399798917}
   mBtnBgClose: {fileID: 11105}
   mScrollEx: {fileID: 11306}
-  mMaterialShopRowPrefab: {fileID: 100100000, guid: 9cc55aa103c04c2c8b0f05339a55df04, type: 3}
+  mMaterialShopRowPrefab: {fileID: 3001, guid: 9cc55aa103c04c2c8b0f05339a55df04, type: 3}
 --- !u!1 &11101
 GameObject:
   m_ObjectHideFlags: 0

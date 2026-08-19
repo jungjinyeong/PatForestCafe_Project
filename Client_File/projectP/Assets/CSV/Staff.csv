@@ -1,0 +1,4 @@
+Tid,Name,WorkSpeed
+int,string,float
+@아이디,@직원명,@작업속도배율
+1,일반 바리스타,1

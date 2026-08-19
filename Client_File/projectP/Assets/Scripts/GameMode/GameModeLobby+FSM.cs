@@ -25,6 +25,7 @@ public partial class GameModeLobby
             .AddTo(this);
 
         InitBreadStands();
+        InitCharStaffs();
 
         mStateMachine.ChangeState(eGameModeLobbyState.OpenLobbyUI);
     }
@@ -41,6 +42,14 @@ public partial class GameModeLobby
         // Count(진열 수량)를 세이브 값으로 되돌린 뒤에야 실제 빵 오브젝트 개수를 맞출 수 있으므로 순서 중요.
         foreach (var breadStand in breadStands)
             breadStand.SyncDisplayToSavedCount();
+    }
+
+    private void InitCharStaffs()
+    {
+        var staffs = FindObjectsByType<CharStaff>(FindObjectsSortMode.None);
+
+        foreach (var staff in staffs)
+            staff.Init();
     }
 
     private void OnEnterOpenLobbyUI()

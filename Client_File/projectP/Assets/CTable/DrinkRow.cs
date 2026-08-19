@@ -15,5 +15,6 @@ namespace CTable
         public int DrinkMaterial3;
         public int DrinkMaterial4;
         public int DrinkMaterial5;
+        public int Weight;
     }
 }

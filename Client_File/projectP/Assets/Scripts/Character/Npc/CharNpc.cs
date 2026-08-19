@@ -18,6 +18,11 @@ public class CharNpc : CharBase, IBreadPickup
     [SerializeField] private float mTerraceLingerMinSeconds = 3f;
     [SerializeField] private float mTerraceLingerMaxSeconds = 6f;
 
+    [Header("Bread Unavailable")]
+    [SerializeField] private float mBreadLookAroundMinSeconds = 1.5f;
+    [SerializeField] private float mBreadLookAroundMaxSeconds = 3f;
+    [SerializeField] private float mSweatDisplaySeconds = 1.2f;
+
     private bool mIsMoving = true;
     private bool mHasLingeredInTerrace;
 
@@ -200,10 +205,25 @@ public class CharNpc : CharBase, IBreadPickup
         MessageBroker.Default.Publish(new CEvent.Waypoint(triggerWaypoint.WaypointType));
 
         if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Trigger_Bread)
-            MessageBroker.Default.Publish(new CEvent.BreadPickup(triggerWaypoint.TableId, this));
+        {
+            bool hasStock = (GameInstance.Model.Bread.GetCount(triggerWaypoint.TableId)?.Value ?? 0) > 0;
+            if (hasStock)
+            {
+                MessageBroker.Default.Publish(new CEvent.BreadPickup(triggerWaypoint.TableId, this));
+            }
+            else
+            {
+                BeginBreadUnavailableFlow();
+                return;
+            }
+        }
         else if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Trigger_Order)
         {
-            ProcessOrderPayment();
+            var staff = triggerWaypoint.GetComponentInParent<CharStaff>();
+            if (staff != null)
+                staff.BeginPickup(ProcessOrderPayment);
+            else
+                ProcessOrderPayment();
             return;
         }
 
@@ -212,10 +232,39 @@ public class CharNpc : CharBase, IBreadPickup
             .AddTo(this);
     }
 
+    // 진열대에 빵 재고가 없으면(BreadModel.GetCount == 0) 잠시 더 둘러보다가(Idle 대기) 땀방울 아이콘을
+    // 띄운 뒤, 남은 행동 큐(예: 음료 주문)를 포기하고 곧장 매장을 퇴장한다.
+    private void BeginBreadUnavailableFlow()
+    {
+        float lookAroundSeconds = UnityEngine.Random.Range(mBreadLookAroundMinSeconds, mBreadLookAroundMaxSeconds);
+
+        mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(lookAroundSeconds))
+            .Subscribe(_ => ShowSweatThenExit())
+            .AddTo(this);
+    }
+
+    private void ShowSweatThenExit()
+    {
+        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
+        lobbyCharUI?.SetSweatIconActive(true);
+
+        mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(mSweatDisplaySeconds))
+            .Subscribe(_ => ExitEarlyDueToNoBread(lobbyCharUI))
+            .AddTo(this);
+    }
+
+    private void ExitEarlyDueToNoBread(LobbyCharUI lobbyCharUI)
+    {
+        lobbyCharUI?.SetSweatIconActive(false);
+
+        mBehaviorQueue?.Clear();
+        ResumeFromPause();
+    }
+
     private void ProcessOrderPayment()
     {
         TryReceiveBreadGold();
-        ReceiveDefaultDrinkGold();
+        ReceiveRandomUnlockedDrinkGold();
 
         var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
         if (lobbyCharUI == null)
@@ -255,12 +304,33 @@ public class CharNpc : CharBase, IBreadPickup
         }
     }
 
-    private void ReceiveDefaultDrinkGold()
+    // 레시피북으로 해금된 레시피(+기본 음료) 중 하나를 DrinkRow.Weight 가중치에 따라 무작위로
+    // "구매"한 것으로 취급해 정산한다. Weight가 클수록 더 자주 선택된다(0 이하는 추첨 제외).
+    private void ReceiveRandomUnlockedDrinkGold()
     {
-        var drinkData = GameInstance.Model.Drink.DefaultDrink;
-        if (drinkData?.MenuItemRow == null) return;
+        var drinkModel = GameInstance.Model.Drink;
+        var unlockedTids = new List<int>(GameInstance.Model.RecipeBook.GetDiscoveredTids());
 
-        int gold = GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier((int)drinkData.MenuItemRow.Price);
+        if (drinkModel.DefaultDrink != null && !unlockedTids.Contains(drinkModel.DefaultDrink.TId))
+            unlockedTids.Add(drinkModel.DefaultDrink.TId);
+
+        DrinkData purchasedDrink = null;
+        int totalWeight = 0;
+
+        foreach (var tid in unlockedTids)
+        {
+            var drinkData = drinkModel.Get(tid);
+            int weight = drinkData?.Row?.Weight ?? 0;
+            if (weight <= 0) continue;
+
+            totalWeight += weight;
+            if (UnityEngine.Random.Range(0, totalWeight) < weight)
+                purchasedDrink = drinkData;
+        }
+
+        if (purchasedDrink?.MenuItemRow == null) return;
+
+        int gold = GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier((int)purchasedDrink.MenuItemRow.Price);
         GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
     }
 

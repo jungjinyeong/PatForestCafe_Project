@@ -13,6 +13,9 @@ public class LobbyCharUI : MonoBehaviour
     [SerializeField] private float mCoinIconDuration = 0.6f;
     [SerializeField] private float mSatisfactionIconDuration = 0.6f;
 
+    [Header("Bread Unavailable")]
+    [SerializeField] private GameObject mSweatIconObj;
+
     [Header("Bread")]
     [SerializeField] private Transform mRootBreadTr;
     public Transform RootBreadTr => mRootBreadTr;
@@ -52,6 +55,12 @@ public class LobbyCharUI : MonoBehaviour
                     .AddTo(this);
             })
             .AddTo(this);
+    }
+
+    public void SetSweatIconActive(bool isActive)
+    {
+        if (mSweatIconObj != null)
+            mSweatIconObj.SetActive(isActive);
     }
 
     public bool CanAttachBread()
