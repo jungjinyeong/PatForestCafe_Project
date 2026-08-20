@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using UnityEngine.U2D;
 
 public class CharNpc : CharBase, IBreadPickup
 {
@@ -19,8 +20,6 @@ public class CharNpc : CharBase, IBreadPickup
     [SerializeField] private float mTerraceLingerMaxSeconds = 6f;
 
     [Header("Bread Unavailable")]
-    [SerializeField] private float mBreadLookAroundMinSeconds = 1.5f;
-    [SerializeField] private float mBreadLookAroundMaxSeconds = 3f;
     [SerializeField] private float mSweatDisplaySeconds = 1.2f;
 
     private bool mIsMoving = true;
@@ -186,6 +185,8 @@ public class CharNpc : CharBase, IBreadPickup
         mPauseDisposable = null;
         mPausedWaypoint = null;
 
+        GetComponentInChildren<LobbyCharUI>()?.ClearDrink();
+
         if (GameInstance.Spawn != null)
             GameInstance.Spawn.ReturnToPool(this);
         else
@@ -232,11 +233,11 @@ public class CharNpc : CharBase, IBreadPickup
             .AddTo(this);
     }
 
-    // 진열대에 빵 재고가 없으면(BreadModel.GetCount == 0) 잠시 더 둘러보다가(Idle 대기) 땀방울 아이콘을
-    // 띄운 뒤, 남은 행동 큐(예: 음료 주문)를 포기하고 곧장 매장을 퇴장한다.
+    // 진열대에 빵 재고가 없으면(BreadModel.GetCount == 0) 잠시 더 둘러보다가(Idle 대기, eConfigType.BreadUnavailablePauseMs)
+    // 땀방울 아이콘을 띄운 뒤, 남은 행동 큐(예: 음료 주문)를 포기하고 곧장 매장을 퇴장한다.
     private void BeginBreadUnavailableFlow()
     {
-        float lookAroundSeconds = UnityEngine.Random.Range(mBreadLookAroundMinSeconds, mBreadLookAroundMaxSeconds);
+        float lookAroundSeconds = GameInstance.Config.GetValue(eConfigType.BreadUnavailablePauseMs) / 1000f;
 
         mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(lookAroundSeconds))
             .Subscribe(_ => ShowSweatThenExit())
@@ -332,6 +333,19 @@ public class CharNpc : CharBase, IBreadPickup
 
         int gold = GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier((int)purchasedDrink.MenuItemRow.Price);
         GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
+
+        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
+        lobbyCharUI?.SetDrinkSprite(LoadDrinkSprite(purchasedDrink.Row));
+    }
+
+    // DrinkRow.Atlas/Icon(스프라이트 아틀라스 주소 + 아틀라스 내 스프라이트 이름)로 손에 들 음료 스프라이트를 조회한다.
+    private static Sprite LoadDrinkSprite(CTable.DrinkRow drinkRow)
+    {
+        if (drinkRow == null || string.IsNullOrEmpty(drinkRow.Atlas) || string.IsNullOrEmpty(drinkRow.Icon))
+            return null;
+
+        var atlas = GameInstance.Resource.LoadSync<SpriteAtlas>(drinkRow.Atlas);
+        return atlas != null ? atlas.GetSprite(drinkRow.Icon) : null;
     }
 
     // 큐에서 다음 행동 규칙을 하나씩 꺼내 목표 웨이포인트를 찾고 그쪽으로 이동을 시작한다.

@@ -15,7 +15,7 @@ public enum eUIType
     UIRootMaterialIsland,
 
     UIPopupOption = eUILayerType.Popup << 16,
-    UIPopupSpecialDrinkProduction,
+    UIPopupDrinkRecipeProduction,
     PopupOrderDetail,
     UIPopupBreadSelect,
     UIPopupOfflineIncome,

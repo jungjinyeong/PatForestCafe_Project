@@ -4,7 +4,7 @@ using TMPro;
 using UniRx;
 using Extension;
 
-// UIPopupSpecialDrinkProduction과 동일한 재료 선택→매칭 패턴이지만,
+// UIPopupDrinkRecipeProduction과 동일한 재료 선택→매칭 패턴이지만,
 // 특정 NPC 주문에 묶이지 않고 빵 레시피(BreadRow.BreadMaterial1~5) 전체를 대상으로 매칭한다.
 public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction.Param>
 {

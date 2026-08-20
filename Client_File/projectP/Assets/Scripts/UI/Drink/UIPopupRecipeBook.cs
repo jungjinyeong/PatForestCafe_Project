@@ -39,8 +39,8 @@ public class UIPopupRecipeBook : UIWndBase, IUIParam<UIPopupRecipeBook.Param>
 
     private void OnClickDevelopRecipe()
     {
-        UIMgr.Open<UIPopupSpecialDrinkProduction, UIPopupSpecialDrinkProduction.Param>(eUIType.UIPopupSpecialDrinkProduction,
-            new UIPopupSpecialDrinkProduction.Param());
+        UIMgr.Open<UIPopupDrinkRecipeProduction, UIPopupDrinkRecipeProduction.Param>(eUIType.UIPopupDrinkRecipeProduction,
+            new UIPopupDrinkRecipeProduction.Param());
     }
 
     private void RefreshRecipeList()

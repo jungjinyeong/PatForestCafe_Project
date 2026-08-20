@@ -1563,7 +1563,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d573b7272a39d6c46977a2cd2b69b0f1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIPopupSpecialDrinkProduction
+  m_EditorClassIdentifier: Assembly-CSharp::UIPopupDrinkRecipeProduction
 --- !u!1001 &4737579620693704513
 PrefabInstance:
   m_ObjectHideFlags: 0

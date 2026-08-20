@@ -235,7 +235,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d573b7272a39d6c46977a2cd2b69b0f1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIPopupSpecialDrinkProduction
+  m_EditorClassIdentifier: Assembly-CSharp::UIPopupDrinkRecipeProduction
   mBtnClose: {fileID: 4767493215866331514}
   mBtnBgClose: {fileID: 6788549128865076568}
   mScrollEx: {fileID: 8740347444416985470}
