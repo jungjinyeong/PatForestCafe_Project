@@ -244,6 +244,7 @@ Transform:
   - {fileID: 841294449}
   - {fileID: 444451186}
   - {fileID: 467443050}
+  - {fileID: 8811000000000102}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &166496386
@@ -921,6 +922,7 @@ Transform:
   - {fileID: 1250519400}
   - {fileID: 662546675}
   - {fileID: 2126222107}
+  - {fileID: 8811000000000502}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &550351110
@@ -975,6 +977,7 @@ Transform:
   - {fileID: 535199667}
   - {fileID: 621489335}
   - {fileID: 459160836}
+  - {fileID: 8811000000000402}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &575479076
@@ -1728,6 +1731,7 @@ Transform:
   - {fileID: 824419567}
   - {fileID: 2089595792}
   - {fileID: 1858544558}
+  - {fileID: 8811000000000302}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &995699666
@@ -2522,6 +2526,7 @@ Transform:
   - {fileID: 647835927}
   - {fileID: 1788145918}
   - {fileID: 1977173786}
+  - {fileID: 8811000000000202}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1715198248
@@ -3660,6 +3665,216 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7399514b789cd4d45b3948eec6fb4012, type: 3}
+--- !u!1001 &8811000000000101
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 166496385}
+    m_Modifications:
+    - target: {fileID: 6132976024911813633, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_Name
+      value: BreadStand_Floor1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813637, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: mTableId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813642, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: mTableId
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+--- !u!4 &8811000000000102 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+  m_PrefabInstance: {fileID: 8811000000000101}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8811000000000201
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1715198247}
+    m_Modifications:
+    - target: {fileID: 6132976024911813633, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_Name
+      value: BreadStand_Floor2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813637, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: mTableId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813642, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: mTableId
+      value: 2
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+--- !u!4 &8811000000000202 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+  m_PrefabInstance: {fileID: 8811000000000201}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8811000000000301
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 995699665}
+    m_Modifications:
+    - target: {fileID: 6132976024911813633, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_Name
+      value: BreadStand_Floor3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813637, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: mTableId
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813642, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: mTableId
+      value: 3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+--- !u!4 &8811000000000302 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+  m_PrefabInstance: {fileID: 8811000000000301}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8811000000000401
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 575479075}
+    m_Modifications:
+    - target: {fileID: 6132976024911813633, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_Name
+      value: BreadStand_Floor4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813637, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: mTableId
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813642, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: mTableId
+      value: 4
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+--- !u!4 &8811000000000402 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+  m_PrefabInstance: {fileID: 8811000000000401}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8811000000000501
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 550351109}
+    m_Modifications:
+    - target: {fileID: 6132976024911813633, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_Name
+      value: BreadStand_Floor5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813637, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: mTableId
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132976024911813642, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+      propertyPath: mTableId
+      value: 5
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+--- !u!4 &8811000000000502 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6132976024911813634, guid: 7900981aa3ec1684697f6c431448feda, type: 3}
+  m_PrefabInstance: {fileID: 8811000000000501}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

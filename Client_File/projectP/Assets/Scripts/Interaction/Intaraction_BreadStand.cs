@@ -9,6 +9,10 @@ using Extension;
 [RequireComponent(typeof(BoxCollider2D))]
 public class Intaraction_BreadStand : MonoBehaviour
 {
+    // 진열된 빵끼리 겹치지 않도록 mActiveBreadQueue 순번 기준으로 격자 배치한다(러프 버전 — 픽업으로 앞쪽이 비면 뒤쪽이 당겨지진 않음).
+    private const float BreadSpawnSpacing = 0.35f;
+    private const int BreadSpawnPerRow = 4;
+
     [Header("ID")]
     [SerializeField] private int mTableId;
 
@@ -30,7 +34,9 @@ public class Intaraction_BreadStand : MonoBehaviour
 
         GameInstance.Model.Bread.Register(mTableId);
 
-        mBtnAddBread.OnSubscribeOnClick(AddBread).AddTo(this);
+        // mBtnAddBread는 UI 버튼(Canvas 필요)이라 월드 스페이스로 배치된 인스턴스는 비워둘 수 있음 — 디버그용 진열 버튼일 뿐, 실제 진열은 AddBread()가 다른 경로(빵 공장 등)에서도 호출됨.
+        if (mBtnAddBread != null)
+            mBtnAddBread.OnSubscribeOnClick(AddBread).AddTo(this);
 
         MessageBroker.Default
             .Receive<CEvent.BreadPickup>()
@@ -89,11 +95,16 @@ public class Intaraction_BreadStand : MonoBehaviour
     {
         if (GameInstance.Pool == null || mRootTransform == null) return;
 
-        var go = GameInstance.Pool.Spawn(Intaraction_Bread.PoolName, mRootTransform.position, Quaternion.identity);
+        int index = mActiveBreadQueue.Count;
+        int col = index % BreadSpawnPerRow;
+        int row = index / BreadSpawnPerRow;
+        Vector3 offset = new Vector3((col - (BreadSpawnPerRow - 1) * 0.5f) * BreadSpawnSpacing, row * BreadSpawnSpacing, 0f);
+
+        var go = GameInstance.Pool.Spawn(Intaraction_Bread.PoolName, mRootTransform.position + offset, Quaternion.identity);
         if (go == null) return;
 
+        // 부모의 스케일과 무관하게 프리팹이 authoring한 월드 스케일을 그대로 유지한다(SetParent(worldPositionStays: true) 기본 동작).
         go.transform.SetParent(mRootTransform);
-        go.transform.localScale = Vector3.one;
 
         var bread = go.GetComponent<Intaraction_Bread>();
         if (bread != null)

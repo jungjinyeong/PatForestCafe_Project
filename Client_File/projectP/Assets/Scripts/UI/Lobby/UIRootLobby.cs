@@ -15,6 +15,11 @@ public class UIRootLobby : UIWndBase
 
     [Header("Floor")]
     [SerializeField] private LobbyFloorCameraController mFloorCamera;
+    [SerializeField] private UIButtonEx mBtnFloorUnlock;
+
+    [Header("Menu")]
+    [SerializeField] private UIButtonEx mBtnRecipeBook;
+    [SerializeField] private UIButtonEx mBtnUpgrade;
 
     public override eUIType GetUIType() => eUIType.UIRootLobby;
 
@@ -41,11 +46,36 @@ public class UIRootLobby : UIWndBase
         }
 
         mBtnTogglePlacementMode.OnSubscribeOnClick(OnClickTogglePlacementMode).AddTo(this);
+
+        // mBtnFloorUnlock/mBtnRecipeBook/mBtnUpgrade는 UI_Root_Lobby 프리팹에 버튼을 배치하기 전까지 비어있을 수 있음.
+        if (mBtnFloorUnlock != null)
+            mBtnFloorUnlock.OnSubscribeOnClick(OnClickOpenFloorUnlock).AddTo(this);
+
+        if (mBtnRecipeBook != null)
+            mBtnRecipeBook.OnSubscribeOnClick(OnClickOpenRecipeBook).AddTo(this);
+
+        if (mBtnUpgrade != null)
+            mBtnUpgrade.OnSubscribeOnClick(OnClickOpenUpgrade).AddTo(this);
     }
 
     private void OnClickTogglePlacementMode()
     {
         GameInstance.Model.Placement.ToggleEditMode();
+    }
+
+    private void OnClickOpenFloorUnlock()
+    {
+        GameInstance.UI.Open<UIFloorUnlock, UIFloorUnlock.Param>(eUIType.UIFloorUnlock, new UIFloorUnlock.Param());
+    }
+
+    private void OnClickOpenRecipeBook()
+    {
+        GameInstance.UI.Open<UIPopupRecipeBook, UIPopupRecipeBook.Param>(eUIType.UIPopupRecipeBook, new UIPopupRecipeBook.Param());
+    }
+
+    private void OnClickOpenUpgrade()
+    {
+        GameInstance.UI.Open<UIPopupUpgrade, UIPopupUpgrade.Param>(eUIType.UIPopupUpgrade, new UIPopupUpgrade.Param());
     }
 
     public override void Open()
