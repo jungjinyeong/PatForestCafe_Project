@@ -19,12 +19,27 @@ public partial class PlacementModel
     }
 
     // 세이브 로드 복원 전용 — 저장된 id를 그대로 재사용해야 이후 이동 시 같은 레코드를 갱신한다.
-    public void RestorePlacement(int placementId, int tid, Vector3 position)
+    public void RestorePlacement(int placementId, int tid, Vector3 position, int assignedBreadTid = 0)
     {
-        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position };
+        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, AssignedBreadTid = assignedBreadTid };
 
         if (placementId >= mNextPlacementId)
             mNextPlacementId = placementId + 1;
+    }
+
+    // Intaraction_BreadStand.TryAssignBreadType()이 최초 배정 시 호출 — 다음 세이브에 그대로 실린다.
+    public void SetAssignedBreadTid(int placementId, int breadTid)
+    {
+        if (mDicPlacedFurniture.TryGetValue(placementId, out var record))
+            record.AssignedBreadTid = breadTid;
+    }
+
+    // 가구배치 리셋 전용 — 배치 기록을 전부 비우고 placementId 발급 카운터도 처음부터 다시 시작한다.
+    // 씬의 실제 가구 GameObject 제거는 호출부(UIFurnitureList.ResetAllPlacedFurniture())가 함께 처리해야 한다.
+    public void ClearAllPlacements()
+    {
+        mDicPlacedFurniture.Clear();
+        mNextPlacementId = 1;
     }
 
     public void ToggleEditMode()

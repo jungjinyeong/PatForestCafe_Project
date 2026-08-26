@@ -6,6 +6,9 @@ public class PlacedFurnitureRecord
 {
     public int Tid;
     public Vector3 Position;
+
+    // Intaraction_BreadStand처럼 배치 후 첫 사용 시점에 종류가 정해지는 가구 전용 필드. 0이면 미지정.
+    public int AssignedBreadTid;
 }
 
 public partial class PlacementModel : IModelBase

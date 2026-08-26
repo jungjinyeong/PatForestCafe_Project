@@ -48,6 +48,9 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
     {
     }
 
+    // mBreadMaterialRowPrefab의 실제 컴포넌트는 UIScrollDrinkMaterial이 아니라 UIScrollBread다(프리팹 쪽 확인됨,
+    // UI_Popup_BreadProduction.prefab의 "Slot" 오브젝트). UIScrollBreadData는 보유 수량 표시용 필드가 없어
+    // 이름에 붙여서 보여준다.
     private void SetupMaterialScroll()
     {
         var group = GameInstance.Table.GetTable<CTable.BreadMaterialRow>();
@@ -57,14 +60,14 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
             return;
         }
 
-        var dataList = new List<UIScrollDrinkMaterialData>();
+        var dataList = new List<UIScrollBreadData>();
         foreach (var row in group.All.Values)
         {
-            dataList.Add(new UIScrollDrinkMaterialData
+            int owned = GameInstance.Model.Material.Get(row.Tid)?.Count.Value ?? 0;
+            dataList.Add(new UIScrollBreadData
             {
                 Tid = row.Tid,
-                Name = row.Name,
-                OwnedCount = GameInstance.Model.Material.Get(row.Tid)?.Count.Value ?? 0,
+                Name = $"{row.Name} ({owned})",
             });
         }
 
@@ -73,7 +76,7 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
 
     private void OnSelectMaterial(UIScrollRow row)
     {
-        if (row is not UIScrollDrinkMaterial materialRow || materialRow.CurrentData == null)
+        if (row is not UIScrollBread materialRow || materialRow.CurrentData == null)
             return;
 
         int tid = materialRow.CurrentData.Tid;

@@ -40,16 +40,35 @@ public class UIScrollEx : UIBase
     {
         var content = mScrollRect.content;
         if (content == null) return;
-        if (content.GetComponent<HorizontalOrVerticalLayoutGroup>() != null) return;
 
-        HorizontalOrVerticalLayoutGroup layout = mIsHorizontal
-            ? content.gameObject.AddComponent<HorizontalLayoutGroup>()
-            : (HorizontalOrVerticalLayoutGroup)content.gameObject.AddComponent<VerticalLayoutGroup>();
+        var layout = content.GetComponent<HorizontalOrVerticalLayoutGroup>();
+        if (layout == null)
+        {
+            layout = mIsHorizontal
+                ? content.gameObject.AddComponent<HorizontalLayoutGroup>()
+                : (HorizontalOrVerticalLayoutGroup)content.gameObject.AddComponent<VerticalLayoutGroup>();
+        }
 
         layout.spacing = mSpacing;
         layout.padding = mPadding;
         layout.childForceExpandWidth = mChildForceExpandWidth;
         layout.childForceExpandHeight = mChildForceExpandHeight;
+        // childControl을 켜두면(Unity가 AddComponent로 새로 붙일 때의 기본값) LayoutGroup이 각 행의
+        // width/height를 자기 마음대로 재계산해버려 행 프리팹에 authoring된 "셀 크기"(예: 160x160)와
+        // 실제 표시 크기가 어긋난다. 꺼서 각 행이 자기 RectTransform 크기를 그대로 유지하게 한다.
+        layout.childControlWidth = false;
+        layout.childControlHeight = false;
+
+        // LayoutGroup만으로는 Content 자신의 RectTransform 크기(width/height)가 자식 합계에 맞춰 자라지 않는다
+        // (프리팹에 박제된 sizeDelta에 그대로 머무름 — 그래서 0으로 보임). ContentSizeFitter가 두 축 모두를
+        // 자식들의 실제 셀 크기 합/최대값으로 매 레이아웃마다 재계산하게 한다(childControl이 꺼져 있어 자식
+        // 크기가 authoring값 그대로이므로, 두 축 다 PreferredSize로 둬도 고정 sizeDelta에 기대지 않고 정확하다).
+        var fitter = content.GetComponent<ContentSizeFitter>();
+        if (fitter == null)
+            fitter = content.gameObject.AddComponent<ContentSizeFitter>();
+
+        fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
     }
 
     // 재호출(팝업 재오픈 등)에도 깨끗한 상태로 시작하도록, 이전에 남아있던 콘텐츠 자식(예전 행 인스턴스,
@@ -103,6 +122,13 @@ public class UIScrollEx : UIBase
             row.SetData(dataList[i]);
             mActiveRows.Add(row);
         }
+
+        // LayoutGroup/ContentSizeFitter는 Unity의 다음 레이아웃 리빌드 타이밍에 자동으로 반영되는데,
+        // 풀링된 행을 SetActive(true)로 재사용하는 이 흐름에선 그 타이밍이 늦어(같은 프레임에 ScrollRect가
+        // 갱신 전 크기를 읽는 경우 등) Content 크기가 갱신되지 않은 채로 보일 수 있다 — SetData() 직후
+        // 즉시 강제로 재계산해서 셀 개수만큼 Content 크기가 확실히 반영되게 한다.
+        if (mScrollRect.content != null)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(mScrollRect.content);
     }
 
     public void Clear()

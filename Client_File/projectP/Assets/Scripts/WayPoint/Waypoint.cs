@@ -46,6 +46,12 @@ public class Waypoint : MonoBehaviour
         return (eWaypointCategoryType)((int)mWaypointType >> 16);
     }
 
+    // Intaraction_BreadStand가 배치 후 빵 종류를 배정/복원할 때 자기 트리거 웨이포인트에 동기화하기 위해 쓴다.
+    public void SetTableId(int tableId)
+    {
+        mTableId = tableId;
+    }
+
     #region Gizmos
 
     private void OnDrawGizmos()

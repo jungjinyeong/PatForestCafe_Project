@@ -1,12 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using Extension;
 
 public class UIFurnitureList : MonoBehaviour
 {
     [SerializeField] private GameObject mRoot;
     [SerializeField] private UIScrollEx mScrollEx;
     [SerializeField] private GameObject mFurnitureRowPrefab;
+
+    [Header("Reset")]
+    // UI_Root_Lobby.prefab에 아직 버튼이 배치되기 전까지 비어있을 수 있음(에디터 배치 필요).
+    [SerializeField] private UIButtonEx mBtnResetPlacement;
 
     private LobbyFloorCameraController mFloorCamera;
 
@@ -17,9 +22,31 @@ public class UIFurnitureList : MonoBehaviour
         mScrollEx.Init(mFurnitureRowPrefab);
         mScrollEx.SetOnSelect(OnClickAdd);
 
+        if (mBtnResetPlacement != null)
+            mBtnResetPlacement.OnSubscribeOnClick(ResetAllPlacedFurniture).AddTo(this);
+
         GameInstance.Model.Placement.IsEditMode
             .Subscribe(OnEditModeChanged)
             .AddTo(this);
+    }
+
+    // 가구배치 리셋 — 지금까지 배치한 가구를 전부 씬에서 제거하고 PlacementModel 기록도 함께 비운다.
+    // 배치 모드/드래그 중이면 먼저 취소해서 PlaceableObject.OnPointerDown 등이 파괴된 오브젝트를 참조하지 않게 한다.
+    public void ResetAllPlacedFurniture()
+    {
+        if (GameInstance.Model.Placement.IsPlacing.Value)
+            GameInstance.Model.Placement.Cancel();
+
+        var placedObjects = FindObjectsByType<PlaceableObject>(FindObjectsSortMode.None);
+        foreach (var placeable in placedObjects)
+        {
+            if (placeable == null || placeable.PlacementId < 0)
+                continue;
+
+            Destroy(placeable.gameObject);
+        }
+
+        GameInstance.Model.Placement.ClearAllPlacements();
     }
 
     private void OnEditModeChanged(bool isEditMode)
@@ -89,10 +116,15 @@ public class UIFurnitureList : MonoBehaviour
 
         gold.Consume((int)furnitureTableRow.Price);
 
-        var instance = Instantiate(prefab, area.Bounds.center, Quaternion.identity);
+        // 층별 PlacementGridArea 오브젝트 아래에 생성해서 씬 계층 구조에서 어느 층 소속인지 바로 보이게 한다.
+        var instance = Instantiate(prefab, area.Bounds.center, Quaternion.identity, area.transform);
         var placeable = instance.GetComponent<PlaceableObject>();
         placeable.SetFurnitureTid(furnitureTableRow.Tid);
         placeable.BeginPlacementFromSpawn(area);
+
+        // Table.prefab처럼 가구에 Intaraction_BreadStand가 같이 붙어 있으면(다른 가구는 없음) 여기서 Init() —
+        // 방금 산 새 가구는 mTableId==0(미지정)으로 시작해, 이후 UIPopupBreadSelect에서 처음 넣는 빵으로 종류가 정해진다.
+        instance.GetComponent<Intaraction_BreadStand>()?.Init();
     }
 
     // 세이브에 저장된 배치 목록(PlacementModel.GetAllPlacements())을 그대로 씬에 재생성한다.
@@ -122,14 +154,26 @@ public class UIFurnitureList : MonoBehaviour
                 continue;
             }
 
-            var instance = Instantiate(prefab, record.Position, Quaternion.identity);
+            // 층별 PlacementGridArea 오브젝트 아래에 생성해서 씬 계층 구조에서 어느 층 소속인지 바로 보이게 한다.
+            var area = FindAreaContaining(allAreas, record.Position);
+            var instance = Instantiate(prefab, record.Position, Quaternion.identity, area != null ? area.transform : null);
             var placeable = instance.GetComponent<PlaceableObject>();
             if (placeable == null)
                 continue;
 
             placeable.SetFurnitureTid(record.Tid);
             placeable.SetPlacementId(placementId);
-            placeable.SetArea(FindAreaContaining(allAreas, record.Position));
+            placeable.SetArea(area);
+
+            // GameModeLobby+FSM.InitBreadStands()는 이 시점보다 먼저 끝나 있어 BreadModel 재고 복원(ApplyPendingBreadData)이
+            // 이미 끝난 뒤다 — 종류 재지정만 반영하고, 진열 수량(SyncDisplayToSavedCount)도 여기서 직접 채워준다.
+            var breadStand = instance.GetComponent<Intaraction_BreadStand>();
+            if (breadStand != null)
+            {
+                breadStand.Init();
+                breadStand.RestoreAssignedBreadType(record.AssignedBreadTid);
+                breadStand.SyncDisplayToSavedCount();
+            }
         }
     }
 

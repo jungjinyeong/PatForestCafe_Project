@@ -23,6 +23,7 @@ public class PlacedFurnitureSaveEntry
     public int PlacementId;
     public int Tid;
     public Vector3 Position;
+    public int AssignedBreadTid;
 }
 
 [Serializable]

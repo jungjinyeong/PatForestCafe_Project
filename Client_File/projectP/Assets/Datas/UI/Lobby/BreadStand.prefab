@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6132976024911813635}
   - component: {fileID: 6132976024911813636}
   - component: {fileID: 6132976024911813637}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BreadStand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -151,10 +151,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec6c4ea78a0a87b46a0ccef94246c067, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Intaraction_BreadStand
   mTableId: 0
-  mBtnAddBread: {fileID: 0}
   mRootTransform: {fileID: 6132976024911813634}
   mBreadPrefab: {fileID: 3164068087852033290, guid: 20c412f2edafebc48ab7d402ddf95141, type: 3}
 --- !u!1 &6132976024911813640
@@ -168,7 +167,7 @@ GameObject:
   - component: {fileID: 6132976024911813641}
   - component: {fileID: 6132976024911813642}
   m_Layer: 0
-  m_Name: Trigger_Bread
+  m_Name: Waypoint_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -199,7 +198,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81f75977cf995c64185acb5baffef8a0, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Waypoint
   mWaypointType: 196609
   mScale: 1

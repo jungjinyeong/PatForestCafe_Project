@@ -836,6 +836,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIScrollBread
   mName: {fileID: 456633751272971827}
   mButton: {fileID: 5869068293822730876}
+  mAddIcon: {fileID: 0}
 --- !u!114 &5869068293822730876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1474,6 +1475,10 @@ PrefabInstance:
     - target: {fileID: 3916550725428638393, guid: 81f39581812678f4d89329cd4484cda9, type: 3}
       propertyPath: m_Name
       value: UI_Btn_Reset
+      objectReference: {fileID: 0}
+    - target: {fileID: 8416465390708111415, guid: 81f39581812678f4d89329cd4484cda9, type: 3}
+      propertyPath: m_text
+      value: reset
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: 81f39581812678f4d89329cd4484cda9, type: 3}
       propertyPath: m_Pivot.x

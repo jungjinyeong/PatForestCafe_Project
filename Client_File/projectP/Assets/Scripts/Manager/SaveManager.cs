@@ -76,7 +76,7 @@ public class SaveManager : MonoBehaviour
             data.Breads.Add(new BreadSaveEntry { Tid = bread.TId, Count = bread.Count.Value, ProducedCount = bread.ProducedCount.Value });
 
         foreach (var kvp in GameInstance.Model.Placement.GetAllPlacements())
-            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position });
+            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, AssignedBreadTid = kvp.Value.AssignedBreadTid });
 
         data.DiscoveredRecipeTids.AddRange(GameInstance.Model.RecipeBook.GetDiscoveredTids());
         data.GoldIncomeUpgradeLevel = GameInstance.Model.Upgrade.Level;
@@ -113,7 +113,7 @@ public class SaveManager : MonoBehaviour
         mPendingBreadSaveEntries = data.Breads;
 
         foreach (var entry in data.PlacedFurniture)
-            GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position);
+            GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position, entry.AssignedBreadTid);
 
         GameInstance.Model.RecipeBook.SetDiscovered(data.DiscoveredRecipeTids);
         GameInstance.Model.Upgrade.SetLevel(data.GoldIncomeUpgradeLevel);
