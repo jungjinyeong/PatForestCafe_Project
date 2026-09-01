@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,7 +18,7 @@ namespace CTable
                 var row = new StaffRow();
                 row.Tid = int.TryParse(values[0].Trim(), out int _Tid) ? _Tid : 0;
                 row.Name = values[1].Trim();
-                row.WorkSpeed = float.TryParse(values[2].Trim(), out float _WorkSpeed) ? _WorkSpeed : 1f;
+                row.WorkSpeed = float.TryParse(values[2].Trim(), out float _WorkSpeed) ? _WorkSpeed : 0f;
 
                 AddRow(row.Tid, row);
             }

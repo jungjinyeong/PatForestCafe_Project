@@ -100,7 +100,7 @@ public class LobbyCharUI : MonoBehaviour
         return breads;
     }
 
-    // 계산대에서 구매가 확정된 음료의 스프라이트를 손에 들려준다(DrinkRow.Atlas/Icon 기준, CharNpc가 조회해 넘겨줌).
+    // 계산대에서 구매가 확정된 음료의 스프라이트를 손에 들려준다(MenuItemRow.Atlas/Icon 기준, CharNpc가 조회해 넘겨줌).
     // 전용 프리팹 없이 절차적으로 생성한다(CharStaff 픽업 게이지바와 동일한 이유 — 이 오브젝트에 프리팹 자체가 없음).
     public void SetDrinkSprite(Sprite sprite)
     {

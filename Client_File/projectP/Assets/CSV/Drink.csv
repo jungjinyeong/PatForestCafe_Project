@@ -1,15 +1,35 @@
-Tid,@Name,DrinkType,DrinkTempType,DrinkMaterial1,DrinkMaterial2,DrinkMaterial3,DrinkMaterial4,DrinkMaterial5,Weight,Atlas,Icon
-int,@string,Enum(eDrinkType),Enum(eDrinkTempType),int,int,int,int,int,int,string,string
-@아이디,@음료명,@음료타입,@가격,@음료온도타입,@음료재료1,@음료재료2,@음료재료3,@음료재료4,@음료재료5,@구매확률가중치,@아이템아틀라스,@아이템아이콘
-10001,@아이스 아메리카노,Coffee,Ice,100001,100003,0,0,0,5,CoffeeAtlas,IceAmericanoIcon
-10002,@핫 아메리카노,Coffee,Hot,100001,100003,0,0,0,1,CoffeeAtlas,HotAmericanoIcon
-10003,@아이스 헤이즐넛 라떼,Coffee,Ice,100003,100002,100004,0,0,1,CoffeeAtlas,IceHazelnutLatteIcon
-10004,@핫 헤이즐넛 라떼,Coffee,Hot,100003,100002,100004,0,0,1,CoffeeAtlas,HotHazelnutLatteIcon
-10005,@아이스 바닐라 라떼,Coffee,Ice,100003,100002,100005,0,0,1,CoffeeAtlas,IceVanillaLatteIcon
-10006,@핫 바닐라 라떼,Coffee,Hot,100003,100002,100005,0,0,1,CoffeeAtlas,HotVanillaLatteIcon
-10007,@아이스 카페모카,Coffee,Ice,100003,100002,100007,0,0,1,CoffeeAtlas,IceCafeMochaIcon
-10008,@핫 카페모카,Coffee,Hot,100003,100002,100007,0,0,1,CoffeeAtlas,HotCafeMochaIcon
-10009,@아이스 카라멜 마키아토,Coffee,Ice,100003,100002,100005,100006,0,1,CoffeeAtlas,IceCaramelMacchiatoIcon
-10010,@핫 카라멜 마키아토,Coffee,Hot,100003,100002,100005,100006,0,1,CoffeeAtlas,HotCaramelMacchiatoIcon
-10011,@아이스 카푸치노,Coffee,Ice,100003,100002,0,0,0,1,CoffeeAtlas,IceCappuccinoIcon
-10012,@핫 카푸치노,Coffee,Hot,100003,100002,0,0,0,1,CoffeeAtlas,HotCappuccinoIcon
+Tid,@Name,DrinkType,DrinkTempType,DrinkMaterial1,DrinkMaterial2,DrinkMaterial3,DrinkMaterial4,DrinkMaterial5,Weight
+int,@string,Enum(eDrinkType),Enum(eDrinkTempType),int,int,int,int,int,int
+@아이디,@음료명,@음료타입,@가격,@음료온도타입,@음료재료1,@음료재료2,@음료재료3,@음료재료4,@음료재료5,@구매확률가중치
+10001,@아이스 아메리카노,Coffee,Ice,100001,100003,0,0,0,5
+10002,@핫 아메리카노,Coffee,Hot,100001,100003,0,0,0,1
+10003,@아이스 헤이즐넛 라떼,Coffee,Ice,100003,100002,100004,0,0,1
+10004,@핫 헤이즐넛 라떼,Coffee,Hot,100003,100002,100004,0,0,1
+10005,@아이스 바닐라 라떼,Coffee,Ice,100003,100002,100005,0,0,1
+10006,@핫 바닐라 라떼,Coffee,Hot,100003,100002,100005,0,0,1
+10007,@아이스 카페모카,Coffee,Ice,100003,100002,100007,0,0,1
+10008,@핫 카페모카,Coffee,Hot,100003,100002,100007,0,0,1
+10009,@아이스 카라멜 마키아토,Coffee,Ice,100003,100002,100005,100006,0,1
+10010,@핫 카라멜 마키아토,Coffee,Hot,100003,100002,100005,100006,0,1
+10011,@아이스 카푸치노,Coffee,Ice,100003,100002,0,0,0,1
+10012,@핫 카푸치노,Coffee,Hot,100003,100002,0,0,0,1
+10013,@아이스 카페라떼,Coffee,Ice,100003,100002,100002,100008,0,4
+10014,@핫 카페라떼,Coffee,Hot,100003,100002,100002,0,0,2
+10015,@아이스 흑당 라떼,Coffee,Ice,100003,100002,100021,100008,0,2
+10016,@핫 흑당 라떼,Coffee,Hot,100003,100002,100021,0,0,1
+10017,@아이스 아인슈페너,Coffee,Ice,100003,100003,100022,100008,0,1
+10018,@핫 아인슈페너,Coffee,Hot,100003,100003,100022,0,0,1
+11001,@아이스 홍차,Tea,Ice,100009,100001,100008,0,0,2
+11002,@핫 홍차,Tea,Hot,100009,100001,0,0,0,1
+11003,@아이스 밀크티,Tea,Ice,100009,100002,100021,100008,0,3
+11004,@핫 밀크티,Tea,Hot,100009,100002,100021,0,0,2
+11005,@아이스 말차 라떼,Tea,Ice,100010,100002,100008,0,0,2
+12001,@레몬에이드,Ade,Ice,100011,100020,100008,0,0,3
+12002,@자몽에이드,Ade,Ice,100012,100020,100008,0,0,2
+12003,@청포도에이드,Ade,Ice,100014,100020,100008,0,0,2
+13001,@오렌지 주스,Juice,Ice,100013,100013,100008,0,0,2
+13002,@딸기 라떼,Juice,Ice,100015,100015,100002,100008,0,3
+14001,@딸기 요거트 스무디,Smoothie,Ice,100015,100019,100008,100008,0,2
+14002,@망고 요거트 스무디,Smoothie,Ice,100018,100019,100008,100008,0,2
+14003,@블루베리 요거트 스무디,Smoothie,Ice,100017,100019,100008,100008,0,1
+14004,@바나나 스무디,Smoothie,Ice,100016,100002,100008,100008,0,1

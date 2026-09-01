@@ -4,3 +4,33 @@ int,string,string,string,long
 10001,아이스 아메리카노,CoffeeAtlas,IceAmericanoIcon,5000
 10002,핫 아메리카노,CoffeeAtlas,HotAmericanoIcon,5000
 20001,소금빵,BreadAtlas,SaltBreadIcon,2000
+10003,아이스 헤이즐넛 라떼,CoffeeAtlas,IceHazelnutLatteIcon,5500
+10004,핫 헤이즐넛 라떼,CoffeeAtlas,HotHazelnutLatteIcon,5500
+10005,아이스 바닐라 라떼,CoffeeAtlas,IceVanillaLatteIcon,5500
+10006,핫 바닐라 라떼,CoffeeAtlas,HotVanillaLatteIcon,5500
+10007,아이스 카페모카,CoffeeAtlas,IceCafeMochaIcon,5800
+10008,핫 카페모카,CoffeeAtlas,HotCafeMochaIcon,5800
+10009,아이스 카라멜 마키아토,CoffeeAtlas,IceCaramelMacchiatoIcon,6000
+10010,핫 카라멜 마키아토,CoffeeAtlas,HotCaramelMacchiatoIcon,6000
+10011,아이스 카푸치노,CoffeeAtlas,IceCappuccinoIcon,5500
+10012,핫 카푸치노,CoffeeAtlas,HotCappuccinoIcon,5500
+10013,아이스 카페라떼,CoffeeAtlas,IceCafeLatteIcon,5500
+10014,핫 카페라떼,CoffeeAtlas,HotCafeLatteIcon,5500
+10015,아이스 흑당 라떼,CoffeeAtlas,IceBrownSugarLatteIcon,6000
+10016,핫 흑당 라떼,CoffeeAtlas,HotBrownSugarLatteIcon,6000
+10017,아이스 아인슈페너,CoffeeAtlas,IceEinspannerIcon,6000
+10018,핫 아인슈페너,CoffeeAtlas,HotEinspannerIcon,6000
+11001,아이스 홍차,TeaAtlas,IceBlackTeaIcon,4500
+11002,핫 홍차,TeaAtlas,HotBlackTeaIcon,4500
+11003,아이스 밀크티,TeaAtlas,IceMilkTeaIcon,5500
+11004,핫 밀크티,TeaAtlas,HotMilkTeaIcon,5500
+11005,아이스 말차 라떼,TeaAtlas,IceMatchaLatteIcon,5500
+12001,레몬에이드,AdeAtlas,LemonadeIcon,5000
+12002,자몽에이드,AdeAtlas,GrapefruitAdeIcon,5000
+12003,청포도에이드,AdeAtlas,GreenGrapeAdeIcon,5000
+13001,오렌지 주스,JuiceAtlas,OrangeJuiceIcon,4500
+13002,딸기 라떼,JuiceAtlas,StrawberryLatteIcon,5500
+14001,딸기 요거트 스무디,SmoothieAtlas,StrawberrySmoothieIcon,6000
+14002,망고 요거트 스무디,SmoothieAtlas,MangoSmoothieIcon,6000
+14003,블루베리 요거트 스무디,SmoothieAtlas,BlueberrySmoothieIcon,6000
+14004,바나나 스무디,SmoothieAtlas,BananaSmoothieIcon,5500

@@ -2,7 +2,11 @@
 {
     public enum eDrinkType
     {
-        Coffee
+        Coffee,
+        Tea,
+        Ade,
+        Juice,
+        Smoothie
     }
 
     public enum eDrinkTempType

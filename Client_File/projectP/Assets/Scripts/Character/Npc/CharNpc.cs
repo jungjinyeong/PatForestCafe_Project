@@ -335,17 +335,17 @@ public class CharNpc : CharBase, IBreadPickup
         GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
 
         var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
-        lobbyCharUI?.SetDrinkSprite(LoadDrinkSprite(purchasedDrink.Row));
+        lobbyCharUI?.SetDrinkSprite(LoadDrinkSprite(purchasedDrink.MenuItemRow));
     }
 
-    // DrinkRow.Atlas/Icon(스프라이트 아틀라스 주소 + 아틀라스 내 스프라이트 이름)로 손에 들 음료 스프라이트를 조회한다.
-    private static Sprite LoadDrinkSprite(CTable.DrinkRow drinkRow)
+    // MenuItemRow.Atlas/Icon(스프라이트 아틀라스 주소 + 아틀라스 내 스프라이트 이름)로 손에 들 음료 스프라이트를 조회한다.
+    private static Sprite LoadDrinkSprite(CTable.MenuItemRow menuItemRow)
     {
-        if (drinkRow == null || string.IsNullOrEmpty(drinkRow.Atlas) || string.IsNullOrEmpty(drinkRow.Icon))
+        if (menuItemRow == null || string.IsNullOrEmpty(menuItemRow.Atlas) || string.IsNullOrEmpty(menuItemRow.Icon))
             return null;
 
-        var atlas = GameInstance.Resource.LoadSync<SpriteAtlas>(drinkRow.Atlas);
-        return atlas != null ? atlas.GetSprite(drinkRow.Icon) : null;
+        var atlas = GameInstance.Resource.LoadSync<SpriteAtlas>(menuItemRow.Atlas);
+        return atlas != null ? atlas.GetSprite(menuItemRow.Icon) : null;
     }
 
     // 큐에서 다음 행동 규칙을 하나씩 꺼내 목표 웨이포인트를 찾고 그쪽으로 이동을 시작한다.

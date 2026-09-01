@@ -16,7 +16,5 @@ namespace CTable
         public int DrinkMaterial4;
         public int DrinkMaterial5;
         public int Weight;
-        public string Atlas;
-        public string Icon;
     }
 }
