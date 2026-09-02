@@ -6,7 +6,8 @@
         Tea,
         Ade,
         Juice,
-        Smoothie
+        Smoothie,
+        BubbleTea
     }
 
     public enum eDrinkTempType

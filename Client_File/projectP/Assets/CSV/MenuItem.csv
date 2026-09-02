@@ -4,6 +4,16 @@ int,string,string,string,long
 10001,아이스 아메리카노,CoffeeAtlas,IceAmericanoIcon,5000
 10002,핫 아메리카노,CoffeeAtlas,HotAmericanoIcon,5000
 20001,소금빵,BreadAtlas,SaltBreadIcon,2000
+20002,식빵,BreadAtlas,PlainBreadIcon,2500
+20003,우유식빵,BreadAtlas,MilkBreadIcon,2800
+20004,크루아상,BreadAtlas,CroissantIcon,3000
+20005,단팥빵,BreadAtlas,RedBeanBreadIcon,2500
+20006,소보로빵,BreadAtlas,StreuselBreadIcon,2500
+20007,마늘빵,BreadAtlas,GarlicBreadIcon,2800
+20008,치즈빵,BreadAtlas,CheeseBreadIcon,2800
+20009,초코빵,BreadAtlas,ChocoBreadIcon,2800
+20010,크림빵,BreadAtlas,CreamBreadIcon,2800
+20011,건포도 베이글,BreadAtlas,RaisinBagelIcon,3200
 10003,아이스 헤이즐넛 라떼,CoffeeAtlas,IceHazelnutLatteIcon,5500
 10004,핫 헤이즐넛 라떼,CoffeeAtlas,HotHazelnutLatteIcon,5500
 10005,아이스 바닐라 라떼,CoffeeAtlas,IceVanillaLatteIcon,5500
@@ -34,3 +44,8 @@ int,string,string,string,long
 14002,망고 요거트 스무디,SmoothieAtlas,MangoSmoothieIcon,6000
 14003,블루베리 요거트 스무디,SmoothieAtlas,BlueberrySmoothieIcon,6000
 14004,바나나 스무디,SmoothieAtlas,BananaSmoothieIcon,5500
+15001,버블 밀크티,BubbleTeaAtlas,BubbleMilkTeaIcon,5800
+15002,흑당 버블티,BubbleTeaAtlas,BrownSugarBubbleTeaIcon,6000
+15003,딸기 버블티,BubbleTeaAtlas,StrawberryBubbleTeaIcon,6000
+15004,망고 버블티,BubbleTeaAtlas,MangoBubbleTeaIcon,6000
+15005,타로 버블티,BubbleTeaAtlas,TaroBubbleTeaIcon,6000
