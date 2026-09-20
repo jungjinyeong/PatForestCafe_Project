@@ -13,5 +13,14 @@ namespace CTable
         public string Icon;
         public string PrefabPath;
         public long Price;
+        public int Width;
+        public int Height;
+        public int GroupId;
+        public int FixedType;
+        public int LayoutOrder;
+        public bool CanRotate;
+        public string FrontResourceName;
+        public string SideResourceName;
+        public int FurnitureType;
     }
 }

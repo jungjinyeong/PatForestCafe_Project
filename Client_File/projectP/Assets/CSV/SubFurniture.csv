@@ -1,0 +1,4 @@
+Tid,Name,Atlas,Icon,PrefabPath,Price,Width,Height,AllowedGroupId
+int,string,string,string,string,long,int,int,int
+@아이디,@소품명,@아이템아틀라스,@아이템아이콘,@프리팹경로,@골드비용,@가로칸수,@세로칸수,@배치허용가구그룹아이디
+40001,테스트 소품(임시),FurnitureAtlas,TableIcon,Worlds/Table,100,1,1,1

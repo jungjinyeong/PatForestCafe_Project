@@ -1,4 +1,7 @@
-Tid,Name,Atlas,Icon,PrefabPath,Price
-int,string,string,string,string,long
-@아이디,@가구명,@아이템아틀라스,@아이템아이콘,@프리팹경로,@골드비용
-30001,테이블,FurnitureAtlas,TableIcon,Worlds/Table,1000
+Tid,Name,Atlas,Icon,PrefabPath,Price,Width,Height,GroupId,FixedType,LayoutOrder,CanRotate,FrontResourceName,SideResourceName,FurnitureType
+int,string,string,string,string,long,int,int,int,int,int,bool,string,string,int
+@아이디,@가구명,@아이템아틀라스,@아이템아이콘,@프리팹경로,@골드비용,@가로칸수,@세로칸수,@가구그룹아이디,@고정타입(0=고정,1=벽고정,2=자유),@레이아웃순서(벽/타일=0,카펫=1,이후 값이 클수록 위/같은값은 배치순),@회전가능여부,@앞면리소스명,@옆면리소스명,@가구타입(0=빵테이블,1=계산대,2=문,3=통합계단실,4=키오스크,5=벽,6=타일,7=카펫)
+30001,테이블,FurnitureAtlas,TableIcon,Worlds/Table,1000,1,1,1,2,2,true,TableIcon,TableIcon,0
+30002,벽지(임시),FurnitureAtlas,WallpaperIcon,Worlds/WallpaperPanel,500,1,1,0,1,0,false,WallpaperIcon,WallpaperIcon,5
+30003,바닥타일(임시),FurnitureAtlas,FloorTileIcon,Worlds/FloorTilePanel,300,1,1,0,2,0,false,FloorTileIcon,FloorTileIcon,6
+30004,카펫(임시),FurnitureAtlas,CarpetIcon,Worlds/CarpetRug,800,2,2,0,2,1,false,CarpetIcon,CarpetIcon,7

@@ -8,6 +8,9 @@ public class UIScrollFurnitureData
     public int Tid;
     public string Name;
     public long Price;
+    public string PrefabPath;
+    // true면 CTable.SubFurnitureRow, false면 CTable.FurnitureRow 소속 Tid.
+    public bool IsSub;
 }
 
 public class UIScrollFurniture : UIScrollRow<UIScrollFurnitureData>

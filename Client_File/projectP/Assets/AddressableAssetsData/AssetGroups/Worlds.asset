@@ -15,8 +15,23 @@ MonoBehaviour:
   m_GroupName: Worlds
   m_GUID: fe5056395125cf64893bd55b8ebc8707
   m_SerializeEntries:
+  - m_GUID: 068ac21958af9494f84fc6f7462682fe
+    m_Address: Worlds/FloorTilePanel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 38988dff2fbba724888f263607568269
+    m_Address: Worlds/WallpaperPanel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9ed51c0a23ee1df4982f45e1648b09af
     m_Address: Worlds/Table
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ebbde747b5f43ea4e9ef8a605e54fdd8
+    m_Address: Worlds/CarpetRug
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

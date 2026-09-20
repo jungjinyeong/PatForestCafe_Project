@@ -9,6 +9,9 @@ public class PlacedFurnitureRecord
 
     // Intaraction_BreadStand처럼 배치 후 첫 사용 시점에 종류가 정해지는 가구 전용 필드. 0이면 미지정.
     public int AssignedBreadTid;
+
+    // true면 Tid가 CTable.SubFurnitureRow, false면 CTable.FurnitureRow를 가리킨다.
+    public bool IsSub;
 }
 
 public partial class PlacementModel : IModelBase
@@ -23,8 +26,10 @@ public partial class PlacementModel : IModelBase
     private readonly ReactiveProperty<bool> mIsEditMode = new ReactiveProperty<bool>(false);
 
     private Transform mTarget;
-    private PlacementGridArea mArea;
+    private PlaceableObject mPlaceable;
+    private TilePlacementArea mArea;
     private Vector3 mOriginPosition;
+    private Vector2Int mFootprint = Vector2Int.one;
 
     // 배치 확정된 가구(Tid+위치) 레지스트리. placementId는 최초 배치 시 발급되고,
     // 이후 같은 가구를 다시 옮겨도 같은 id의 Position만 갱신된다(세이브 시 이 딕셔너리를 그대로 직렬화).

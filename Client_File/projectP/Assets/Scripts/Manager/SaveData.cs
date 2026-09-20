@@ -24,6 +24,8 @@ public class PlacedFurnitureSaveEntry
     public int Tid;
     public Vector3 Position;
     public int AssignedBreadTid;
+    // true면 CTable.SubFurnitureRow, false면 CTable.FurnitureRow 소속 Tid.
+    public bool IsSub;
 }
 
 [Serializable]
@@ -38,5 +40,6 @@ public class SaveData
     public int HiredWorkerCount;
     public List<int> WorkshopSlotMaterialTids = new List<int>();
     public int HighestUnlockedFloor;
+    public List<int> HiredStaffTids = new List<int>();
     public long LastSaveUnixSeconds;
 }

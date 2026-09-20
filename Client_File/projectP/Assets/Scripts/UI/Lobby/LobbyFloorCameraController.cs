@@ -18,7 +18,7 @@ public class LobbyFloorCameraController : MonoBehaviour
     private int mCurrentFloor = FloorModel.FirstFloor;
 
     // UIFurnitureList가 "지금 보고 있는 층"에 가구를 배치하기 위해 참조한다.
-    public PlacementGridArea CurrentFloorArea { get; private set; }
+    public TilePlacementArea CurrentFloorArea { get; private set; }
 
     private void Awake()
     {
@@ -118,7 +118,7 @@ public class LobbyFloorCameraController : MonoBehaviour
         return null;
     }
 
-    private PlacementGridArea GetPrimaryArea(WaypointGroup group)
+    private TilePlacementArea GetPrimaryArea(WaypointGroup group)
     {
         var areas = group.ZoneAreas;
         return (areas != null && areas.Length > 0) ? areas[0] : null;

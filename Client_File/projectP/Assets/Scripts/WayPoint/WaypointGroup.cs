@@ -10,7 +10,7 @@ public class WaypointGroup : MonoBehaviour
     [SerializeField] private Waypoint[] mStaticWaypoints;
 
     [Header("Zone Areas (가구 배치 영역, 이 존에 속한 Trigger 웨이포인트를 스캔할 범위)")]
-    [SerializeField] private PlacementGridArea[] mZoneAreas;
+    [SerializeField] private TilePlacementArea[] mZoneAreas;
 
     [Header("Option")]
     [SerializeField] private bool mIsTerraceZone = false;
@@ -20,7 +20,7 @@ public class WaypointGroup : MonoBehaviour
 
     public int Order => mOrder;
     public Waypoint[] StaticWaypoints => mStaticWaypoints;
-    public PlacementGridArea[] ZoneAreas => mZoneAreas;
+    public TilePlacementArea[] ZoneAreas => mZoneAreas;
 
     public bool IsTerraceZone => mIsTerraceZone;
 

@@ -12,6 +12,7 @@ public class CommonModelManager : MonoBehaviour, IManager
     public MaterialModel Material { get; private set; }
     public WorkshopModel Workshop { get; private set; }
     public FloorModel Floor { get; private set; }
+    public StaffModel Staff { get; private set; }
 
     private readonly List<IModelBase> mModels = new List<IModelBase>();
 
@@ -26,6 +27,7 @@ public class CommonModelManager : MonoBehaviour, IManager
         Material = Register(new MaterialModel());
         Workshop = Register(new WorkshopModel());
         Floor = Register(new FloorModel());
+        Staff = Register(new StaffModel());
     }
 
     public void Subscribe() { }
@@ -44,6 +46,7 @@ public class CommonModelManager : MonoBehaviour, IManager
         Material = null;
         Workshop = null;
         Floor = null;
+        Staff = null;
     }
 
     public void Destory()

@@ -21,6 +21,13 @@ public class UIRootLobby : UIWndBase
     [SerializeField] private UIButtonEx mBtnRecipeBook;
     [SerializeField] private UIButtonEx mBtnUpgrade;
 
+    [Header("Menu (Placeholder)")]
+    [SerializeField] private UIButtonEx mBtnWarehouse;
+    [SerializeField] private UIButtonEx mBtnStaff;
+
+    [Header("Shop")]
+    [SerializeField] private UIButtonEx mBtnShop;
+
     public override eUIType GetUIType() => eUIType.UIRootLobby;
 
     public override void Init()
@@ -56,6 +63,15 @@ public class UIRootLobby : UIWndBase
 
         if (mBtnUpgrade != null)
             mBtnUpgrade.OnSubscribeOnClick(OnClickOpenUpgrade).AddTo(this);
+
+        if (mBtnWarehouse != null)
+            mBtnWarehouse.OnSubscribeOnClick(OnClickOpenWarehouse).AddTo(this);
+
+        if (mBtnStaff != null)
+            mBtnStaff.OnSubscribeOnClick(OnClickOpenStaff).AddTo(this);
+
+        if (mBtnShop != null)
+            mBtnShop.OnSubscribeOnClick(OnClickOpenShopStreet).AddTo(this);
     }
 
     private void OnClickTogglePlacementMode()
@@ -76,6 +92,21 @@ public class UIRootLobby : UIWndBase
     private void OnClickOpenUpgrade()
     {
         GameInstance.UI.Open<UIPopupUpgrade, UIPopupUpgrade.Param>(eUIType.UIPopupUpgrade, new UIPopupUpgrade.Param());
+    }
+
+    private void OnClickOpenWarehouse()
+    {
+        GameInstance.UI.Open<UIPopupWarehouse, UIPopupWarehouse.Param>(eUIType.UIPopupWarehouse, new UIPopupWarehouse.Param());
+    }
+
+    private void OnClickOpenStaff()
+    {
+        GameInstance.UI.Open<UIPopupStaff, UIPopupStaff.Param>(eUIType.UIPopupStaff, new UIPopupStaff.Param());
+    }
+
+    private void OnClickOpenShopStreet()
+    {
+        GameInstance.UI.Open<UIPopupShopStreet, UIPopupShopStreet.Param>(eUIType.UIPopupShopStreet, new UIPopupShopStreet.Param());
     }
 
     public override void Open()

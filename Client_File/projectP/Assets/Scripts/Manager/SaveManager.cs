@@ -76,7 +76,7 @@ public class SaveManager : MonoBehaviour
             data.Breads.Add(new BreadSaveEntry { Tid = bread.TId, Count = bread.Count.Value, ProducedCount = bread.ProducedCount.Value });
 
         foreach (var kvp in GameInstance.Model.Placement.GetAllPlacements())
-            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, AssignedBreadTid = kvp.Value.AssignedBreadTid });
+            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, AssignedBreadTid = kvp.Value.AssignedBreadTid, IsSub = kvp.Value.IsSub });
 
         data.DiscoveredRecipeTids.AddRange(GameInstance.Model.RecipeBook.GetDiscoveredTids());
         data.GoldIncomeUpgradeLevel = GameInstance.Model.Upgrade.Level;
@@ -86,6 +86,9 @@ public class SaveManager : MonoBehaviour
             data.WorkshopSlotMaterialTids.Add(slot.MaterialTid.Value);
 
         data.HighestUnlockedFloor = GameInstance.Model.Floor.HighestUnlockedFloor;
+
+        foreach (var staff in GameInstance.Model.Staff.HiredStaff)
+            data.HiredStaffTids.Add(staff.Tid);
 
         data.LastSaveUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
@@ -113,7 +116,7 @@ public class SaveManager : MonoBehaviour
         mPendingBreadSaveEntries = data.Breads;
 
         foreach (var entry in data.PlacedFurniture)
-            GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position, entry.AssignedBreadTid);
+            GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position, entry.AssignedBreadTid, entry.IsSub);
 
         GameInstance.Model.RecipeBook.SetDiscovered(data.DiscoveredRecipeTids);
         GameInstance.Model.Upgrade.SetLevel(data.GoldIncomeUpgradeLevel);
@@ -123,6 +126,12 @@ public class SaveManager : MonoBehaviour
             GameInstance.Model.Workshop.SetSlotMaterial(i, data.WorkshopSlotMaterialTids[i]);
 
         GameInstance.Model.Floor.SetHighestUnlockedFloor(data.HighestUnlockedFloor);
+
+        if (data.HiredStaffTids != null)
+        {
+            foreach (var tid in data.HiredStaffTids)
+                GameInstance.Model.Staff.RestoreHiredStaff(tid);
+        }
 
         ApplyOfflineIncome(data.LastSaveUnixSeconds);
 
