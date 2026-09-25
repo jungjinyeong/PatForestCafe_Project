@@ -23,7 +23,7 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
 
     private readonly Dictionary<int, int> mSelectedMaterialCounts = new();
 
-    public override eUIType GetUIType() => eUIType.UIPopupBreadProduction;
+    public override eUIType GetUIType() => eUIType.PopupBreadProduction;
 
     public override void Init()
     {

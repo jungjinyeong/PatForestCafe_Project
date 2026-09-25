@@ -18,7 +18,7 @@ public class UIPopupBreadMinigame : UIWndBase, IUIParam<UIPopupBreadMinigame.Par
     [Header("Buttons")]
     [SerializeField] private UIButtonEx mBtnPlay;
 
-    public override eUIType GetUIType() => eUIType.UIPopupBreadMinigame;
+    public override eUIType GetUIType() => eUIType.PopupBreadMinigame;
 
     public override void Init()
     {

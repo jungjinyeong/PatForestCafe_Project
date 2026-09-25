@@ -9,7 +9,7 @@ public class UIPopupOption : UIWndBase, IUIParam<Param>
     [SerializeField] private Slider mSliderBgmVolume;
     [SerializeField] private Slider mSliderSfxVolume;
 
-    public override eUIType GetUIType() => eUIType.UIPopupOption;
+    public override eUIType GetUIType() => eUIType.PopupOption;
 
     public override void Init()
     {

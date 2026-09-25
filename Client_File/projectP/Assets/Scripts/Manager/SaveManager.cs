@@ -90,6 +90,8 @@ public class SaveManager : MonoBehaviour
         foreach (var staff in GameInstance.Model.Staff.HiredStaff)
             data.HiredStaffTids.Add(staff.Tid);
 
+        SaveDelivery(data);
+
         data.LastSaveUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         File.WriteAllText(SavePath, JsonUtility.ToJson(data));
@@ -133,6 +135,8 @@ public class SaveManager : MonoBehaviour
                 GameInstance.Model.Staff.RestoreHiredStaff(tid);
         }
 
+        LoadDelivery(data);
+
         ApplyOfflineIncome(data.LastSaveUnixSeconds);
 
         Logger.Log($"[SaveManager] 불러오기 완료: {SavePath}");
@@ -168,6 +172,63 @@ public class SaveManager : MonoBehaviour
         mPendingOfflineGold = 0;
         mPendingOfflineSeconds = 0;
         return true;
+    }
+
+    private void SaveDelivery(SaveData data)
+    {
+        var delivery = GameInstance.Model.Delivery;
+
+        foreach (var order in delivery.Orders)
+        {
+            data.DeliveryOrders.Add(new DeliveryOrderSaveEntry
+            {
+                OrderNo = order.OrderNo,
+                DrinkTid = order.DrinkTid,
+                ToppingMaterialTid = order.ToppingMaterialTid,
+                IncludeTag = order.IncludeTag,
+                ExcludeTag = order.ExcludeTag,
+            });
+        }
+
+        foreach (var slot in delivery.PickupSlots)
+        {
+            var drink = slot.Value;
+            var entry = new PickupDrinkSaveEntry { HasDrink = drink != null };
+            if (drink != null)
+            {
+                entry.DrinkTid = drink.DrinkTid;
+                entry.Temp = drink.Temp;
+                entry.BaseMaterialTids.AddRange(drink.BaseMaterialTids);
+                entry.CustomMaterialTids.AddRange(drink.CustomMaterialTids);
+            }
+            data.PickupDrinks.Add(entry);
+        }
+
+        data.NextOrderRefillUnixSeconds = delivery.NextRefillUnixSeconds;
+        data.NextOrderNo = delivery.NextOrderNo;
+    }
+
+    private void LoadDelivery(SaveData data)
+    {
+        var orders = new List<DeliveryOrderData>();
+        if (data.DeliveryOrders != null)
+        {
+            foreach (var entry in data.DeliveryOrders)
+                orders.Add(DeliveryOrderData.Create(entry.OrderNo, entry.DrinkTid, entry.ToppingMaterialTid, entry.IncludeTag, entry.ExcludeTag));
+        }
+
+        var pickups = new List<PickupDrinkData>();
+        if (data.PickupDrinks != null)
+        {
+            foreach (var entry in data.PickupDrinks)
+            {
+                pickups.Add(entry.HasDrink
+                    ? PickupDrinkData.Create(entry.DrinkTid, entry.Temp, entry.BaseMaterialTids, entry.CustomMaterialTids)
+                    : null);
+            }
+        }
+
+        GameInstance.Model.Delivery.Restore(orders, pickups, data.NextOrderRefillUnixSeconds, data.NextOrderNo);
     }
 
     private void ApplyOfflineIncome(long lastSaveUnixSeconds)

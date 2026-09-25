@@ -10,5 +10,10 @@ namespace CTable
         public int Tid;
         public string Name;
         public long Price;
+        public string Tags;
+        public string Desc;
+        public string Atlas;
+        public string Icon;
+        public bool IsTopping;
     }
 }

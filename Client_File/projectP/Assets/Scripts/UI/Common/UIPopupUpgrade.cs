@@ -17,7 +17,7 @@ public class UIPopupUpgrade : UIWndBase, IUIParam<UIPopupUpgrade.Param>
     [Header("Buttons")]
     [SerializeField] private UIButtonEx mBtnUpgrade;
 
-    public override eUIType GetUIType() => eUIType.UIPopupUpgrade;
+    public override eUIType GetUIType() => eUIType.PopupUpgrade;
 
     public override void Init()
     {

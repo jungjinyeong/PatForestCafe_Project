@@ -4,7 +4,7 @@ using Extension;
 
 // 상점가 허브 — 뼈대 단계라 3명의 상인을 각자 별도 서브 패널로 분리했다(프로토타입처럼 하나의 동적 상세창을
 // 전환하는 대신). 서비스 버튼 중 기존 기능이 있는 것(가구구입/시설업그레이드/층별설비/직원채용)은 그대로 연결하고,
-// 아직 대응 시스템이 없는 것(가공섬 계약/공방 협약/가공섬 업그레이드/연구권 구입)은 빈 상태 안내만 띄운다.
+// 아직 대응 시스템이 없는 것(가공섬 계약/공방 협약/가공섬 업그레이드/연구권 구입)은 준비 중 팝업(UIPopupComingSoon)만 띄운다.
 public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
 {
     public struct Param
@@ -26,7 +26,6 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
     [SerializeField] private UIButtonEx mBtnWorkshopDeal;
     [SerializeField] private UIButtonEx mBtnIslandUpgrade;
     [SerializeField] private UIButtonEx mBtnResearchTicket;
-    [SerializeField] private GameObject mPanelMousePlaceholder;
 
     [Header("똘이 (기존 기능 연결)")]
     [SerializeField] private UIButtonEx mBtnBuyFurniture;
@@ -36,7 +35,7 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
     [Header("직업사무소")]
     [SerializeField] private UIButtonEx mBtnResumeCheck;
 
-    public override eUIType GetUIType() => eUIType.UIPopupShopStreet;
+    public override eUIType GetUIType() => eUIType.PopupShopStreet;
 
     // 뼈대 단계라 에디터에서 아직 배선되지 않은 참조가 있을 수 있다 — UIRootLobby의 나머지 Init() 체인이
     // NRE로 끊기지 않도록 필드마다 null 체크 후 연결한다(mBtnFloorUnlock 등 기존 패턴과 동일).
@@ -47,7 +46,6 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
         if (mPanelMouse != null) mPanelMouse.SetActive(false);
         if (mPanelDdol != null) mPanelDdol.SetActive(false);
         if (mPanelJob != null) mPanelJob.SetActive(false);
-        if (mPanelMousePlaceholder != null) mPanelMousePlaceholder.SetActive(false);
 
         if (mBtnMouse != null) mBtnMouse.OnSubscribeOnClick(() => OpenMerchant(mPanelMouse)).AddTo(this);
         if (mBtnDdol != null) mBtnDdol.OnSubscribeOnClick(() => OpenMerchant(mPanelDdol)).AddTo(this);
@@ -81,8 +79,7 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
 
     private void OpenMousePlaceholder()
     {
-        if (mPanelMousePlaceholder != null)
-            mPanelMousePlaceholder.SetActive(true);
+        GameInstance.UI.Open<UIPopupComingSoon, UIPopupComingSoon.Param>(eUIType.PopupComingSoon, new UIPopupComingSoon.Param());
     }
 
     private void OpenMerchant(GameObject panel)
@@ -94,21 +91,21 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
 
     private void OnClickBuyFurniture()
     {
-        GameInstance.UI.Open<UIPopupShopFurniture, UIPopupShopFurniture.Param>(eUIType.UIPopupShopFurniture, new UIPopupShopFurniture.Param());
+        GameInstance.UI.Open<UIPopupShopFurniture, UIPopupShopFurniture.Param>(eUIType.PopupShopFurniture, new UIPopupShopFurniture.Param());
     }
 
     private void OnClickFacilityUpgrade()
     {
-        GameInstance.UI.Open<UIPopupUpgrade, UIPopupUpgrade.Param>(eUIType.UIPopupUpgrade, new UIPopupUpgrade.Param());
+        GameInstance.UI.Open<UIPopupUpgrade, UIPopupUpgrade.Param>(eUIType.PopupUpgrade, new UIPopupUpgrade.Param());
     }
 
     private void OnClickFloorFacility()
     {
-        GameInstance.UI.Open<UIFloorUnlock, UIFloorUnlock.Param>(eUIType.UIFloorUnlock, new UIFloorUnlock.Param());
+        GameInstance.UI.Open<UIFloorUnlock, UIFloorUnlock.Param>(eUIType.PopupFloorUnlock, new UIFloorUnlock.Param());
     }
 
     private void OnClickResumeCheck()
     {
-        GameInstance.UI.Open<UIPopupJobOffice, UIPopupJobOffice.Param>(eUIType.UIPopupJobOffice, new UIPopupJobOffice.Param());
+        GameInstance.UI.Open<UIPopupJobOffice, UIPopupJobOffice.Param>(eUIType.PopupJobOffice, new UIPopupJobOffice.Param());
     }
 }

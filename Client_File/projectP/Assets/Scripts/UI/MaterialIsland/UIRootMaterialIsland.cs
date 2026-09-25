@@ -16,8 +16,9 @@ public class UIRootMaterialIsland : UIWndBase
     [SerializeField] private UIButtonEx mBtnOpenBreadProduction;
     [SerializeField] private UIButtonEx mBtnOpenMaterialShop;
     [SerializeField] private UIButtonEx mBtnOpenWorkshop;
+    [SerializeField] private UIButtonEx mBtnOpenRecipeLab;
 
-    public override eUIType GetUIType() => eUIType.UIRootMaterialIsland;
+    public override eUIType GetUIType() => eUIType.RootMaterialIsland;
 
     public override void Init()
     {
@@ -30,6 +31,7 @@ public class UIRootMaterialIsland : UIWndBase
         mBtnOpenBreadProduction.OnSubscribeOnClick(OnClickOpenBreadProduction).AddTo(this);
         mBtnOpenMaterialShop.OnSubscribeOnClick(OnClickOpenMaterialShop).AddTo(this);
         mBtnOpenWorkshop.OnSubscribeOnClick(OnClickOpenWorkshop).AddTo(this);
+        mBtnOpenRecipeLab.OnSubscribeOnClick(OnClickOpenRecipeLab).AddTo(this);
     }
 
     public override void Open()
@@ -55,22 +57,27 @@ public class UIRootMaterialIsland : UIWndBase
 
     private void OnClickOpenBreadMinigame()
     {
-        GameInstance.UI.Open<UIPopupBreadMinigame, UIPopupBreadMinigame.Param>(eUIType.UIPopupBreadMinigame, new UIPopupBreadMinigame.Param());
+        GameInstance.UI.Open<UIPopupBreadMinigame, UIPopupBreadMinigame.Param>(eUIType.PopupBreadMinigame, new UIPopupBreadMinigame.Param());
     }
 
     private void OnClickOpenBreadProduction()
     {
-        GameInstance.UI.Open<UIPopupBreadProduction, UIPopupBreadProduction.Param>(eUIType.UIPopupBreadProduction, new UIPopupBreadProduction.Param());
+        GameInstance.UI.Open<UIPopupBreadProduction, UIPopupBreadProduction.Param>(eUIType.PopupBreadProduction, new UIPopupBreadProduction.Param());
     }
 
     private void OnClickOpenMaterialShop()
     {
-        GameInstance.UI.Open<UIPopupMaterialShop, UIPopupMaterialShop.Param>(eUIType.UIPopupMaterialShop, new UIPopupMaterialShop.Param());
+        GameInstance.UI.Open<UIPopupMaterialShop, UIPopupMaterialShop.Param>(eUIType.PopupMaterialShop, new UIPopupMaterialShop.Param());
     }
 
     private void OnClickOpenWorkshop()
     {
-        GameInstance.UI.Open<UIPopupWorkshop, UIPopupWorkshop.Param>(eUIType.UIPopupWorkshop, new UIPopupWorkshop.Param());
+        GameInstance.UI.Open<UIPopupWorkshop, UIPopupWorkshop.Param>(eUIType.PopupWorkshop, new UIPopupWorkshop.Param());
+    }
+
+    private void OnClickOpenRecipeLab()
+    {
+        GameInstance.UI.Open<UIPopupRecipeLab, UIPopupRecipeLab.Param>(eUIType.PopupRecipeLab, new UIPopupRecipeLab.Param());
     }
 
     // 클릭 채집 목록은 음료 재료 전용이다. 빵 재료는 UIPopupBreadMinigame으로만 획득한다.

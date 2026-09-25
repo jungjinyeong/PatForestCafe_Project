@@ -17,7 +17,7 @@ public class UIPopupOfflineIncome : UIWndBase, IUIParam<UIPopupOfflineIncome.Par
     [Header("Buttons")]
     [SerializeField] private UIButtonEx mBtnConfirm;
 
-    public override eUIType GetUIType() => eUIType.UIPopupOfflineIncome;
+    public override eUIType GetUIType() => eUIType.PopupOfflineIncome;
 
     public override void Init()
     {

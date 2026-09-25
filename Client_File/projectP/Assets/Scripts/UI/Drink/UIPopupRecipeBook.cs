@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UniRx;
-using Extension;
 
 public class UIPopupRecipeBook : UIWndBase, IUIParam<UIPopupRecipeBook.Param>
 {
@@ -13,17 +11,13 @@ public class UIPopupRecipeBook : UIWndBase, IUIParam<UIPopupRecipeBook.Param>
     [SerializeField] private UIScrollEx mScrollEx;
     [SerializeField] private GameObject mRecipeRowPrefab;
 
-    [Header("Buttons")]
-    [SerializeField] private UIButtonEx mBtnDevelopRecipe;
-
-    public override eUIType GetUIType() => eUIType.UIPopupRecipeBook;
+    public override eUIType GetUIType() => eUIType.PopupRecipeBook;
 
     public override void Init()
     {
         base.Init();
 
         mScrollEx.Init(mRecipeRowPrefab);
-        mBtnDevelopRecipe.OnSubscribeOnClick(OnClickDevelopRecipe).AddTo(this);
     }
 
     public override void Open()
@@ -35,12 +29,6 @@ public class UIPopupRecipeBook : UIWndBase, IUIParam<UIPopupRecipeBook.Param>
 
     public void Set(Param param)
     {
-    }
-
-    private void OnClickDevelopRecipe()
-    {
-        UIMgr.Open<UIPopupDrinkRecipeProduction, UIPopupDrinkRecipeProduction.Param>(eUIType.UIPopupDrinkRecipeProduction,
-            new UIPopupDrinkRecipeProduction.Param());
     }
 
     private void RefreshRecipeList()

@@ -5,7 +5,7 @@ public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
     {
     }
 
-    public override eUIType GetUIType() => eUIType.UIPopupWarehouse;
+    public override eUIType GetUIType() => eUIType.PopupWarehouse;
 
     public void Set(Param param)
     {

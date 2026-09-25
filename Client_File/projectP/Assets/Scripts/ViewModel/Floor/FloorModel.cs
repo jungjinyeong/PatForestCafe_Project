@@ -1,4 +1,5 @@
 using UnityEngine;
+using UniRx;
 
 // 층 잠금 진행도. WaypointGroup.Order를 그대로 층 번호로 사용한다(1~5=일반 층, 6=테라스).
 // 언락 비용은 UpgradeModel/재배형 공방과 동일하게 기획 확정 전까지 코드 내 고정값으로 관리한다(사전 협의된 패턴).
@@ -11,6 +12,10 @@ public class FloorModel : IModelBase
 
     public int HighestUnlockedFloor { get; private set; }
 
+    // 로비 카메라가 지금 보고 있는 층(LobbyFloorCameraController가 갱신). 가구 구매 시 이 층에 스폰한다.
+    public IReadOnlyReactiveProperty<int> ViewingFloor => mViewingFloor;
+    private readonly ReactiveProperty<int> mViewingFloor = new ReactiveProperty<int>(FirstFloor);
+
     public void Init()
     {
         HighestUnlockedFloor = FirstFloor;
@@ -19,6 +24,11 @@ public class FloorModel : IModelBase
     public bool IsUnlocked(int floor)
     {
         return floor <= HighestUnlockedFloor;
+    }
+
+    public void SetViewingFloor(int floor)
+    {
+        mViewingFloor.Value = Mathf.Clamp(floor, FirstFloor, LastFloor);
     }
 
     public void SetHighestUnlockedFloor(int floor)
@@ -61,5 +71,6 @@ public class FloorModel : IModelBase
     public void Dispose()
     {
         HighestUnlockedFloor = 0;
+        mViewingFloor.Dispose();
     }
 }

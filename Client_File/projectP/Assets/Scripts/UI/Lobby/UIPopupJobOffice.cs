@@ -17,7 +17,7 @@ public class UIPopupJobOffice : UIWndBase, IUIParam<UIPopupJobOffice.Param>
 
     private readonly List<GameObject> mSpawnedRows = new List<GameObject>();
 
-    public override eUIType GetUIType() => eUIType.UIPopupJobOffice;
+    public override eUIType GetUIType() => eUIType.PopupJobOffice;
 
     public override void Open()
     {

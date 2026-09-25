@@ -62,7 +62,7 @@ public class UIPopupOrderDetail : UIWndBase, IUIParam<UIPopupOrderDetail.Param>
 
     private void OnClickOpenSpecialDrink()
     {
-        UIMgr.Open<UIPopupDrinkRecipeProduction, UIPopupDrinkRecipeProduction.Param>(eUIType.UIPopupDrinkRecipeProduction,
+        UIMgr.Open<UIPopupDrinkRecipeProduction, UIPopupDrinkRecipeProduction.Param>(eUIType.PopupDrinkRecipeProduction,
             new UIPopupDrinkRecipeProduction.Param());
     }
 

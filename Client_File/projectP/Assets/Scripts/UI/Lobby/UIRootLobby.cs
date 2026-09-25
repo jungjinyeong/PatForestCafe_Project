@@ -10,8 +10,6 @@ public class UIRootLobby : UIWndBase
 
     [Header("Placement")]
     [SerializeField] private UIButtonEx mBtnTogglePlacementMode;
-    [SerializeField] private UIPlacementConfirm mPlacementConfirm;
-    [SerializeField] private UIFurnitureList mFurnitureList;
 
     [Header("Floor")]
     [SerializeField] private LobbyFloorCameraController mFloorCamera;
@@ -28,7 +26,7 @@ public class UIRootLobby : UIWndBase
     [Header("Shop")]
     [SerializeField] private UIButtonEx mBtnShop;
 
-    public override eUIType GetUIType() => eUIType.UIRootLobby;
+    public override eUIType GetUIType() => eUIType.RootLobby;
 
     public override void Init()
     {
@@ -38,19 +36,12 @@ public class UIRootLobby : UIWndBase
 
         this.GetComponentsInChildren<UIDayNightBg>().Each(x => x.Init());
 
-        // 가구 구매 시 "지금 보고 있는 층"을 알아야 하므로 UIFurnitureList보다 먼저 초기화한다.
+        // 가구 구매 시 "지금 보고 있는 층"(FloorModel.ViewingFloor)을 알아야 하므로 가구 복원/배치보다 먼저 초기화한다.
         if (mFloorCamera != null)
             mFloorCamera.Init();
 
-        // mPlacementConfirm은 별도 프리팹(UI_PlacementConfirm)이라 로비 UI에 수동으로 붙이기 전까지 비어있을 수 있음.
-        if (mPlacementConfirm != null)
-            mPlacementConfirm.Init();
-
-        if (mFurnitureList != null)
-        {
-            mFurnitureList.Init(mFloorCamera);
-            mFurnitureList.RespawnSavedFurniture();
-        }
+        GameInstance.Model.Placement.RespawnSavedFurniture();
+        SubscribePlacementPopups();
 
         mBtnTogglePlacementMode.OnSubscribeOnClick(OnClickTogglePlacementMode).AddTo(this);
 
@@ -79,34 +70,56 @@ public class UIRootLobby : UIWndBase
         GameInstance.Model.Placement.ToggleEditMode();
     }
 
+    // 배치 모드 → 가구배치 목록 팝업, 드래그 배치 중 → 확정/취소 팝업. 둘 다 PlacementModel 상태에 맞춰 열고 닫는다.
+    private void SubscribePlacementPopups()
+    {
+        var placement = GameInstance.Model.Placement;
+
+        placement.IsEditMode
+            .Subscribe(isEditMode => SetPopupOpen<UIPopupFurnitureList, UIPopupFurnitureList.Param>(eUIType.PopupFurnitureList, isEditMode))
+            .AddTo(this);
+
+        placement.IsPlacing
+            .Subscribe(isPlacing => SetPopupOpen<UIPopupPlacementConfirm, UIPopupPlacementConfirm.Param>(eUIType.PopupPlacementConfirm, isPlacing))
+            .AddTo(this);
+    }
+
+    private void SetPopupOpen<T, TParam>(eUIType uiType, bool open) where T : UIWndBase where TParam : struct
+    {
+        if (open)
+            GameInstance.UI.Open<T, TParam>(uiType, default);
+        else
+            GameInstance.UI.Close(uiType);
+    }
+
     private void OnClickOpenFloorUnlock()
     {
-        GameInstance.UI.Open<UIFloorUnlock, UIFloorUnlock.Param>(eUIType.UIFloorUnlock, new UIFloorUnlock.Param());
+        GameInstance.UI.Open<UIFloorUnlock, UIFloorUnlock.Param>(eUIType.PopupFloorUnlock, new UIFloorUnlock.Param());
     }
 
     private void OnClickOpenRecipeBook()
     {
-        GameInstance.UI.Open<UIPopupRecipeBook, UIPopupRecipeBook.Param>(eUIType.UIPopupRecipeBook, new UIPopupRecipeBook.Param());
+        GameInstance.UI.Open<UIPopupRecipeBook, UIPopupRecipeBook.Param>(eUIType.PopupRecipeBook, new UIPopupRecipeBook.Param());
     }
 
     private void OnClickOpenUpgrade()
     {
-        GameInstance.UI.Open<UIPopupUpgrade, UIPopupUpgrade.Param>(eUIType.UIPopupUpgrade, new UIPopupUpgrade.Param());
+        GameInstance.UI.Open<UIPopupUpgrade, UIPopupUpgrade.Param>(eUIType.PopupUpgrade, new UIPopupUpgrade.Param());
     }
 
     private void OnClickOpenWarehouse()
     {
-        GameInstance.UI.Open<UIPopupWarehouse, UIPopupWarehouse.Param>(eUIType.UIPopupWarehouse, new UIPopupWarehouse.Param());
+        GameInstance.UI.Open<UIPopupWarehouse, UIPopupWarehouse.Param>(eUIType.PopupWarehouse, new UIPopupWarehouse.Param());
     }
 
     private void OnClickOpenStaff()
     {
-        GameInstance.UI.Open<UIPopupStaff, UIPopupStaff.Param>(eUIType.UIPopupStaff, new UIPopupStaff.Param());
+        GameInstance.UI.Open<UIPopupStaff, UIPopupStaff.Param>(eUIType.PopupStaff, new UIPopupStaff.Param());
     }
 
     private void OnClickOpenShopStreet()
     {
-        GameInstance.UI.Open<UIPopupShopStreet, UIPopupShopStreet.Param>(eUIType.UIPopupShopStreet, new UIPopupShopStreet.Param());
+        GameInstance.UI.Open<UIPopupShopStreet, UIPopupShopStreet.Param>(eUIType.PopupShopStreet, new UIPopupShopStreet.Param());
     }
 
     public override void Open()

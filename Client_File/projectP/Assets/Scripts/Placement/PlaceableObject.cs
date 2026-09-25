@@ -7,6 +7,20 @@ using UniRx;
 [RequireComponent(typeof(BoxCollider2D))]
 public class PlaceableObject : MonoBehaviour
 {
+    // 레이아웃 순서(FurnitureRow.LayoutOrder) 기준 레이어. 0=바닥타일/벽지, 1=카펫, 2 이상=일반 가구(값이 클수록 위).
+    private const int LAYER_TILE = 0;
+    private const int LAYER_CARPET = 1;
+    // sub가구는 베이스 레이어와 별개로 항상 가장 위에서 선택된다.
+    private const int SUB_PICK_RANK = 1000;
+
+    // 면/레이어별 스프라이트 정렬 순서. 배경 바닥(-10)·장식(-5)·벽(-1) 타일맵과 캐릭터(1) 사이에 끼워 넣는다.
+    // 일반 가구(레이어 2 이상)는 프리팹에 지정된 정렬(빵 진열 등 자식 스프라이트 포함)을 그대로 쓴다.
+    private const int SORTING_FLOOR_TILE = -3;
+    private const int SORTING_CARPET = -2;
+    private const int SORTING_WALL = 0;
+    // sub가구(소품)는 올라가는 베이스 가구(1)보다 위.
+    private const int SORTING_SUB = 2;
+
     [Header("Placement Area")]
     [SerializeField] private TilePlacementArea mArea;
 
@@ -42,6 +56,13 @@ public class PlaceableObject : MonoBehaviour
     public int AllowedGroupId => mAllowedGroupId;
     public Vector2Int Footprint => mFootprint;
 
+    // 벽 가구(FurnitureType=벽 또는 FixedType=벽고정)는 벽 셀에만, 나머지 베이스 가구는 바닥 셀에만 배치된다.
+    public ePlacementSurface Surface { get; private set; } = ePlacementSurface.Floor;
+    // 같은 레이어끼리만 칸을 두고 겹칠 수 없다(TilePlacementArea). sub가구에는 의미 없음.
+    public int LayoutOrder { get; private set; } = LAYER_CARPET + 1;
+
+    private int PickRank => mIsSubFurniture ? SUB_PICK_RANK : LayoutOrder;
+
     public void SetFurnitureTid(int tid)
     {
         mFurnitureTid = tid;
@@ -52,6 +73,26 @@ public class PlaceableObject : MonoBehaviour
             ? new Vector2Int(Mathf.Max(1, row.Width), Mathf.Max(1, row.Height))
             : Vector2Int.one;
         mGroupId = row != null ? row.GroupId : 0;
+        Surface = row != null && (row.FurnitureType == (int)CTable.eFurnitureType.Wall || row.FixedType == (int)CTable.eFurnitureFixedType.WallFixed)
+            ? ePlacementSurface.Wall
+            : ePlacementSurface.Floor;
+        LayoutOrder = row != null ? Mathf.Max(0, row.LayoutOrder) : LAYER_CARPET + 1;
+
+        ApplySortingOrder();
+    }
+
+    // 벽지/바닥타일/카펫처럼 면에 깔리는 가구만 정렬 순서를 레이어에 맞춰 덮어쓴다.
+    private void ApplySortingOrder()
+    {
+        if (mSpriteRenderer == null)
+            return;
+
+        if (Surface == ePlacementSurface.Wall)
+            mSpriteRenderer.sortingOrder = SORTING_WALL;
+        else if (LayoutOrder == LAYER_TILE)
+            mSpriteRenderer.sortingOrder = SORTING_FLOOR_TILE;
+        else if (LayoutOrder == LAYER_CARPET)
+            mSpriteRenderer.sortingOrder = SORTING_CARPET;
     }
 
     public void SetSubFurnitureTid(int tid)
@@ -64,6 +105,9 @@ public class PlaceableObject : MonoBehaviour
             ? new Vector2Int(Mathf.Max(1, row.Width), Mathf.Max(1, row.Height))
             : Vector2Int.one;
         mAllowedGroupId = row != null ? row.AllowedGroupId : 0;
+
+        if (mSpriteRenderer != null)
+            mSpriteRenderer.sortingOrder = SORTING_SUB;
     }
 
     public void SetPlacementId(int placementId)
@@ -112,7 +156,8 @@ public class PlaceableObject : MonoBehaviour
 
         Vector2 worldPos = Camera.main.ScreenToWorldPoint(Pointer.current.position.ReadValue());
 
-        if (Physics2D.OverlapPoint(worldPos) != mCollider)
+        // 바닥타일 위 카펫 위 테이블처럼 겹쳐 있으면 가장 위 레이어 가구만 집는다.
+        if (FindTopmostAt(worldPos) != this)
             return;
 
         GameInstance.Model.Placement.BeginPlacement(transform, mArea, mFootprint);
@@ -165,6 +210,21 @@ public class PlaceableObject : MonoBehaviour
             GameInstance.Model.Placement.Confirm();
         else
             GameInstance.Model.Placement.Cancel();
+    }
+
+    private static PlaceableObject FindTopmostAt(Vector2 worldPos)
+    {
+        PlaceableObject topmost = null;
+        foreach (var hit in Physics2D.OverlapPointAll(worldPos))
+        {
+            var placeable = hit.GetComponent<PlaceableObject>();
+            if (placeable == null || placeable.mCollider != hit || placeable.mArea == null)
+                continue;
+
+            if (topmost == null || placeable.PickRank > topmost.PickRank)
+                topmost = placeable;
+        }
+        return topmost;
     }
 
     private bool IsPointerOverUI()

@@ -16,7 +16,7 @@ public class UIPopupBreadSelect : UIWndBase, IUIParam<UIPopupBreadSelect.Param>
     private Intaraction_BreadStand mBreadStand;
     private bool mIsTableSelectStep;
 
-    public override eUIType GetUIType() => eUIType.UIPopupBreadSelect;
+    public override eUIType GetUIType() => eUIType.PopupBreadSelect;
 
     public override void Init()
     {

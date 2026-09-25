@@ -5,7 +5,7 @@ public class UIPopupStaff : UIWndBase, IUIParam<UIPopupStaff.Param>
     {
     }
 
-    public override eUIType GetUIType() => eUIType.UIPopupStaff;
+    public override eUIType GetUIType() => eUIType.PopupStaff;
 
     public void Set(Param param)
     {

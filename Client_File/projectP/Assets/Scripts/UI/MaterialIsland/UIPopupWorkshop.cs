@@ -22,7 +22,7 @@ public class UIPopupWorkshop : UIWndBase, IUIParam<UIPopupWorkshop.Param>
     private readonly List<int> mCandidateMaterialTids = new List<int>();
     private int[] mSlotCandidateIndices;
 
-    public override eUIType GetUIType() => eUIType.UIPopupWorkshop;
+    public override eUIType GetUIType() => eUIType.PopupWorkshop;
 
     public override void Init()
     {

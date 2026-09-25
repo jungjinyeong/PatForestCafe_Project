@@ -39,9 +39,9 @@ public class UIHudController : MonoBehaviour
         mIsInMaterialIsland = !mIsInMaterialIsland;
 
         if (mIsInMaterialIsland)
-            GameInstance.UI.Open<UIRootMaterialIsland, UIRootMaterialIsland.Param>(eUIType.UIRootMaterialIsland, new UIRootMaterialIsland.Param());
+            GameInstance.UI.Open<UIRootMaterialIsland, UIRootMaterialIsland.Param>(eUIType.RootMaterialIsland, new UIRootMaterialIsland.Param());
         else
-            GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.UIRootLobby, new UIRootLobby.Param());
+            GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.RootLobby, new UIRootLobby.Param());
 
         RefreshToggleIcon();
     }
@@ -57,7 +57,7 @@ public class UIHudController : MonoBehaviour
 
     private void OnClickBread()
     {
-        GameInstance.UI.Open<UIPopupBreadSelect, UIPopupBreadSelect.Param>(eUIType.UIPopupBreadSelect, 
+        GameInstance.UI.Open<UIPopupBreadSelect, UIPopupBreadSelect.Param>(eUIType.PopupBreadSelect, 
             new UIPopupBreadSelect.Param());
     }
 }

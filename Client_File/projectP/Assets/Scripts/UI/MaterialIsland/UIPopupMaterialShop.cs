@@ -12,7 +12,7 @@ public class UIPopupMaterialShop : UIWndBase, IUIParam<UIPopupMaterialShop.Param
     [SerializeField] private UIScrollEx mScrollEx;
     [SerializeField] private GameObject mMaterialShopRowPrefab;
 
-    public override eUIType GetUIType() => eUIType.UIPopupMaterialShop;
+    public override eUIType GetUIType() => eUIType.PopupMaterialShop;
 
     public override void Init()
     {

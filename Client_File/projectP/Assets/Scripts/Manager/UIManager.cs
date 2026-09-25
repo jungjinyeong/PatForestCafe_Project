@@ -9,32 +9,37 @@ public enum eUIType
 {
     Min = 0,
 
-    UIRootIntro = eUILayerType.Menu << 16,
-    UIRootLobby,
-    UIRootLogin,
-    UIRootMaterialIsland,
+    RootIntro = eUILayerType.Menu << 16,
+    RootLobby,
+    RootLogin,
+    RootMaterialIsland,
 
-    UIPopupOption = eUILayerType.Popup << 16,
-    UIPopupDrinkRecipeProduction,
+    PopupOption = eUILayerType.Popup << 16,
+    PopupDrinkRecipeProduction,
     PopupOrderDetail,
-    UIPopupBreadSelect,
-    UIPopupOfflineIncome,
-    UIPopupRecipeBook,
-    UIPopupUpgrade,
-    UIPopupBreadMinigame,
-    UIPopupBreadProduction,
-    UIPopupMaterialShop,
-    UIPopupWorkshop,
-    UIFloorUnlock,
-    UIPopupWarehouse,
-    UIPopupStaff,
-    UIPopupShopStreet,
-    UIPopupShopFurniture,
-    UIPopupJobOffice,
+    PopupBreadSelect,
+    PopupOfflineIncome,
+    PopupRecipeBook,
+    PopupUpgrade,
+    PopupBreadMinigame,
+    PopupBreadProduction,
+    PopupMaterialShop,
+    PopupWorkshop,
+    PopupFloorUnlock,
+    PopupWarehouse,
+    PopupStaff,
+    PopupShopStreet,
+    PopupShopFurniture,
+    PopupJobOffice,
+    PopupDelivery,
+    PopupRecipeLab,
+    PopupFurnitureList,
+    PopupPlacementConfirm,
+    PopupComingSoon,
 
-    UIHudController = eUILayerType.AlwaysOnTop << 16,
-    UILoading,
-    UISystemMsg,
+    HudController = eUILayerType.AlwaysOnTop << 16,
+    Loading,
+    SystemMsg,
 
     Max,
 }
@@ -309,6 +314,17 @@ public class UIManager : MonoBehaviour
             return path;
 
         return null;
+    }
+
+    // 팝업 레이어 창이 하나라도 열려 있는지 — 로비 카메라 줌처럼 팝업이 떠 있을 때 막아야 하는 입력에서 쓴다.
+    public bool HasOpenPopup()
+    {
+        if (mUIWndStack == null)
+            return false;
+
+        return mUIWndStack.m_uiStack.Exists(wnd => wnd != null
+            && wnd.gameObject.activeInHierarchy
+            && GetLayerType(wnd.GetUIType()) == eUILayerType.Popup);
     }
 
     public static eUILayerType GetLayerType(eUIType type)

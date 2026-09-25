@@ -39,7 +39,7 @@ public class InputManager : MonoBehaviour, IManager
                 if (GameInstance.Model.Placement.IsEditMode.Value)
                     return;
 
-                GameInstance.UI.Open<UIPopupBreadSelect, UIPopupBreadSelect.Param>(eUIType.UIPopupBreadSelect,
+                GameInstance.UI.Open<UIPopupBreadSelect, UIPopupBreadSelect.Param>(eUIType.PopupBreadSelect,
                     new UIPopupBreadSelect.Param() { breadStand = breadStand });
             }
         }

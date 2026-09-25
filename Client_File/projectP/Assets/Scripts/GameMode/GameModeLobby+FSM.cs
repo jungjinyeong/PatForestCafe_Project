@@ -56,7 +56,7 @@ public partial class GameModeLobby
 
     private void OnEnterOpenLobbyUI()
     {
-        GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.UIRootLobby, new UIRootLobby.Param());
+        GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.RootLobby, new UIRootLobby.Param());
 
         GameInstance.UI.HudController.Init();
 
@@ -68,7 +68,7 @@ public partial class GameModeLobby
         if (!GameInstance.Save.TryConsumePendingOfflineIncome(out int gold, out double offlineSeconds))
             return;
 
-        GameInstance.UI.Open<UIPopupOfflineIncome, UIPopupOfflineIncome.Param>(eUIType.UIPopupOfflineIncome,
+        GameInstance.UI.Open<UIPopupOfflineIncome, UIPopupOfflineIncome.Param>(eUIType.PopupOfflineIncome,
             new UIPopupOfflineIncome.Param { Gold = gold, OfflineSeconds = offlineSeconds });
     }
 

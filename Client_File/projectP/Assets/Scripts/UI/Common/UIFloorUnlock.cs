@@ -17,7 +17,7 @@ public class UIFloorUnlock : UIWndBase, IUIParam<UIFloorUnlock.Param>
     [Header("Buttons")]
     [SerializeField] private UIButtonEx mBtnUnlock;
 
-    public override eUIType GetUIType() => eUIType.UIFloorUnlock;
+    public override eUIType GetUIType() => eUIType.PopupFloorUnlock;
 
     public override void Init()
     {

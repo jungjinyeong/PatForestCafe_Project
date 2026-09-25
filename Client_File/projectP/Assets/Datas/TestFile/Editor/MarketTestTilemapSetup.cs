@@ -7,18 +7,14 @@ using UnityEngine.Tilemaps;
 
 namespace ForestCafe.Tests
 {
-    [InitializeOnLoad]
+    // 메뉴에서 필요할 때만 실행한다. 예전에는 [InitializeOnLoad] + delayCall로 도메인 리로드(컴파일/Play 진입)마다
+    // 자동 실행돼, Play 모드에서 OpenScene 예외가 나고 평소에도 타일/팔레트/테스트 씬을 매번 다시 저장했다.
     public static class MarketTestTilemapSetup
     {
         private const string ScenePath = "Assets/Scenes/MarketLayoutTest.unity";
         private const string RootPath = "Assets/Datas/TestFile";
         private const string TilePath = RootPath + "/TileAssets";
         private const string PalettePath = RootPath + "/TilePalette";
-
-        static MarketTestTilemapSetup()
-        {
-            EditorApplication.delayCall += Setup;
-        }
 
         [MenuItem("Forest Cafe/Tests/Setup Market Test Tilemaps")]
         public static void Setup()
