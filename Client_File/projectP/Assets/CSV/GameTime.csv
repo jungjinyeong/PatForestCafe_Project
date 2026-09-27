@@ -1,0 +1,4 @@
+Tid,DayDurationSeconds,OpenHour,CloseHour,ClosingTimeoutSeconds,SeasonDays
+int,float,int,int,float,int
+@아이디,@게임하루길이(실시간초),@개점시각(0~23),@마감시각(0~24 자동마감),@마감대기제한(실시간초 초과시 남은손님정리),@계절한개일수
+1,120,8,22,60,28

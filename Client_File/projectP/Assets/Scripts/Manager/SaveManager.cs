@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UniRx;
 
@@ -31,7 +32,17 @@ public class SaveManager : MonoBehaviour
     public void Init()
     {
         Load();
+        EnsureDefaultRecipes();
         StartAutoSave();
+    }
+
+    // 세이브가 없거나(신규) 예전 세이브라도 기본 빵 레시피(ConfigData.DefaultBreadRecipeTid)는 항상 발견된 상태로 시작한다.
+    // RecipeBook.SetDiscovered()가 로드 시 목록을 통째로 덮어쓰므로 Load() 이후에 보장해야 한다.
+    private void EnsureDefaultRecipes()
+    {
+        int defaultBreadTid = GameInstance.Config != null ? GameInstance.Config.GetValue(eConfigType.DefaultBreadRecipeTid) : 0;
+        if (defaultBreadTid > 0)
+            GameInstance.Model.RecipeBook.Discover(defaultBreadTid);
     }
 
     public void StartAutoSave()
@@ -72,14 +83,54 @@ public class SaveManager : MonoBehaviour
         foreach (var material in GameInstance.Model.Material.GetAll())
             data.Materials.Add(new ItemSaveEntry { Tid = material.Tid, Count = material.Count.Value });
 
+        // 빵 세이브가 아직 적용 전(로비 FSM의 ApplyPendingBreadData() 이전)에 저장되면 — 자동 저장/OnApplicationPause —
+        // BreadModel엔 복원 전 값(0 또는 그 사이 오븐 완료분)만 있어 저장된 재고가 통째로 사라진다.
+        // 복원은 "더하기"이므로 대기 중인 세이브 값을 현재 값에 더해 저장하면 적용 후 결과와 같다.
+        var pendingBreads = new Dictionary<int, BreadSaveEntry>();
+        if (mPendingBreadSaveEntries != null)
+        {
+            foreach (var pending in mPendingBreadSaveEntries)
+                pendingBreads[pending.Tid] = pending;
+        }
+
         foreach (var bread in GameInstance.Model.Bread.GetAll())
-            data.Breads.Add(new BreadSaveEntry { Tid = bread.TId, Count = bread.Count.Value, ProducedCount = bread.ProducedCount.Value });
+        {
+            int[] pendingCounts = null, pendingProduced = null;
+            if (pendingBreads.TryGetValue(bread.TId, out var pendingEntry))
+            {
+                GetQualityCounts(pendingEntry, out pendingCounts, out pendingProduced);
+                pendingBreads.Remove(bread.TId);
+            }
+
+            var entry = new BreadSaveEntry();
+            entry.Tid = bread.TId;
+            for (int i = 0; i < BreadQuality.COUNT; i++)
+            {
+                var quality = (eBreadQuality)(i + 1);
+                entry.CountByQuality.Add(bread.GetCount(quality) + (pendingCounts?[i] ?? 0));
+                entry.ProducedByQuality.Add(bread.GetProduced(quality) + (pendingProduced?[i] ?? 0));
+            }
+            entry.Count = entry.CountByQuality.Sum();
+            entry.ProducedCount = entry.ProducedByQuality.Sum();
+            data.Breads.Add(entry);
+        }
+
+        // BreadModel에 없는 Tid(테이블에서 빠진 빵 등)의 대기 세이브도 그대로 보존한다.
+        data.Breads.AddRange(pendingBreads.Values);
 
         foreach (var kvp in GameInstance.Model.Placement.GetAllPlacements())
             data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, AssignedBreadTid = kvp.Value.AssignedBreadTid, IsSub = kvp.Value.IsSub });
 
         data.DiscoveredRecipeTids.AddRange(GameInstance.Model.RecipeBook.GetDiscoveredTids());
         data.GoldIncomeUpgradeLevel = GameInstance.Model.Upgrade.Level;
+        data.CafeLevel = GameInstance.Model.Cafe.Level.Value;
+        data.CafeExp = GameInstance.Model.Cafe.Exp.Value;
+
+        var business = GameInstance.Model.Business;
+        data.BusinessDay = business.Day.Value;
+        data.BusinessClosed = business.State.Value == eBusinessState.Closed;
+        data.TodayStats = business.GetTodayStats();
+        data.NextDayStats = business.NextDayStats;
 
         data.HiredWorkerCount = GameInstance.Model.Workshop.HiredWorkerCount.Value;
         foreach (var slot in GameInstance.Model.Workshop.Slots)
@@ -91,6 +142,7 @@ public class SaveManager : MonoBehaviour
             data.HiredStaffTids.Add(staff.Tid);
 
         SaveDelivery(data);
+        SaveOven(data);
 
         data.LastSaveUnixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
@@ -122,6 +174,8 @@ public class SaveManager : MonoBehaviour
 
         GameInstance.Model.RecipeBook.SetDiscovered(data.DiscoveredRecipeTids);
         GameInstance.Model.Upgrade.SetLevel(data.GoldIncomeUpgradeLevel);
+        GameInstance.Model.Cafe.Restore(data.CafeLevel, data.CafeExp);
+        GameInstance.Model.Business.Restore(data.BusinessDay, data.TodayStats, data.BusinessClosed, data.NextDayStats);
 
         GameInstance.Model.Workshop.SetHiredWorkerCount(data.HiredWorkerCount);
         for (int i = 0; i < data.WorkshopSlotMaterialTids.Count; i++)
@@ -136,6 +190,7 @@ public class SaveManager : MonoBehaviour
         }
 
         LoadDelivery(data);
+        LoadOven(data);
 
         ApplyOfflineIncome(data.LastSaveUnixSeconds);
 
@@ -152,9 +207,22 @@ public class SaveManager : MonoBehaviour
         if (mPendingBreadSaveEntries == null) return;
 
         foreach (var entry in mPendingBreadSaveEntries)
-            GameInstance.Model.Bread.SetByTid(entry.Tid, entry.Count, entry.ProducedCount);
+        {
+            GetQualityCounts(entry, out var counts, out var produced);
+            GameInstance.Model.Bread.RestoreFromSave(entry.Tid, counts, produced);
+        }
 
         mPendingBreadSaveEntries = null;
+    }
+
+    // 품질 도입 전 세이브는 품질별 배열이 비어 있다 — 합계를 전부 하급으로 이관한다.
+    private static void GetQualityCounts(BreadSaveEntry entry, out int[] counts, out int[] produced)
+    {
+        bool hasQuality = entry.CountByQuality != null && entry.CountByQuality.Count == BreadQuality.COUNT;
+        counts = hasQuality ? entry.CountByQuality.ToArray() : new[] { entry.Count, 0, 0 };
+        produced = hasQuality && entry.ProducedByQuality != null && entry.ProducedByQuality.Count == BreadQuality.COUNT
+            ? entry.ProducedByQuality.ToArray()
+            : new[] { entry.ProducedCount, 0, 0 };
     }
 
     /// <summary>
@@ -229,6 +297,51 @@ public class SaveManager : MonoBehaviour
         }
 
         GameInstance.Model.Delivery.Restore(orders, pickups, data.NextOrderRefillUnixSeconds, data.NextOrderNo);
+    }
+
+    private void SaveOven(SaveData data)
+    {
+        var oven = GameInstance.Model.Oven;
+        data.OvenLevel = oven.Level.Value;
+
+        foreach (var tray in oven.Trays)
+        {
+            data.OvenTrays.Add(new OvenTraySaveEntry
+            {
+                State = tray.State,
+                RecipeTid = tray.RecipeTid,
+                Quantity = tray.Quantity,
+                BaseMaterialTids = new List<int>(tray.BaseMaterialTids),
+                ExtraMaterialTids = new List<int>(tray.ExtraMaterialTids),
+                Quality = tray.Quality,
+                BakeEndUnixSeconds = tray.BakeEndUnixSeconds,
+                BakeDurationSeconds = tray.BakeDurationSeconds,
+            });
+        }
+    }
+
+    private void LoadOven(SaveData data)
+    {
+        var trays = new List<OvenTrayData>();
+        if (data.OvenTrays != null)
+        {
+            foreach (var entry in data.OvenTrays)
+            {
+                trays.Add(new OvenTrayData
+                {
+                    State = entry.State,
+                    RecipeTid = entry.RecipeTid,
+                    Quantity = entry.Quantity,
+                    BaseMaterialTids = entry.BaseMaterialTids ?? new List<int>(),
+                    ExtraMaterialTids = entry.ExtraMaterialTids ?? new List<int>(),
+                    Quality = entry.Quality == 0 ? eBreadQuality.Low : entry.Quality,
+                    BakeEndUnixSeconds = entry.BakeEndUnixSeconds,
+                    BakeDurationSeconds = entry.BakeDurationSeconds,
+                });
+            }
+        }
+
+        GameInstance.Model.Oven.Restore(Mathf.Max(1, data.OvenLevel), trays);
     }
 
     private void ApplyOfflineIncome(long lastSaveUnixSeconds)

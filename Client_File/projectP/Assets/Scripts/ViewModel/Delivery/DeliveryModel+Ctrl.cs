@@ -83,6 +83,8 @@ public partial class DeliveryModel
 
         reward = CalcReward(order, drink);
         GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add((int)reward);
+        GameInstance.Model.Business.RecordDelivery((int)reward);
+        GameInstance.Model.Cafe.AddExp(CafeModel.EXP_DELIVERY);
 
         Orders.RemoveAt(orderIndex);
         PickupSlots[pickupIndex].Value = null;

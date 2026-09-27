@@ -177,6 +177,21 @@ public class CharNpc : CharBase, IBreadPickup
         return true;
     }
 
+    // 영업 마감 대기 시간 초과 등으로 손님을 즉시 내보낸다. 들고 있던 빵은 결제 없이 치우고(진열 재고는 이미 차감됨),
+    // 정상 퇴장과 같은 정리(DespawnToPool)를 거쳐 풀로 돌려보내 재사용 시 이전 상태가 남지 않게 한다.
+    public void ForceLeave()
+    {
+        var lobbyUI = GetComponentInChildren<LobbyCharUI>();
+        if (lobbyUI != null)
+        {
+            foreach (var bread in lobbyUI.DetachAllBreads())
+                bread.Despawn();
+        }
+
+        mBehaviorQueue?.Clear();
+        DespawnToPool();
+    }
+
     private void DespawnToPool()
     {
         mIsMoving = false;
@@ -297,16 +312,20 @@ public class CharNpc : CharBase, IBreadPickup
             var breadData = GameInstance.Model.Bread.Get(bread.TableId);
             if (breadData?.MenuItemRow != null)
             {
-                int gold = GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier((int)breadData.MenuItemRow.Price);
+                // 판매가 = 메뉴 가격 × 빵 품질 배율 × 결제 수익 업그레이드 배율 × 계절 판매 배율(Season.csv).
+                int price = Mathf.RoundToInt(breadData.MenuItemRow.Price * BreadQuality.GetSaleMultiplier(bread.Quality));
+                int gold = GameInstance.Model.Business.ApplySaleRate(GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier(price));
                 GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
+                GameInstance.Model.Business.RecordBreadSale(gold);
+                GameInstance.Model.Cafe.AddExp(CafeModel.EXP_STORE_PAYMENT);
             }
 
             bread.Despawn();
         }
     }
 
-    // 레시피북으로 해금된 레시피(+기본 음료) 중 하나를 DrinkRow.Weight 가중치에 따라 무작위로
-    // "구매"한 것으로 취급해 정산한다. Weight가 클수록 더 자주 선택된다(0 이하는 추첨 제외).
+    // 레시피북으로 해금된 레시피(+기본 음료) 중 하나를 DrinkRow.Weight × 계절 온도 인기 배율(Season.csv) 가중치에 따라
+    // 무작위로 "구매"한 것으로 취급해 정산한다. 가중치가 클수록 더 자주 선택된다(Weight 0 이하는 추첨 제외).
     private void ReceiveRandomUnlockedDrinkGold()
     {
         var drinkModel = GameInstance.Model.Drink;
@@ -315,24 +334,28 @@ public class CharNpc : CharBase, IBreadPickup
         if (drinkModel.DefaultDrink != null && !unlockedTids.Contains(drinkModel.DefaultDrink.TId))
             unlockedTids.Add(drinkModel.DefaultDrink.TId);
 
+        var business = GameInstance.Model.Business;
         DrinkData purchasedDrink = null;
-        int totalWeight = 0;
+        float totalWeight = 0f;
 
         foreach (var tid in unlockedTids)
         {
             var drinkData = drinkModel.Get(tid);
-            int weight = drinkData?.Row?.Weight ?? 0;
-            if (weight <= 0) continue;
+            int baseWeight = drinkData?.Row?.Weight ?? 0;
+            if (baseWeight <= 0) continue;
 
+            float weight = baseWeight * business.GetDrinkPopularityRate(drinkData.Row.DrinkTempType);
             totalWeight += weight;
-            if (UnityEngine.Random.Range(0, totalWeight) < weight)
+            if (UnityEngine.Random.Range(0f, totalWeight) < weight)
                 purchasedDrink = drinkData;
         }
 
         if (purchasedDrink?.MenuItemRow == null) return;
 
-        int gold = GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier((int)purchasedDrink.MenuItemRow.Price);
+        int gold = business.ApplySaleRate(GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier((int)purchasedDrink.MenuItemRow.Price));
         GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
+        GameInstance.Model.Business.RecordDrinkSale(gold);
+        GameInstance.Model.Cafe.AddExp(CafeModel.EXP_STORE_PAYMENT);
 
         var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
         lobbyCharUI?.SetDrinkSprite(LoadDrinkSprite(purchasedDrink.MenuItemRow));

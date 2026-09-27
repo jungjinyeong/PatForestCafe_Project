@@ -14,12 +14,14 @@ public class UIScrollMaterialShopData
     public int Tid;
     public string Name;
     public long Price;
+    public int OwnedCount;
     public eShopEntryType EntryType;
 }
 
 public class UIScrollMaterialShop : UIScrollRow<UIScrollMaterialShopData>
 {
     [SerializeField] private TextMeshProUGUI mName;
+    [SerializeField] private TextMeshProUGUI mOwned;
     [SerializeField] private TextMeshProUGUI mPrice;
     [SerializeField] private UIButtonEx mBtnBuy;
 
@@ -36,6 +38,7 @@ public class UIScrollMaterialShop : UIScrollRow<UIScrollMaterialShopData>
         if (data == null) return;
 
         mName.SetTextEx(data.Name);
-        mPrice.SetTextEx(data.Price.ToString());
+        if (mOwned != null) mOwned.SetTextEx($"보유 {data.OwnedCount}");
+        mPrice.SetTextEx($"{data.Price} G");
     }
 }

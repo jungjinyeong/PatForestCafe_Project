@@ -56,6 +56,9 @@ public partial class GameModeLobby
 
     private void OnEnterOpenLobbyUI()
     {
+        // 진열대/세이브 복원이 끝난 뒤라 복원 과정이 알림으로 쌓이지 않는다.
+        GameInstance.Model.Notice.Bind();
+
         GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.RootLobby, new UIRootLobby.Param());
 
         GameInstance.UI.HudController.Init();
@@ -101,6 +104,7 @@ public partial class GameModeLobby
 
     private void OnEnterSpawn()
     {
-        GameInstance.Spawn.StartAutoSpawn();
+        // 영업 상태 구독이 영업 중이면 자동 스폰을 시작한다(GameModeLobby+Business).
+        BindBusiness();
     }
 }

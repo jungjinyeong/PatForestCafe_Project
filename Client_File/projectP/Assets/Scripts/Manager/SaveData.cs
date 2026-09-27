@@ -13,8 +13,25 @@ public class ItemSaveEntry
 public class BreadSaveEntry
 {
     public int Tid;
+    // 품질 도입 전 세이브 호환용(합계). 품질별 배열이 비어 있으면 이 값을 하급으로 이관한다.
     public int Count;
     public int ProducedCount;
+    // 품질별(인덱스 0=하급 1=중급 2=고급) 진열 수량 / 생산 재고.
+    public List<int> CountByQuality = new List<int>();
+    public List<int> ProducedByQuality = new List<int>();
+}
+
+[Serializable]
+public class OvenTraySaveEntry
+{
+    public eOvenTrayState State;
+    public int RecipeTid;
+    public int Quantity;
+    public List<int> BaseMaterialTids = new List<int>();
+    public List<int> ExtraMaterialTids = new List<int>();
+    public eBreadQuality Quality;
+    public long BakeEndUnixSeconds;
+    public int BakeDurationSeconds;
 }
 
 [Serializable]
@@ -58,6 +75,12 @@ public class SaveData
     public List<PlacedFurnitureSaveEntry> PlacedFurniture = new List<PlacedFurnitureSaveEntry>();
     public List<int> DiscoveredRecipeTids = new List<int>();
     public int GoldIncomeUpgradeLevel;
+    public int CafeLevel;
+    public int CafeExp;
+    public int BusinessDay;
+    public bool BusinessClosed;
+    public BusinessStats TodayStats = new BusinessStats();
+    public BusinessStats NextDayStats = new BusinessStats();
     public int HiredWorkerCount;
     public List<int> WorkshopSlotMaterialTids = new List<int>();
     public int HighestUnlockedFloor;
@@ -66,5 +89,7 @@ public class SaveData
     public List<PickupDrinkSaveEntry> PickupDrinks = new List<PickupDrinkSaveEntry>();
     public long NextOrderRefillUnixSeconds;
     public int NextOrderNo;
+    public int OvenLevel;
+    public List<OvenTraySaveEntry> OvenTrays = new List<OvenTraySaveEntry>();
     public long LastSaveUnixSeconds;
 }

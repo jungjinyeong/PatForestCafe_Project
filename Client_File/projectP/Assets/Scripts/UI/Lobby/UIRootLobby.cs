@@ -1,5 +1,6 @@
 using UniRx;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Extension;
 
 public class UIRootLobby : UIWndBase
@@ -16,10 +17,11 @@ public class UIRootLobby : UIWndBase
     [SerializeField] private UIButtonEx mBtnFloorUnlock;
 
     [Header("Menu")]
-    [SerializeField] private UIButtonEx mBtnRecipeBook;
+    [FormerlySerializedAs("mBtnRecipeBook")]
+    [SerializeField] private UIButtonEx mBtnCollection;
     [SerializeField] private UIButtonEx mBtnUpgrade;
 
-    [Header("Menu (Placeholder)")]
+    [Header("Menu (Warehouse / Staff)")]
     [SerializeField] private UIButtonEx mBtnWarehouse;
     [SerializeField] private UIButtonEx mBtnStaff;
 
@@ -35,6 +37,7 @@ public class UIRootLobby : UIWndBase
         RegisterWaypointGroups();
 
         this.GetComponentsInChildren<UIDayNightBg>().Each(x => x.Init());
+        this.GetComponentsInChildren<UILobbyNotice>(true).Each(x => x.Init());
 
         // 가구 구매 시 "지금 보고 있는 층"(FloorModel.ViewingFloor)을 알아야 하므로 가구 복원/배치보다 먼저 초기화한다.
         if (mFloorCamera != null)
@@ -45,12 +48,12 @@ public class UIRootLobby : UIWndBase
 
         mBtnTogglePlacementMode.OnSubscribeOnClick(OnClickTogglePlacementMode).AddTo(this);
 
-        // mBtnFloorUnlock/mBtnRecipeBook/mBtnUpgrade는 UI_Root_Lobby 프리팹에 버튼을 배치하기 전까지 비어있을 수 있음.
+        // mBtnFloorUnlock/mBtnCollection/mBtnUpgrade는 UI_Root_Lobby 프리팹에 버튼을 배치하기 전까지 비어있을 수 있음.
         if (mBtnFloorUnlock != null)
             mBtnFloorUnlock.OnSubscribeOnClick(OnClickOpenFloorUnlock).AddTo(this);
 
-        if (mBtnRecipeBook != null)
-            mBtnRecipeBook.OnSubscribeOnClick(OnClickOpenRecipeBook).AddTo(this);
+        if (mBtnCollection != null)
+            mBtnCollection.OnSubscribeOnClick(OnClickOpenCollection).AddTo(this);
 
         if (mBtnUpgrade != null)
             mBtnUpgrade.OnSubscribeOnClick(OnClickOpenUpgrade).AddTo(this);
@@ -97,9 +100,9 @@ public class UIRootLobby : UIWndBase
         GameInstance.UI.Open<UIFloorUnlock, UIFloorUnlock.Param>(eUIType.PopupFloorUnlock, new UIFloorUnlock.Param());
     }
 
-    private void OnClickOpenRecipeBook()
+    private void OnClickOpenCollection()
     {
-        GameInstance.UI.Open<UIPopupRecipeBook, UIPopupRecipeBook.Param>(eUIType.PopupRecipeBook, new UIPopupRecipeBook.Param());
+        GameInstance.UI.Open<UIPopupCollection, UIPopupCollection.Param>(eUIType.PopupCollection, new UIPopupCollection.Param());
     }
 
     private void OnClickOpenUpgrade()

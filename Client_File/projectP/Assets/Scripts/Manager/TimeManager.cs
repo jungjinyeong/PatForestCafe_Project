@@ -18,6 +18,10 @@ public class TimeManager : MonoBehaviour, IManager
 
     public void Init()
     {
+        // 하루 길이·시작 시각(= 개점 시각)은 GameTime.csv 값으로 덮어쓴다(테이블은 GameInstance.Init()에서 먼저 로드됨).
+        mDayDurationSeconds = BusinessModel.DayDurationSeconds;
+        mStartHour = BusinessModel.OpenHour;
+
         mCurrentHour.Value = mStartHour;
         mDebugHour = mStartHour;
 

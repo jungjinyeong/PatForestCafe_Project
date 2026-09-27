@@ -66,7 +66,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ecb9a0e232114ebab5573855206cf46d
-    m_Address: UIPrefabs/UI_Popup_RecipeBook
+    m_Address: UIPrefabs/UI_Popup_Collection
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

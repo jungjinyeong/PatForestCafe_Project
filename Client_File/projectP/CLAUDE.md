@@ -218,5 +218,8 @@ public void Init()
 - [게임 로비](Docs/GameDesign/Lobby.md)
 - [카운터](Docs/GameDesign/Counter.md)
 - [특별 음료 제작](Docs/GameDesign/SpecialDrinkProduction.md)
+- [오븐 제작(빵)](Docs/GameDesign/OvenProduction.md)
+- [도감](Docs/GameDesign/Collection.md)
 - [가공섬](Docs/GameDesign/MaterialIsland.md)
 - [기획 구현 순서](Docs/GameDesign/ImplementationOrder.md) — 현재 프로젝트 코드 분석 기준 구현 우선순위
+- [웹 프로토타입 갭 리스트](Docs/GameDesign/WebPrototypeGap.md) — ForestCafe UI Lab 사이트 대비 추가 구현 항목·진행 기록

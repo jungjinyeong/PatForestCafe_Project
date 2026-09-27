@@ -10,5 +10,9 @@ namespace CTable
         public int Tid;
         public string Name;
         public long Price;
+        public string Category;
+        public int Grade;
+        public string Tags;
+        public string Desc;
     }
 }

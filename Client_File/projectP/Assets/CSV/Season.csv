@@ -1,0 +1,7 @@
+Tid,Name,SaleRate,IceDrinkRate,HotDrinkRate
+int,string,float,float,float
+@아이디(순서),@계절명,@매장판매가격배율,@ICE음료인기배율(손님음료추첨가중치),@HOT음료인기배율(손님음료추첨가중치)
+1,봄,1,1,1
+2,여름,1.1,1.5,0.6
+3,가을,1,1,1.2
+4,겨울,1.1,0.6,1.5

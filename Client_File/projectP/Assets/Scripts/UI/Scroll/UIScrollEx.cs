@@ -118,6 +118,8 @@ public class UIScrollEx : UIBase
         for (int i = 0; i < dataList.Count; i++)
         {
             var row = GetOrCreateRow();
+            // 풀에서 꺼낸 행은 이전 형제 순서를 그대로 갖고 있어, 목록 길이가 바뀌면 화면 순서가 데이터 순서와 어긋난다.
+            row.transform.SetAsLastSibling();
             row.Setup(i, mOnSelectAction);
             row.SetData(dataList[i]);
             mActiveRows.Add(row);

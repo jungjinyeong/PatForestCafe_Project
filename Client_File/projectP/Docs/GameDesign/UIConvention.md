@@ -1,6 +1,6 @@
 # UI 제작 규약 (초안)
 
-> 이 문서는 `UI_Popup_RecipeBook` 프리팹(+`UIPopupRecipeBook.cs`, `UIWndBase.cs`)을 분석해서 뽑아낸 **초안**입니다.
+> 이 문서는 `UI_Popup_RecipeBook` 프리팹(+`UIPopupRecipeBook.cs`, `UIWndBase.cs`)을 분석해서 뽑아낸 **초안**입니다. (2026-09-26: 해당 팝업은 도감 `UI_Popup_Collection` / `UIPopupCollection.cs`로 이름이 바뀜 — 아래 예시도 새 이름으로 표기)
 > 아직 검토/확정 전이며, 실제 프로젝트에 맞게 수정이 필요합니다.
 
 ---
@@ -9,13 +9,13 @@
 
 | 대상 | 규칙 | 예시 |
 |---|---|---|
-| 팝업 프리팹 | `UI_Popup_{기능명}.prefab` | `UI_Popup_RecipeBook.prefab` |
+| 팝업 프리팹 | `UI_Popup_{기능명}.prefab` | `UI_Popup_Collection.prefab` |
 | 팝업 프리팹 위치 | `Assets/Datas/UI/{도메인}/Popup/` | `Assets/Datas/UI/Lobby/Popup/` |
-| 팝업 스크립트 | `UIPopup{기능명}.cs` | `UIPopupRecipeBook.cs` |
+| 팝업 스크립트 | `UIPopup{기능명}.cs` | `UIPopupCollection.cs` |
 | 팝업 스크립트 위치 | `Assets/Scripts/UI/{도메인}/` | `Assets/Scripts/UI/Drink/` |
-| 루트 GameObject 이름 | 프리팹 파일명과 동일 | `UI_Popup_RecipeBook` |
-| 스크롤 아이템 컨트롤러 | `UIScroll{기능명}.cs` | `UIScrollRecipeBook.cs` |
-| 스크롤 아이템 데이터 클래스 | `UIScroll{기능명}Data` | `UIScrollRecipeBookData` |
+| 루트 GameObject 이름 | 프리팹 파일명과 동일 | `UI_Popup_Collection` |
+| 스크롤 아이템 컨트롤러 | `UIScroll{기능명}.cs` | `UIScrollCollection.cs` |
+| 스크롤 아이템 데이터 클래스 | `UIScroll{기능명}Data` | `UIScrollCollectionData` |
 
 `eUIType` enum에 `UIPopup{기능명}` 항목을 등록하고, `UIManager.prefab`의 캐시 딕셔너리에 프리팹을 드래그 등록해야 실제로 열립니다(이 부분은 코드만으로 불가능 — 에디터 작업 필요).
 

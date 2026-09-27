@@ -14,6 +14,10 @@ public class CommonModelManager : MonoBehaviour, IManager
     public FloorModel Floor { get; private set; }
     public StaffModel Staff { get; private set; }
     public DeliveryModel Delivery { get; private set; }
+    public OvenModel Oven { get; private set; }
+    public CafeModel Cafe { get; private set; }
+    public NoticeModel Notice { get; private set; }
+    public BusinessModel Business { get; private set; }
 
     private readonly List<IModelBase> mModels = new List<IModelBase>();
 
@@ -30,6 +34,10 @@ public class CommonModelManager : MonoBehaviour, IManager
         Floor = Register(new FloorModel());
         Staff = Register(new StaffModel());
         Delivery = Register(new DeliveryModel());
+        Oven = Register(new OvenModel());
+        Cafe = Register(new CafeModel());
+        Notice = Register(new NoticeModel());
+        Business = Register(new BusinessModel());
     }
 
     public void Subscribe() { }
@@ -50,6 +58,10 @@ public class CommonModelManager : MonoBehaviour, IManager
         Floor = null;
         Staff = null;
         Delivery = null;
+        Oven = null;
+        Cafe = null;
+        Notice = null;
+        Business = null;
     }
 
     public void Destory()

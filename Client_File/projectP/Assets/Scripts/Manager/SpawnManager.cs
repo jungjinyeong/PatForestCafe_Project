@@ -19,6 +19,10 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private GameObject mLobbyCharUIPrefab;
 
     private readonly List<CharNpc> mSpawnedNPCs = new();
+
+    // 매장에 남아 있는 손님 수(영업 마감 시 전원 퇴장 대기용).
+    public IReadOnlyReactiveProperty<int> ActiveCount => mActiveCount;
+    private readonly ReactiveProperty<int> mActiveCount = new ReactiveProperty<int>(0);
     private IDisposable mAutoSpawnDisposable;
 
     public void SetInfo(GameObject lobbyCharUIPrefab, GameObject[] npcPrefabs)
@@ -98,6 +102,8 @@ public class SpawnManager : MonoBehaviour
 
         if (!mSpawnedNPCs.Contains(npc))
             mSpawnedNPCs.Add(npc);
+        mActiveCount.Value = mSpawnedNPCs.Count;
+        GameInstance.Model.Business.RecordVisitor();
 
         AttachLobbyCharUI(npcObj);
     }
@@ -122,6 +128,7 @@ public class SpawnManager : MonoBehaviour
     {
         if (npc == null) return;
         mSpawnedNPCs.Remove(npc);
+        mActiveCount.Value = mSpawnedNPCs.Count;
 
         if (GameInstance.Pool != null)
             GameInstance.Pool.Despawn(npc.gameObject.name, npc.gameObject);
@@ -157,16 +164,16 @@ public class SpawnManager : MonoBehaviour
         SpawnNPC(spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Length)], group);
     }
 
+    // 남은 손님을 모두 즉시 내보낸다. CharNpc.ForceLeave()가 들고 있던 빵·음료·대기 타이머를 정리한 뒤
+    // ReturnToPool()로 목록에서 빠지므로, 풀에서 재사용돼도 이전 상태가 남지 않는다.
     public void DespawnAll()
     {
-        foreach (var npc in mSpawnedNPCs)
+        foreach (var npc in new List<CharNpc>(mSpawnedNPCs))
         {
-            if (npc == null) continue;
-            if (GameInstance.Pool != null)
-                GameInstance.Pool.Despawn(npc.gameObject.name, npc.gameObject);
-            else
-                Destroy(npc.gameObject);
+            if (npc != null)
+                npc.ForceLeave();
         }
         mSpawnedNPCs.Clear();
+        mActiveCount.Value = 0;
     }
 }

@@ -13,5 +13,8 @@ namespace CTable
         public int BreadMaterial3;
         public int BreadMaterial4;
         public int BreadMaterial5;
+        public long RecipePrice;
+        public string Tags;
+        public string Desc;
     }
 }

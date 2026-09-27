@@ -71,7 +71,7 @@ MonoBehaviour:
   mBtnTogglePlacementMode: {fileID: 4770506048128317589}
   mFloorCamera: {fileID: 0}
   mBtnFloorUnlock: {fileID: 6066413502302977301}
-  mBtnRecipeBook: {fileID: 8213753365861735283}
+  mBtnCollection: {fileID: 8213753365861735283}
   mBtnUpgrade: {fileID: 464316232631291370}
   mBtnWarehouse: {fileID: 8327225260134159278}
   mBtnStaff: {fileID: 4707909514645180989}
@@ -2525,9 +2525,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -2965,6 +2965,7 @@ GameObject:
   - component: {fileID: 3933444688742769523}
   - component: {fileID: 5448249455832791570}
   - component: {fileID: 1372455955422751490}
+  - component: {fileID: 4705856933255969618}
   m_Layer: 0
   m_Name: NoticePanel
   m_TagString: Untagged
@@ -3060,6 +3061,22 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &4705856933255969618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5316016905318070921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b390fe9d40c71074faa3b1529aca64e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UILobbyNotice
+  mTextLines:
+  - {fileID: 2755929652483633022}
+  - {fileID: 1962373893378105432}
+  - {fileID: 2577711908538743967}
 --- !u!1 &5625029566048193578
 GameObject:
   m_ObjectHideFlags: 0
@@ -3448,9 +3465,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -4336,9 +4353,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -5028,7 +5045,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3916550725428638393, guid: 81f39581812678f4d89329cd4484cda9, type: 3}
       propertyPath: m_Name
-      value: UI_Btn_RecpiBook
+      value: UI_Btn_RecipeBook
       objectReference: {fileID: 0}
     - target: {fileID: 8416465390708111415, guid: 81f39581812678f4d89329cd4484cda9, type: 3}
       propertyPath: m_text

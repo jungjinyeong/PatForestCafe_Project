@@ -13,7 +13,7 @@ namespace CTable
                 string line = lines[i];
                 if (string.IsNullOrWhiteSpace(line)) continue;
                 string[] values = line.Split(',');
-                if (values.Length < 7) continue;
+                if (values.Length < 10) continue;
 
                 var row = new BreadRow();
                 row.Tid = int.TryParse(values[0].Trim(), out int _Tid) ? _Tid : 0;
@@ -22,6 +22,9 @@ namespace CTable
                 row.BreadMaterial3 = int.TryParse(values[4].Trim(), out int _BreadMaterial3) ? _BreadMaterial3 : 0;
                 row.BreadMaterial4 = int.TryParse(values[5].Trim(), out int _BreadMaterial4) ? _BreadMaterial4 : 0;
                 row.BreadMaterial5 = int.TryParse(values[6].Trim(), out int _BreadMaterial5) ? _BreadMaterial5 : 0;
+                row.RecipePrice = long.TryParse(values[7].Trim(), out long _RecipePrice) ? _RecipePrice : 0;
+                row.Tags = values[8].Trim();
+                row.Desc = values[9].Trim();
 
                 AddRow(row.Tid, row);
             }

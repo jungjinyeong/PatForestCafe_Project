@@ -1,27 +1,64 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using TMPro;
 using UniRx;
 using Extension;
 
-// UIPopupDrinkRecipeProduction과 동일한 재료 선택→매칭 패턴이지만,
-// 특정 NPC 주문에 묶이지 않고 빵 레시피(BreadRow.BreadMaterial1~5) 전체를 대상으로 매칭한다.
+// "오븐 제작" 팝업(프리팹 UI_Popup_BreadProduction, 가공섬 진입).
+// 트레이마다 반죽(발견한 빵 레시피 + 재료 등급 + 수량)을 설정하고 [굽기 시작하기]로 대기 트레이를 한 번에 굽는다.
+// 재료는 굽기 시작 시 전체 트레이 합산으로 한 번 차감되고, 굽기가 끝나면 빵 재고(창고)에 품질별로 자동 보관된다(OvenModel).
+// 2026-09: 재료 조합 매칭 즉시 생산 → 오븐 트레이/굽기 시간/품질 구조로 전면 개편(.cs.meta guid 유지).
 public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction.Param>
 {
     public struct Param
     {
     }
 
-    [Header("Scroll")]
-    [SerializeField] private UIScrollEx mScrollEx;
-    [SerializeField] private GameObject mBreadMaterialRowPrefab;
+    private const float NOTICE_SECONDS = 2.5f;
+    private const float BAKE_REFRESH_SECONDS = 0.5f;
+    private const int STOCK_PAGE_SIZE = 6;
 
-    [Header("Recipe")]
-    [SerializeField] private TextMeshProUGUI mTextSelectedMaterials;
-    [SerializeField] private UIButtonEx mBtnConfirmRecipe;
-    [SerializeField] private UIButtonEx mBtnResetRecipe;
+    [Header("Header")]
+    [SerializeField] private TextMeshProUGUI mTextStatus;
 
-    private readonly Dictionary<int, int> mSelectedMaterialCounts = new();
+    [Header("Trays")]
+    [SerializeField] private UIOvenTraySlot[] mTraySlots;
+    [SerializeField] private TextMeshProUGUI mTextUpgradeNote;
+    [SerializeField] private UIButtonEx mBtnBake;
+    [SerializeField] private UIBreadDoughPanel mDoughPanel;
+
+    [Header("Stock")]
+    [SerializeField] private UIScrollEx mStockScrollEx;
+    [SerializeField] private GameObject mStockRowPrefab;
+    [SerializeField] private UIButtonEx[] mStockTabs;
+    [SerializeField] private GameObject[] mStockTabSelectedMarks;
+    [SerializeField] private GameObject mStockDetailRoot;
+    [SerializeField] private TextMeshProUGUI mTextStockDetailName;
+    [SerializeField] private TextMeshProUGUI mTextStockDetailDesc;
+    [SerializeField] private TextMeshProUGUI mTextStockDetailTags;
+    [SerializeField] private TextMeshProUGUI mTextStockDetailQuality;
+    [SerializeField] private UIButtonEx mBtnStockDetailClose;
+
+    [Header("Help")]
+    [SerializeField] private UIButtonEx mBtnHelp;
+    [SerializeField] private GameObject mHelpRoot;
+    [SerializeField] private GameObject[] mHelpPages;
+    [SerializeField] private TextMeshProUGUI mTextHelpPage;
+    [SerializeField] private UIButtonEx mBtnHelpPrev;
+    [SerializeField] private UIButtonEx mBtnHelpNext;
+    [SerializeField] private UIButtonEx mBtnHelpClose;
+
+    [Header("Notice")]
+    [SerializeField] private TextMeshProUGUI mTextNotice;
+
+    private int mStockPage;
+    private int mHelpPageIndex;
+    private bool mIsModelSubscribed;
+    private readonly SerialDisposable mNoticeDisposable = new SerialDisposable();
+
+    private OvenModel Oven => GameInstance.Model.Oven;
 
     public override eUIType GetUIType() => eUIType.PopupBreadProduction;
 
@@ -29,165 +66,201 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
     {
         base.Init();
 
-        mScrollEx.Init(mBreadMaterialRowPrefab);
-        mScrollEx.SetOnSelect(OnSelectMaterial);
+        for (int i = 0; i < mTraySlots.Length; i++)
+        {
+            int index = i;
+            mTraySlots[i].Init(() => OnClickTray(index));
+        }
 
-        mBtnConfirmRecipe.OnSubscribeOnClick(OnClickConfirmRecipe).AddTo(this);
-        mBtnResetRecipe.OnSubscribeOnClick(ResetSelectedMaterials).AddTo(this);
+        mDoughPanel.Init(RefreshAll);
+        mBtnBake.OnSubscribeOnClick(OnClickBake).AddTo(this);
+
+        mStockScrollEx.Init(mStockRowPrefab);
+        mStockScrollEx.SetOnSelect(OnSelectStock);
+        for (int i = 0; i < mStockTabs.Length; i++)
+        {
+            int page = i;
+            mStockTabs[i].OnSubscribeOnClick(() => SetStockPage(page)).AddTo(this);
+        }
+        mBtnStockDetailClose.OnSubscribeOnClick(() => mStockDetailRoot.SetActive(false)).AddTo(this);
+
+        mBtnHelp.OnSubscribeOnClick(OpenHelp).AddTo(this);
+        mBtnHelpPrev.OnSubscribeOnClick(() => ShowHelpPage(mHelpPageIndex - 1)).AddTo(this);
+        mBtnHelpNext.OnSubscribeOnClick(() => ShowHelpPage(mHelpPageIndex + 1)).AddTo(this);
+        mBtnHelpClose.OnSubscribeOnClick(() => mHelpRoot.SetActive(false)).AddTo(this);
+
+        mNoticeDisposable.AddTo(this);
     }
 
     public override void Open()
     {
         base.Open();
 
-        ResetSelectedMaterials();
-        SetupMaterialScroll();
+        SubscribeModelOnce();
+
+        mDoughPanel.Close();
+        mHelpRoot.SetActive(false);
+        mStockDetailRoot.SetActive(false);
+        mTextNotice.SetTextEx(string.Empty);
+
+        SetStockPage(0);
+        RefreshAll();
     }
 
     public void Set(Param param)
     {
     }
 
-    // mBreadMaterialRowPrefab의 실제 컴포넌트는 UIScrollDrinkMaterial이 아니라 UIScrollBread다(프리팹 쪽 확인됨,
-    // UI_Popup_BreadProduction.prefab의 "Slot" 오브젝트). UIScrollBreadData는 보유 수량 표시용 필드가 없어
-    // 이름에 붙여서 보여준다.
-    private void SetupMaterialScroll()
+    // Init()이 GameInstance 모델 준비 이전에 불릴 수 있어, 모델 구독은 첫 Open에서 1회만 건다.
+    private void SubscribeModelOnce()
     {
-        var group = GameInstance.Table.GetTable<CTable.BreadMaterialRow>();
-        if (group == null)
-        {
-            Logger.Warning("[UIPopupBreadProduction] BreadMaterialGroup을 찾을 수 없습니다.");
-            return;
-        }
+        if (mIsModelSubscribed) return;
+        mIsModelSubscribed = true;
 
-        var dataList = new List<UIScrollBreadData>();
-        foreach (var row in group.All.Values)
-        {
-            int owned = GameInstance.Model.Material.Get(row.Tid)?.Count.Value ?? 0;
-            dataList.Add(new UIScrollBreadData
+        Oven.OnTraysChanged
+            .Subscribe(_ => RefreshAll())
+            .AddTo(this);
+
+        Oven.OnBakeCompleted
+            .Where(_ => gameObject.activeInHierarchy)
+            .Subscribe(result =>
             {
-                Tid = row.Tid,
-                Name = $"{row.Name} ({owned})",
-            });
-        }
+                string name = GameInstance.Table.Get<CTable.MenuItemRow>(result.recipeTid)?.Name ?? result.recipeTid.ToString();
+                ShowNotice($"{name} {result.quantity}개({BreadQuality.GetName(result.quality)}) 굽기 완료! 창고에 보관했어요.");
+                RefreshStock();
+            })
+            .AddTo(this);
 
-        mScrollEx.SetData(dataList);
+        // 굽는 중 남은 시간/게이지 표시.
+        Observable.Interval(TimeSpan.FromSeconds(BAKE_REFRESH_SECONDS))
+            .Where(_ => gameObject.activeInHierarchy)
+            .Subscribe(_ => RefreshTrays())
+            .AddTo(this);
     }
 
-    private void OnSelectMaterial(UIScrollRow row)
+    private void RefreshAll()
     {
-        if (row is not UIScrollBread materialRow || materialRow.CurrentData == null)
+        RefreshTrays();
+        RefreshStock();
+    }
+
+    #region Trays
+
+    private void RefreshTrays()
+    {
+        for (int i = 0; i < mTraySlots.Length; i++)
+            mTraySlots[i].Refresh(i, Oven);
+
+        mTextStatus.SetTextEx($"활성 트레이 {Oven.ActiveTrayCount} / {Oven.UnlockedTrayCount}   |   굽기 {Oven.BakeSeconds}초   |   창고 자동 보관");
+
+        string next = Oven.GetNextUpgradeSummary();
+        mTextUpgradeNote.SetTextEx(next != null ? $"다음 업그레이드: {next}" : "오븐 최대 레벨");
+
+        mBtnBake.interactable = Oven.ReadyTrayCount > 0;
+    }
+
+    private void OnClickTray(int index)
+    {
+        if (!Oven.IsTrayUnlocked(index))
+        {
+            ShowNotice("오븐 업그레이드 후 해금됩니다. (상점가 똘이 - 시설 업그레이드)");
+            return;
+        }
+
+        if (Oven.Trays[index].State == eOvenTrayState.Baking)
             return;
 
-        int tid = materialRow.CurrentData.Tid;
-        mSelectedMaterialCounts.TryGetValue(tid, out int count);
+        mDoughPanel.Open(index);
+    }
 
-        if (!GameInstance.Model.Material.HasEnough(tid, count + 1))
+    private void OnClickBake()
+    {
+        if (Oven.TryStartBake(out string shortage))
         {
-            Logger.Log($"[UIPopupBreadProduction] 재료가 부족합니다. Tid={tid}");
+            ShowNotice($"굽기 시작! {Oven.BakeSeconds}초 뒤 창고에 자동 보관돼요.");
             return;
         }
 
-        mSelectedMaterialCounts[tid] = count + 1;
-
-        RefreshSelectedMaterialsText();
+        ShowNotice(shortage != null ? $"{shortage}이(가) 부족해요." : "반죽을 설정한 트레이가 없어요.");
     }
 
-    private void ResetSelectedMaterials()
+    #endregion
+
+    #region Stock
+
+    // 발견한 레시피이거나 재고가 있는 빵을 Tid 순으로 페이지(창고 1/2)마다 STOCK_PAGE_SIZE개씩 보여준다.
+    private void RefreshStock()
     {
-        mSelectedMaterialCounts.Clear();
-        RefreshSelectedMaterialsText();
+        var breads = GameInstance.Model.Bread.GetAll()
+            .Where(b => b.ProducedCount.Value > 0 || GameInstance.Model.RecipeBook.IsDiscovered(b.TId))
+            .OrderBy(b => b.TId)
+            .Skip(mStockPage * STOCK_PAGE_SIZE)
+            .Take(STOCK_PAGE_SIZE)
+            .Select(b => new UIScrollBreadStockData { BreadTid = b.TId })
+            .ToList();
+
+        mStockScrollEx.SetData(breads);
+
+        for (int i = 0; i < mStockTabSelectedMarks.Length; i++)
+            mStockTabSelectedMarks[i].SetActive(i == mStockPage);
     }
 
-    private void RefreshSelectedMaterialsText()
+    private void SetStockPage(int page)
     {
-        if (mTextSelectedMaterials == null) return;
+        mStockPage = Mathf.Clamp(page, 0, Mathf.Max(0, mStockTabs.Length - 1));
+        mStockDetailRoot.SetActive(false);
+        RefreshStock();
+    }
 
-        if (mSelectedMaterialCounts.Count == 0)
-        {
-            mTextSelectedMaterials.SetTextEx(string.Empty);
+    private void OnSelectStock(UIScrollRow row)
+    {
+        if (row is not UIScrollBreadStock stockRow || stockRow.CurrentData == null)
             return;
-        }
 
-        var group = GameInstance.Table.GetTable<CTable.BreadMaterialRow>();
-        var parts = new List<string>();
+        var bread = GameInstance.Model.Bread.Get(stockRow.CurrentData.BreadTid);
+        if (bread == null)
+            return;
 
-        foreach (var pair in mSelectedMaterialCounts)
-        {
-            string name = group?.Get(pair.Key)?.Name ?? pair.Key.ToString();
-            parts.Add($"{name} x{pair.Value}");
-        }
+        mTextStockDetailName.SetTextEx(bread.MenuItemRow?.Name ?? bread.TId.ToString());
+        mTextStockDetailDesc.SetTextEx(bread.Row?.Desc ?? "정성껏 구운 빵이에요.");
+        mTextStockDetailTags.SetTextEx(bread.Row != null ? string.Join(", ", bread.Row.GetTags()) : string.Empty);
 
-        mTextSelectedMaterials.SetTextEx(string.Join(", ", parts));
+        string quality = UIScrollBreadStock.BuildQualityText(bread);
+        mTextStockDetailQuality.SetTextEx(string.IsNullOrEmpty(quality) ? "보관 중인 빵이 없어요." : quality);
+        mStockDetailRoot.SetActive(true);
     }
 
-    private void OnClickConfirmRecipe()
+    #endregion
+
+    #region Help
+
+    private void OpenHelp()
     {
-        var breadGroup = GameInstance.Table.GetTable<CTable.BreadRow>();
-        if (breadGroup == null) return;
-
-        foreach (var breadRow in breadGroup.All.Values)
-        {
-            if (IsRecipeMatch(breadRow))
-            {
-                OnRecipeSuccess(breadRow.Tid);
-                return;
-            }
-        }
-
-        OnRecipeFail();
+        mHelpRoot.SetActive(true);
+        ShowHelpPage(0);
     }
 
-    private bool IsRecipeMatch(CTable.BreadRow breadRow)
+    private void ShowHelpPage(int index)
     {
-        var required = new[]
-        {
-            breadRow.BreadMaterial1,
-            breadRow.BreadMaterial2,
-            breadRow.BreadMaterial3,
-            breadRow.BreadMaterial4,
-            breadRow.BreadMaterial5,
-        };
+        if (mHelpPages == null || mHelpPages.Length == 0) return;
 
-        var requiredCounts = new Dictionary<int, int>();
-        foreach (var tid in required)
-        {
-            if (tid == 0) continue;
-            requiredCounts.TryGetValue(tid, out int count);
-            requiredCounts[tid] = count + 1;
-        }
+        mHelpPageIndex = Mathf.Clamp(index, 0, mHelpPages.Length - 1);
+        for (int i = 0; i < mHelpPages.Length; i++)
+            mHelpPages[i].SetActive(i == mHelpPageIndex);
 
-        if (requiredCounts.Count == 0 || requiredCounts.Count != mSelectedMaterialCounts.Count)
-            return false;
-
-        foreach (var pair in requiredCounts)
-        {
-            if (!mSelectedMaterialCounts.TryGetValue(pair.Key, out int selectedCount) || selectedCount != pair.Value)
-                return false;
-        }
-
-        return true;
+        mTextHelpPage.SetTextEx($"{mHelpPageIndex + 1} / {mHelpPages.Length}");
+        mBtnHelpPrev.interactable = mHelpPageIndex > 0;
+        mBtnHelpNext.interactable = mHelpPageIndex < mHelpPages.Length - 1;
     }
 
-    private void OnRecipeSuccess(int breadTid)
+    #endregion
+
+    private void ShowNotice(string message)
     {
-        foreach (var pair in mSelectedMaterialCounts)
-            GameInstance.Model.Material.Consume(pair.Key, pair.Value);
+        if (mTextNotice == null) return;
 
-        // 진열대가 아직 이 빵을 Register()하지 않았을 수도 있어(에디터 배치 전) 여기서 보장한다. 이미 등록돼 있으면 아무 동작 없음.
-        GameInstance.Model.Bread.Register(breadTid);
-        // 여기서 늘리는 건 "생산 재고"이며 진열 수량(Count)이 아니다 — 진열대(Intaraction_BreadStand.AddBread)가 이 재고를 소비해야 실제로 진열된다.
-        GameInstance.Model.Bread.AddProduced(breadTid);
-
-        Logger.Log($"[UIPopupBreadProduction] 빵 생산 완료. Tid={breadTid}");
-
-        ResetSelectedMaterials();
-        SetupMaterialScroll();
-    }
-
-    private void OnRecipeFail()
-    {
-        Logger.Log("[UIPopupBreadProduction] 재료 조합이 일치하는 빵 레시피가 없습니다.");
-        ResetSelectedMaterials();
+        mTextNotice.SetTextEx(message);
+        mNoticeDisposable.Disposable = Observable.Timer(TimeSpan.FromSeconds(NOTICE_SECONDS))
+            .Subscribe(_ => mTextNotice.SetTextEx(string.Empty));
     }
 }

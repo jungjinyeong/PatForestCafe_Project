@@ -19,11 +19,11 @@ public enum eUIType
     PopupOrderDetail,
     PopupBreadSelect,
     PopupOfflineIncome,
-    PopupRecipeBook,
+    PopupCollection,
     PopupUpgrade,
     PopupBreadMinigame,
     PopupBreadProduction,
-    PopupMaterialShop,
+    PopupMaterialShop,      // 미사용(상점가 서브 패널로 통합). 지우면 뒤 항목 번호가 밀려 UIManager.prefab 등록이 어긋나므로 남겨 둔다.
     PopupWorkshop,
     PopupFloorUnlock,
     PopupWarehouse,
@@ -36,6 +36,9 @@ public enum eUIType
     PopupFurnitureList,
     PopupPlacementConfirm,
     PopupComingSoon,
+    PopupBreadRecipeShop,
+    PopupConfirm,
+    PopupSettlement,
 
     HudController = eUILayerType.AlwaysOnTop << 16,
     Loading,

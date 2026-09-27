@@ -65,6 +65,7 @@
   - [x] **팝업 프리팹(러프)** — `Assets/Datas/UI/Lobby/Popup/UI_Popup_RecipeBook.prefab` + 행 프리팹 `Assets/Datas/UI/Lobby/UIScrollRecipeBook.prefab` 신규 추가. `UI_Popup_OfflineIncome.prefab`/`UI_Popup_SpecialDrinkProduction.prefab` 구조를 참고해 손으로 작성(스크롤뷰 + 닫기 버튼, 목록 전용이라 확인/초기화 버튼은 없음). `UIScrollRecipeBook.cs`/`UIPopupRecipeBook.cs`에 GUID 고정용 `.meta` 추가.
   - [x] **`UIManager` 등록 완료(2026-08-23 재확인)** — `eUIType.UIPopupRecipeBook → UI_Popup_RecipeBook`이 `mCachedUIDic`에 등록되어 있음.
   - [x] **진입 버튼 연결 완료 (2026-08-23)** — `UIRootLobby.mBtnRecipeBook` 필드 추가 + `OnClickOpenRecipeBook()`이 `Open<UIPopupRecipeBook, ...>` 호출, `UI_Root_Lobby.prefab`에 "레시피 도감" 버튼 배치·연결까지 완료(`UIFloorUnlock` 버튼과 동일 패턴).
+  - **(2026-09-26) 도감으로 개편·이름 변경** — `UIPopupRecipeBook`/`UIScrollRecipeBook`/`UI_Popup_RecipeBook` → `UIPopupCollection`/`UIScrollCollection`/`UI_Popup_Collection`(`Assets/Scripts/UI/Collection/`), `eUIType.PopupRecipeBook` → `PopupCollection`, `UIRootLobby.mBtnRecipeBook` → `mBtnCollection`. 구 행 프리팹 `UIScrollRecipeBook.prefab` 삭제. 규칙은 [도감](Collection.md) 참고. ("레시피 개발북" 아이템과 헷갈리지 않도록 UI는 "도감"으로 부른다. 발견 데이터 모델 `RecipeBookModel`은 이름 유지)
   - **후속 작업(비주얼)**: 러프 프리팹이므로 배치/사이즈/색상은 가안임. 발견/미발견 음료 아이콘, 잠금 표시 등 실제 아트 리소스로 교체 필요.
 
 ### 4단계 — 업그레이드 시스템 (진행 중)
@@ -105,8 +106,9 @@
    - **에디터 작업(비주얼)**: 러프 프리팹이므로 배치/사이즈/색상은 가안임.
    - [x] **진열대-생산량 연결(해결됨)** — `BreadData`/`BreadModel`에 `ProducedCount`(생산 재고)를 `Count`(진열 수량)와 분리 추가. `UIPopupBreadProduction` 성공 시 `AddProduced()`만 호출(자동으로 진열되지 않음). `Intaraction_BreadStand.AddBread()`는 `TryConsumeProduced()`로 생산 재고를 소비해야만 `SpawnBread()`+진열(`Add()`)을 진행 — 재고 없으면 무동작. 이전엔 `AddBread()`(`mBtnAddBread` 버튼/`UIPopupBreadSelect` 확정 양쪽)가 재료 소비 없이 무제한 진열 가능했는데, 이제 빵 공장에서 만든 만큼만 진열 가능하도록 동작이 바뀜. (`Assets/Scripts/ViewModel/Bread/BreadData.cs`, `BreadModel.cs`, `Assets/Scripts/Interaction/Intaraction_BreadStand.cs`, `Assets/Scripts/UI/MaterialIsland/UIPopupBreadProduction.cs`)
 3. **상점 (재료/아이템 구매)** — [x] 완료 (2026-08-23 재확인 — `ImplementationOrder.md`에 반영 안 돼 있었을 뿐 실제로는 이미 구현되어 있었음. 정확히 언제 구현됐는지는 git log상 08-09~08-18 사이 커밋으로 보이나 문서화가 누락됨)
-   - `UIPopupMaterialShop` — `DrinkMaterialRow`/`BreadMaterialRow`(둘 다 기존 `Price` 컬럼 데이터 있음)와 `ItemRow`(Money 타입 제외) 전체를 목록으로 뿌려 골드로 구매. 구매 시 `ItemModel.Add()`(아이템) 또는 `MaterialModel.Gather()`(재료)로 지급. (`Assets/Scripts/UI/MaterialIsland/UIPopupMaterialShop.cs`, `UIScrollMaterialShop.cs`)
-   - `eUIType.UIPopupMaterialShop` 등록 완료, `UIRootMaterialIsland.mBtnOpenMaterialShop` 진입 버튼 연결 완료, `Assets/Datas/UI/MaterialLand/UI_Popup_MaterialShop.prefab` 존재.
+   - `UIPopupMaterialShop` — `DrinkMaterialRow`/`BreadMaterialRow`(둘 다 기존 `Price` 컬럼 데이터 있음)와 `ItemRow`(Money 타입 제외) 전체를 목록으로 뿌려 골드로 구매. 구매 시 `ItemModel.Add()`(아이템) 또는 `MaterialModel.Gather()`(재료)로 지급. (`Assets/Scripts/UI/Lobby/UIPopupMaterialShop.cs`, `UIScrollMaterialShop.cs`)
+   - `eUIType.UIPopupMaterialShop` 등록 완료, `Assets/Datas/UI/Lobby/Popup/UI_Popup_MaterialShop.prefab` 존재.
+   - (2026-09-26) 가공섬 진입 버튼 제거 → 상점가 찍찍이 서비스 [재료 구입](`UIPopupShopStreet.mBtnMaterialShop`)으로 통합. 행에 보유 수량·구매 알림 표시.
 4. **재배형 공방 + 고용탭** — [x] 완료 (2026-08-23 재확인, 위와 동일한 사유로 문서 미반영 상태였음)
    - `WorkshopModel`(`Assets/Scripts/ViewModel/Workshop/WorkshopModel.cs`) — 골드로 일꾼 고용(`TryHireWorker`, 비용은 `100 * 1.5^고용수`, 코드 내 상수로 임시 관리), 슬롯 3개(`SlotCount`)에 재료를 지정해 배치하면 5초 주기(`ProductionIntervalSeconds`)로 해당 재료를 `MaterialModel.Gather()`로 자동 생산.
    - `UIPopupWorkshop`/`UIWorkshopSlotView` — 고용 인원/다음 고용 비용 표시, 슬롯별로 생산할 재료를 순환 선택(`OnClickCycleMaterial`) 후 배치/해제 토글.

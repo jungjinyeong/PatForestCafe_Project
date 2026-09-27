@@ -5,6 +5,7 @@ using Extension;
 // 상점가 허브 — 뼈대 단계라 3명의 상인을 각자 별도 서브 패널로 분리했다(프로토타입처럼 하나의 동적 상세창을
 // 전환하는 대신). 서비스 버튼 중 기존 기능이 있는 것(가구구입/시설업그레이드/층별설비/직원채용)은 그대로 연결하고,
 // 아직 대응 시스템이 없는 것(가공섬 계약/공방 협약/가공섬 업그레이드/연구권 구입)은 준비 중 팝업(UIPopupComingSoon)만 띄운다.
+// 재료 구입은 가공섬에 따로 있던 재료 상점을 찍찍이 서비스로 통합한 것으로, 별도 팝업 없이 상점가 안의 서브 패널(UIShopStreetMaterialPanel)로 연다.
 public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
 {
     public struct Param
@@ -20,12 +21,15 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
     [SerializeField] private GameObject mPanelMouse;
     [SerializeField] private GameObject mPanelDdol;
     [SerializeField] private GameObject mPanelJob;
+    [SerializeField] private UIShopStreetMaterialPanel mPanelMaterialShop;
 
     [Header("찍찍이 (Placeholder)")]
     [SerializeField] private UIButtonEx mBtnIslandContract;
     [SerializeField] private UIButtonEx mBtnWorkshopDeal;
     [SerializeField] private UIButtonEx mBtnIslandUpgrade;
     [SerializeField] private UIButtonEx mBtnResearchTicket;
+    [SerializeField] private UIButtonEx mBtnBreadRecipe;
+    [SerializeField] private UIButtonEx mBtnMaterialShop;
 
     [Header("똘이 (기존 기능 연결)")]
     [SerializeField] private UIButtonEx mBtnBuyFurniture;
@@ -43,9 +47,8 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
     {
         base.Init();
 
-        if (mPanelMouse != null) mPanelMouse.SetActive(false);
-        if (mPanelDdol != null) mPanelDdol.SetActive(false);
-        if (mPanelJob != null) mPanelJob.SetActive(false);
+        if (mPanelMaterialShop != null) mPanelMaterialShop.Init();
+        OpenMerchant(null);
 
         if (mBtnMouse != null) mBtnMouse.OnSubscribeOnClick(() => OpenMerchant(mPanelMouse)).AddTo(this);
         if (mBtnDdol != null) mBtnDdol.OnSubscribeOnClick(() => OpenMerchant(mPanelDdol)).AddTo(this);
@@ -55,6 +58,8 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
         if (mBtnWorkshopDeal != null) mBtnWorkshopDeal.OnSubscribeOnClick(OpenMousePlaceholder).AddTo(this);
         if (mBtnIslandUpgrade != null) mBtnIslandUpgrade.OnSubscribeOnClick(OpenMousePlaceholder).AddTo(this);
         if (mBtnResearchTicket != null) mBtnResearchTicket.OnSubscribeOnClick(OpenMousePlaceholder).AddTo(this);
+        if (mBtnBreadRecipe != null) mBtnBreadRecipe.OnSubscribeOnClick(OnClickBreadRecipe).AddTo(this);
+        if (mBtnMaterialShop != null) mBtnMaterialShop.OnSubscribeOnClick(OnClickMaterialShop).AddTo(this);
 
         if (mBtnBuyFurniture != null) mBtnBuyFurniture.OnSubscribeOnClick(OnClickBuyFurniture).AddTo(this);
         if (mBtnFacilityUpgrade != null) mBtnFacilityUpgrade.OnSubscribeOnClick(OnClickFacilityUpgrade).AddTo(this);
@@ -68,9 +73,7 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
         base.Open();
 
         // 매번 "상인 선택" 첫 화면부터 시작하도록 서브 패널을 초기화한다.
-        if (mPanelMouse != null) mPanelMouse.SetActive(false);
-        if (mPanelDdol != null) mPanelDdol.SetActive(false);
-        if (mPanelJob != null) mPanelJob.SetActive(false);
+        OpenMerchant(null);
     }
 
     public void Set(Param param)
@@ -82,11 +85,25 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
         GameInstance.UI.Open<UIPopupComingSoon, UIPopupComingSoon.Param>(eUIType.PopupComingSoon, new UIPopupComingSoon.Param());
     }
 
+    private void OnClickBreadRecipe()
+    {
+        GameInstance.UI.Open<UIPopupBreadRecipeShop, UIPopupBreadRecipeShop.Param>(eUIType.PopupBreadRecipeShop, new UIPopupBreadRecipeShop.Param());
+    }
+
+    // 찍찍이 패널 대신 재료 구입 패널을 보여준다. 찍찍이 버튼을 다시 누르면 찍찍이 패널로 돌아간다.
+    private void OnClickMaterialShop()
+    {
+        OpenMerchant(null);
+        if (mPanelMaterialShop != null) mPanelMaterialShop.Show(true);
+    }
+
+    // panel이 null이면 모든 서브 패널을 닫는다(상인 선택 첫 화면).
     private void OpenMerchant(GameObject panel)
     {
         if (mPanelMouse != null) mPanelMouse.SetActive(panel == mPanelMouse);
         if (mPanelDdol != null) mPanelDdol.SetActive(panel == mPanelDdol);
         if (mPanelJob != null) mPanelJob.SetActive(panel == mPanelJob);
+        if (mPanelMaterialShop != null) mPanelMaterialShop.gameObject.SetActive(false);
     }
 
     private void OnClickBuyFurniture()
