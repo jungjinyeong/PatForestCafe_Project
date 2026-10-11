@@ -40,7 +40,7 @@ public static class DrinkCraftHelper
 
         foreach (var row in ingredientTable.All.Values.OrderBy(r => r.Tid))
         {
-            if (row.Tid == DrinkModel.ICE_MATERIAL_TID)
+            if (row.Tid == DrinkModel.ICE_INGREDIENT_TID)
                 continue;
 
             int owned = GameInstance.Model.Ingredient.Get(row.Tid)?.Count.Value ?? 0;
@@ -65,8 +65,8 @@ public static class DrinkCraftHelper
         var required = CountIngredients(ingredientTids);
         if (iceCount > 0)
         {
-            required.TryGetValue(DrinkModel.ICE_MATERIAL_TID, out int ice);
-            required[DrinkModel.ICE_MATERIAL_TID] = ice + iceCount;
+            required.TryGetValue(DrinkModel.ICE_INGREDIENT_TID, out int ice);
+            required[DrinkModel.ICE_INGREDIENT_TID] = ice + iceCount;
         }
         return required;
     }

@@ -91,7 +91,7 @@ GameObject:
   - component: {fileID: 8332368172667033828}
   - component: {fileID: 8920267034236856242}
   m_Layer: 0
-  m_Name: UIScrollItemMaterialBread
+  m_Name: UIScrollItemIngredientBread
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -5,7 +5,7 @@ using System.Text;
 public class DrinkModel : IModelBase
 {
     // 얼음은 커피머신 제작에서 재료 슬롯에 넣지 않고, ICE 음료 제작 시 레시피에 적힌 개수만큼 자동 소모한다.
-    public const int ICE_MATERIAL_TID = 100008;
+    public const int ICE_INGREDIENT_TID = 100008;
 
     private readonly Dictionary<int, DrinkData> mDicDrinks = new();
 
@@ -37,7 +37,7 @@ public class DrinkModel : IModelBase
             int iceCount = 0;
             foreach (int ingredientTid in GetIngredientTids(row))
             {
-                if (ingredientTid == ICE_MATERIAL_TID) iceCount++;
+                if (ingredientTid == ICE_INGREDIENT_TID) iceCount++;
                 else baseIngredients.Add(ingredientTid);
             }
 

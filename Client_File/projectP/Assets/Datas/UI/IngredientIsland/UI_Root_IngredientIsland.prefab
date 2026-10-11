@@ -260,7 +260,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a00814f64c976c84faee163d95c65ada, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIRootMaterialIsland
+  m_EditorClassIdentifier: Assembly-CSharp::UIRootIngredientIsland
   mBtnClose: {fileID: 0}
   mBtnBgClose: {fileID: 0}
   mScrollEx: {fileID: 6244356091996940592}

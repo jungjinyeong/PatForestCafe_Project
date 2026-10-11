@@ -485,7 +485,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e25ae04f3e1d154ca88c89ba4eae4e3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkIngredientSlot
   mButton: {fileID: 4622645537557508404}
   mImgIcon: {fileID: 9091998623771824697}
   mTextName: {fileID: 3212609495389523987}
@@ -1341,7 +1341,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e25ae04f3e1d154ca88c89ba4eae4e3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkIngredientSlot
   mButton: {fileID: 5842515343634954169}
   mImgIcon: {fileID: 3046972998740344205}
   mTextName: {fileID: 386656133417213272}
@@ -7480,7 +7480,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 196505c743a146642979f68fa5b1ee79, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkMaterialPicker
+  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkIngredientPicker
   mTextTitle: {fileID: 5125948008250015092}
   mScrollEx: {fileID: 367975527717983264}
   mIngredientRowPrefab: {fileID: 7606155199205123327}
@@ -9600,7 +9600,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e25ae04f3e1d154ca88c89ba4eae4e3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkIngredientSlot
   mButton: {fileID: 8030411037582454286}
   mImgIcon: {fileID: 5089552424224330508}
   mTextName: {fileID: 3348322995850027240}
@@ -12477,7 +12477,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e25ae04f3e1d154ca88c89ba4eae4e3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkIngredientSlot
   mButton: {fileID: 3992784063979269778}
   mImgIcon: {fileID: 736904126774598377}
   mTextName: {fileID: 5540955409841219438}
@@ -12634,7 +12634,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e25ae04f3e1d154ca88c89ba4eae4e3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIDrinkIngredientSlot
   mButton: {fileID: 3120524372933196344}
   mImgIcon: {fileID: 7350181471852871633}
   mTextName: {fileID: 8959110037965215376}
@@ -13085,7 +13085,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6125f2df6e997324988103ec49b12ed6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIScrollDrinkMaterial
+  m_EditorClassIdentifier: Assembly-CSharp::UIScrollDrinkIngredient
   mName: {fileID: 6958265164566700393}
   mButton: {fileID: 3108754476084921776}
   mImgIcon: {fileID: 1667181467660275734}

@@ -151,7 +151,7 @@ GameObject:
   - component: {fileID: 8099909692502418570}
   - component: {fileID: 6319297973622033424}
   m_Layer: 0
-  m_Name: UIScrollItemDrinkMaterial
+  m_Name: UIScrollItemDrinkIngredient
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -271,7 +271,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8cd920115dd9432ca7e09d8adbf38da5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIScrollMaterialGather
+  m_EditorClassIdentifier: Assembly-CSharp::UIScrollIngredientGather
   mName: {fileID: 8304533741807370767}
   mCount: {fileID: 2942052740406221025}
   mBtnGather: {fileID: 8099909692502418570}

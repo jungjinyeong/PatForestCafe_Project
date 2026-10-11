@@ -4952,7 +4952,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33727e9f606ffa84c9a2fc08c4c5739a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientSlot
   mButton: {fileID: 7566683186797920259}
   mTextName: {fileID: 18632066285169914}
   mTextGrade: {fileID: 4250137172189979335}
@@ -8525,7 +8525,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33727e9f606ffa84c9a2fc08c4c5739a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientSlot
   mButton: {fileID: 1765155045157843149}
   mTextName: {fileID: 5625500867950540829}
   mTextGrade: {fileID: 6089317224840183838}
@@ -8664,7 +8664,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20659779c66e42e4eab27e06245f7cac, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialPicker
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientPicker
   mTextTitle: {fileID: 2383371984182726885}
   mTextNote: {fileID: 2418113446748179453}
   mScrollEx: {fileID: 3303947278838537421}
@@ -11702,7 +11702,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33727e9f606ffa84c9a2fc08c4c5739a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientSlot
   mButton: {fileID: 6088424900780949422}
   mTextName: {fileID: 9116943448861065109}
   mTextGrade: {fileID: 2123242232157318018}
@@ -13839,7 +13839,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33727e9f606ffa84c9a2fc08c4c5739a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientSlot
   mButton: {fileID: 2507832885776079722}
   mTextName: {fileID: 1628885774217362520}
   mTextGrade: {fileID: 7425604535461246041}
@@ -14682,7 +14682,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33727e9f606ffa84c9a2fc08c4c5739a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientSlot
   mButton: {fileID: 7243124476487813611}
   mTextName: {fileID: 224217124397261471}
   mTextGrade: {fileID: 670394140614941404}
@@ -18823,7 +18823,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33727e9f606ffa84c9a2fc08c4c5739a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientSlot
   mButton: {fileID: 4485361324530895360}
   mTextName: {fileID: 5459358202808517166}
   mTextGrade: {fileID: 3714965854182030330}
@@ -20759,7 +20759,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33727e9f606ffa84c9a2fc08c4c5739a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientSlot
   mButton: {fileID: 8996486868861248208}
   mTextName: {fileID: 7411368429139328875}
   mTextGrade: {fileID: 5475438681229839908}
@@ -21818,7 +21818,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33727e9f606ffa84c9a2fc08c4c5739a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientSlot
   mButton: {fileID: 8568284652869043406}
   mTextName: {fileID: 5579900667298918595}
   mTextGrade: {fileID: 809430064007757009}
@@ -22227,7 +22227,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33727e9f606ffa84c9a2fc08c4c5739a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientSlot
   mButton: {fileID: 5403842406500359162}
   mTextName: {fileID: 6601657403052354335}
   mTextGrade: {fileID: 7182494620525592503}
@@ -22933,7 +22933,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6eb2a8e79987d454ea12adbb7db4d2d5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIScrollBreadMaterial
+  m_EditorClassIdentifier: Assembly-CSharp::UIScrollBreadIngredient
   mButton: {fileID: 2368118111623030023}
   mTextName: {fileID: 5162518498336647545}
   mTextGrade: {fileID: 8941248520957284460}
@@ -24174,7 +24174,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33727e9f606ffa84c9a2fc08c4c5739a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIBreadMaterialSlot
+  m_EditorClassIdentifier: Assembly-CSharp::UIBreadIngredientSlot
   mButton: {fileID: 3286563512954343295}
   mTextName: {fileID: 3315825637203355645}
   mTextGrade: {fileID: 7071734767786591815}

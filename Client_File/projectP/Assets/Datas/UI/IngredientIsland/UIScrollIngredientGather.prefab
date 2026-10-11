@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3005}
   - component: {fileID: 3006}
   m_Layer: 0
-  m_Name: UIScrollMaterialGather
+  m_Name: UIScrollIngredientGather
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -90,7 +90,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8cd920115dd9432ca7e09d8adbf38da5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIScrollMaterialGather
+  m_EditorClassIdentifier: Assembly-CSharp::UIScrollIngredientGather
   mName: {fileID: 3104}
   mCount: {fileID: 3204}
   mBtnGather: {fileID: 3006}

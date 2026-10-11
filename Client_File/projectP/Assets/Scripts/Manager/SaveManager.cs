@@ -158,7 +158,7 @@ public class SaveManager : MonoBehaviour
             return;
         }
 
-        var data = JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath));
+        var data = JsonUtility.FromJson<SaveData>(MigrateLegacyKeys(File.ReadAllText(SavePath)));
         if (data?.Items == null) return;
 
         foreach (var entry in data.Items)
@@ -224,6 +224,26 @@ public class SaveManager : MonoBehaviour
         produced = hasQuality && entry.ProducedByQuality != null && entry.ProducedByQuality.Count == BreadQuality.COUNT
             ? entry.ProducedByQuality.ToArray()
             : new[] { entry.ProducedCount, 0, 0 };
+    }
+
+    // 2026-10 재료 이름을 Material → Ingredient로 바꾸기 전 세이브의 JSON 키를 새 이름으로 옮긴다.
+    // JsonUtility는 모르는 키를 버리므로, 옮기지 않으면 재료 수량·오븐 트레이·주문 토핑·공방 슬롯이 비고
+    // "준비 완료" 오븐 트레이가 재료 없이 구워진다. 키는 따옴표+콜론까지 맞춰 값 문자열은 건드리지 않는다.
+    private static readonly (string Legacy, string Current)[] LEGACY_SAVE_KEYS =
+    {
+        ("Materials", "Ingredients"),
+        ("BaseMaterialTids", "BaseIngredientTids"),
+        ("ExtraMaterialTids", "ExtraIngredientTids"),
+        ("CustomMaterialTids", "CustomIngredientTids"),
+        ("ToppingMaterialTid", "ToppingIngredientTid"),
+        ("WorkshopSlotMaterialTids", "WorkshopSlotIngredientTids"),
+    };
+
+    private static string MigrateLegacyKeys(string json)
+    {
+        foreach (var (legacy, current) in LEGACY_SAVE_KEYS)
+            json = json.Replace($"\"{legacy}\":", $"\"{current}\":");
+        return json;
     }
 
     /// <summary>

@@ -146,7 +146,7 @@ public partial class DeliveryModel
 
         var ingredientTable = GameInstance.Table.GetTable<CTable.DrinkIngredientRow>();
         var ingredientRows = ingredientTable?.All.Values
-            .Where(m => m.Tid != DrinkModel.ICE_MATERIAL_TID)
+            .Where(m => m.Tid != DrinkModel.ICE_INGREDIENT_TID)
             .ToList() ?? new List<CTable.DrinkIngredientRow>();
 
         int toppingTid = 0;

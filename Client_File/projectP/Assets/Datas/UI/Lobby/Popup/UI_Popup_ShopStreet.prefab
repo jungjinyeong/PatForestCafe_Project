@@ -3858,7 +3858,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 95831dc804f24bb78c23f77278cf4b30, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIScrollMaterialShop
+  m_EditorClassIdentifier: Assembly-CSharp::UIScrollIngredientShop
   mName: {fileID: 604611483574784176}
   mOwned: {fileID: 2387950416890253217}
   mPrice: {fileID: 1957966795633720156}
@@ -4559,7 +4559,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f89102a0a5cf4c36a931bd1d5405bee6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIShopStreetMaterialPanel
+  m_EditorClassIdentifier: Assembly-CSharp::UIShopStreetIngredientPanel
   mScrollEx: {fileID: 7671144147409581231}
   mIngredientShopRowPrefab: {fileID: 6626376466562597964}
   mTextNotice: {fileID: 4591948231208928635}
