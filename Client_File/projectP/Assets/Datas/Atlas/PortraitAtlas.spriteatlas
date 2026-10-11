@@ -44,6 +44,6 @@ SpriteAtlas:
   m_PackedSprites: []
   m_PackedSpriteNamesToIndex: []
   m_RenderDataMap: {}
-  m_Tag: New Sprite Atlas
+  m_Tag: PortraitAtlas
   m_IsVariant: 0
   m_Guid: 00000000000000000000000000000000

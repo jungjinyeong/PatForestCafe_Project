@@ -32,38 +32,14 @@ SpriteAtlas:
       enableAlphaDilation: 0
     secondaryTextureSettings: {}
     variantMultiplier: 1
-    packables:
-    - {fileID: 2800000, guid: b114b2523b00a1a42bdda8bfbf07854d, type: 3}
-    - {fileID: 2800000, guid: cbaa580e124a796459f92d1bfc0e460e, type: 3}
-    - {fileID: 2800000, guid: 2db838bd1396081438d25b22b33a34f9, type: 3}
-    - {fileID: 2800000, guid: fdbf689b52ca5d54196225f79c7c7a7a, type: 3}
-    - {fileID: 2800000, guid: 36b20050112b9c34ca20357dd9176dd9, type: 3}
-    - {fileID: 2800000, guid: afc860acf90b74042ab630f275f62f45, type: 3}
+    packables: []
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
-    packedSpriteRenderDataKeys:
-    - 36b20050112b9c34ca20357dd9176dd9: 21300000
-    - b114b2523b00a1a42bdda8bfbf07854d: 21300000
-    - fdbf689b52ca5d54196225f79c7c7a7a: 21300000
-    - afc860acf90b74042ab630f275f62f45: 21300000
-    - 2db838bd1396081438d25b22b33a34f9: 21300000
-    - cbaa580e124a796459f92d1bfc0e460e: 21300000
+    packedSpriteRenderDataKeys: []
   m_MasterAtlas: {fileID: 0}
-  m_PackedSprites:
-  - {fileID: 21300000, guid: 36b20050112b9c34ca20357dd9176dd9, type: 3}
-  - {fileID: 21300000, guid: b114b2523b00a1a42bdda8bfbf07854d, type: 3}
-  - {fileID: 21300000, guid: fdbf689b52ca5d54196225f79c7c7a7a, type: 3}
-  - {fileID: 21300000, guid: afc860acf90b74042ab630f275f62f45, type: 3}
-  - {fileID: 21300000, guid: 2db838bd1396081438d25b22b33a34f9, type: 3}
-  - {fileID: 21300000, guid: cbaa580e124a796459f92d1bfc0e460e, type: 3}
-  m_PackedSpriteNamesToIndex:
-  - Bread_5
-  - Bread_1
-  - Bread_4
-  - Bread_6
-  - Bread_3
-  - Bread_2
+  m_PackedSprites: []
+  m_PackedSpriteNamesToIndex: []
   m_RenderDataMap: {}
   m_Tag: BreadAtlas
   m_IsVariant: 0
