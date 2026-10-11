@@ -5,16 +5,15 @@ public partial class PlacementModel
 {
     public IEnumerable<KeyValuePair<int, PlacedFurnitureRecord>> GetAllPlacements() => mDicPlacedFurniture;
 
-    public int RegisterPlacement(int tid, Vector3 position, int floor, Vector2Int cell, bool isSub = false,
-        CTable.eFurnitureDirection direction = CTable.eFurnitureDirection.Down)
+    public int RegisterPlacement(int tid, Vector3 position, int floor, Vector2Int cell, CTable.eFurnitureDirection direction, bool isSub = false)
     {
         int placementId = mNextPlacementId++;
         mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, IsSub = isSub, Direction = direction };
         return placementId;
     }
 
-    public void UpdatePlacementPosition(int placementId, Vector3 position, int floor, Vector2Int cell,
-        CTable.eFurnitureDirection direction = CTable.eFurnitureDirection.Down)
+    // 방향을 빠뜨리면 저장된 회전이 조용히 초기화되므로 기본값 없이 항상 넘긴다.
+    public void UpdatePlacementPosition(int placementId, Vector3 position, int floor, Vector2Int cell, CTable.eFurnitureDirection direction)
     {
         if (!mDicPlacedFurniture.TryGetValue(placementId, out var record))
             return;
@@ -26,8 +25,8 @@ public partial class PlacementModel
     }
 
     // 세이브 로드 복원 전용 — 저장된 id를 그대로 재사용해야 이후 이동 시 같은 레코드를 갱신한다.
-    public void RestorePlacement(int placementId, int tid, Vector3 position, int floor, Vector2Int cell, int assignedBreadTid = 0, bool isSub = false,
-        CTable.eFurnitureDirection direction = CTable.eFurnitureDirection.Down)
+    public void RestorePlacement(int placementId, int tid, Vector3 position, int floor, Vector2Int cell, CTable.eFurnitureDirection direction,
+        int assignedBreadTid = 0, bool isSub = false)
     {
         mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, AssignedBreadTid = assignedBreadTid, IsSub = isSub, Direction = direction };
 
@@ -173,7 +172,7 @@ public partial class PlacementModel
             var cell = new Vector2Int(origin.x, origin.y);
 
             if (placeable.PlacementId < 0)
-                placeable.SetPlacementId(RegisterPlacement(placeable.FurnitureTid, mTarget.position, mArea.Floor, cell, placeable.IsSubFurniture, placeable.Direction));
+                placeable.SetPlacementId(RegisterPlacement(placeable.FurnitureTid, mTarget.position, mArea.Floor, cell, placeable.Direction, placeable.IsSubFurniture));
             else
                 UpdatePlacementPosition(placeable.PlacementId, mTarget.position, mArea.Floor, cell, placeable.Direction);
 

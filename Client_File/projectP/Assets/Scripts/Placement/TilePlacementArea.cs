@@ -22,7 +22,7 @@ public class TilePlacementArea : MonoBehaviour
     private static readonly Color HIGHLIGHT_BLOCKED_FILL = new Color(1f, 0.25f, 0.25f, 0.28f);
     private static readonly Color HIGHLIGHT_BLOCKED_BORDER = new Color(1f, 0.35f, 0.35f, 0.85f);
     // 이 레이어 이상(일반 가구)만 손님 접근 칸을 막는다. 바닥타일(0)/카펫(1)은 위에 서도 되므로 깔 수 있다.
-    private const int ACCESS_BLOCKING_LAYER = 2;
+    private const int ACCESS_BLOCKING_LAYER = PlaceableObject.LAYER_FURNITURE_MIN;
 
     [SerializeField] private Tilemap mTilemap;
     // 벽 가구를 놓을 수 있는 셀을 칠해 둔 보이지 않는 타일맵(PlaceableObjects/PlacementWallTilemap). 비어 있으면 모든 셀을 바닥으로 취급한다.
@@ -158,7 +158,8 @@ public class TilePlacementArea : MonoBehaviour
         foreach (var cell in IterateAccessCells(origin, accessOffsets).Concat(IterateAccessCells(origin, clearanceOffsets)))
         {
             reservedCells ??= new List<Vector3Int>();
-            if (reservedCells.Contains(cell))
+            // 벽/영역 밖에 걸친 비워둘 칸은 예약하지 않는다 — 벽 칸까지 예약하면 그 벽에 액자·선반을 못 건다.
+            if (reservedCells.Contains(cell) || !mTilemap.HasTile(cell) || GetSurface(cell) != ePlacementSurface.Floor)
                 continue;
 
             if (!mAccessReservedBy.TryGetValue(cell, out List<int> owners))
@@ -339,6 +340,8 @@ public class TilePlacementArea : MonoBehaviour
         if (mTilemap == null || !EnsureHighlightTilemap())
             return;
 
+        // 강조를 처음부터 다시 그리므로 이전 미리보기가 덮어쓴 칸 기록은 무효(회전 직후 옛 강조로 되돌리는 문제 방지).
+        mPreviewOverwritten.Clear();
         mHighlightTilemap.ClearAllTiles();
 
         BoundsInt bounds = mTilemap.cellBounds;

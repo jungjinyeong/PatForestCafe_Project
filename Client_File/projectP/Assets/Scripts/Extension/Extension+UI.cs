@@ -10,6 +10,8 @@ namespace Extension
     public static class ExtensionUI
     {
         private static readonly System.Collections.Generic.Dictionary<string, UnityEngine.U2D.SpriteAtlas> sAtlasCache = new();
+        // SpriteAtlas.GetSprite는 호출할 때마다 Sprite 사본을 새로 만든다 — (아틀라스, 이름)별로 한 번만 꺼내 재사용해 사본이 쌓이지 않게 한다.
+        private static readonly System.Collections.Generic.Dictionary<string, Sprite> sAtlasSpriteCache = new();
 
         public static IDisposable OnSubscribeOnClick(this Button button, Action onClickAction)
         {
@@ -50,7 +52,17 @@ namespace Extension
                 spriteAtlas = GameInstance.Resource.LoadSync<UnityEngine.U2D.SpriteAtlas>(atlas);
                 sAtlasCache[atlas] = spriteAtlas;
             }
-            return spriteAtlas != null ? spriteAtlas.GetSprite(spriteName) : null;
+            if (spriteAtlas == null)
+                return null;
+
+            string key = atlas + "/" + spriteName;
+            // (object)!=null && ==null : 캐싱된 사본이 파괴된 경우 다시 꺼낸다. 없는 이름(null)도 캐싱해 매번 조회하지 않는다.
+            if (sAtlasSpriteCache.TryGetValue(key, out var sprite) && !((object)sprite != null && sprite == null))
+                return sprite;
+
+            sprite = spriteAtlas.GetSprite(spriteName);
+            sAtlasSpriteCache[key] = sprite;
+            return sprite;
         }
 
         public static void SetTextureEx(this RawImage rowImg, string texture)

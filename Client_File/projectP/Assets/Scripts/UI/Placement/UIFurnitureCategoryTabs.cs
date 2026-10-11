@@ -23,11 +23,20 @@ public class UIFurnitureCategoryTabs : MonoBehaviour
     {
         mOnSelect = onSelect;
 
+        // 탭 순서 = enum 순서. 프리팹 버튼이 탭 이름(카테고리) 개수보다 많으면 남는 버튼은 숨긴다(정의 안 된 카테고리 방지).
         for (int i = 0; i < mTabButtons.Length; i++)
         {
+            bool isValid = i < TAB_NAMES.Length;
+            mTabButtons[i].gameObject.SetActive(isValid);
+            if (!isValid)
+                continue;
+
             var category = (CTable.eFurnitureCategory)i;
             mTabButtons[i].OnSubscribeOnClick(() => Select(category)).AddTo(this);
         }
+
+        for (int i = 0; i < mTabTexts.Length && i < TAB_NAMES.Length; i++)
+            mTabTexts[i].SetTextEx(TAB_NAMES[i]);
     }
 
     public void Select(CTable.eFurnitureCategory category)
@@ -39,9 +48,6 @@ public class UIFurnitureCategoryTabs : MonoBehaviour
 
     private void Refresh()
     {
-        for (int i = 0; i < mTabTexts.Length && i < TAB_NAMES.Length; i++)
-            mTabTexts[i].SetTextEx(TAB_NAMES[i]);
-
         for (int i = 0; i < mTabSelectedMarks.Length; i++)
             mTabSelectedMarks[i].SetActive(i == (int)Selected);
     }

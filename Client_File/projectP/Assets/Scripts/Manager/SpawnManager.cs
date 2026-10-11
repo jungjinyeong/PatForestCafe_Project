@@ -9,6 +9,9 @@ using UnityEditor;
 
 public class SpawnManager : MonoBehaviour
 {
+    private const float NPC_SCALE = 1f;
+    private const float LOBBY_CHAR_UI_WORLD_SCALE = 0.9f;
+
     [Header("NPC Prefabs")]
     [SerializeField] private GameObject[] mNpcPrefabs;
 
@@ -88,7 +91,8 @@ public class SpawnManager : MonoBehaviour
 
         if (npcObj == null) return;
 
-        npcObj.transform.localScale = new Vector3(3, 3, 1);
+        // 캐릭터 크기 1(스프라이트 32px = 1칸 기준). 예전에는 3배로 키워 스폰했다.
+        npcObj.transform.localScale = new Vector3(NPC_SCALE, NPC_SCALE, 1);
 
         var npc = npcObj.GetComponent<CharNpc>();
         if (npc == null)
@@ -116,7 +120,8 @@ public class SpawnManager : MonoBehaviour
 
         var ui = Instantiate(mLobbyCharUIPrefab, npcObj.transform);
         ui.transform.localPosition = new Vector3(0f, 0f, 0f);
-        ui.transform.localScale = Vector3.one * 0.3f;
+        // 말풍선(음료 아이콘/든 빵)은 캐릭터 크기와 무관하게 예전과 같은 화면 크기(월드 0.9)를 유지한다.
+        ui.transform.localScale = Vector3.one * (LOBBY_CHAR_UI_WORLD_SCALE / NPC_SCALE);
 
         if (ui.GetComponent<LobbyCharUI>() == null)
             ui.AddComponent<LobbyCharUI>();

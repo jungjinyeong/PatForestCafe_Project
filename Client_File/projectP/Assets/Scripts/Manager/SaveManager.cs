@@ -170,8 +170,8 @@ public class SaveManager : MonoBehaviour
         mPendingBreadSaveEntries = data.Breads;
 
         foreach (var entry in data.PlacedFurniture)
-            GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position, entry.Floor, entry.Cell, entry.AssignedBreadTid, entry.IsSub,
-                (CTable.eFurnitureDirection)entry.Direction);
+            GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position, entry.Floor, entry.Cell,
+                (CTable.eFurnitureDirection)entry.Direction, entry.AssignedBreadTid, entry.IsSub);
 
         GameInstance.Model.RecipeBook.SetDiscovered(data.DiscoveredRecipeTids);
         GameInstance.Model.Upgrade.SetLevel(data.GoldIncomeUpgradeLevel);
