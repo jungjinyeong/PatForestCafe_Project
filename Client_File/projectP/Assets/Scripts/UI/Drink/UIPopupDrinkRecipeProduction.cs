@@ -33,10 +33,10 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
     [SerializeField] private GameObject mHotSelectedMark;
     [SerializeField] private GameObject mIceSelectedMark;
 
-    [Header("Material Slots")]
-    [SerializeField] private UIDrinkMaterialSlot[] mBaseSlots;
-    [SerializeField] private UIDrinkMaterialSlot[] mCustomSlots;
-    [SerializeField] private UIDrinkMaterialPicker mPicker;
+    [Header("Ingredient Slots")]
+    [SerializeField] private UIDrinkIngredientSlot[] mBaseSlots;
+    [SerializeField] private UIDrinkIngredientSlot[] mCustomSlots;
+    [SerializeField] private UIDrinkIngredientPicker mPicker;
 
     [Header("Info")]
     [SerializeField] private GameObject mCupHot;
@@ -67,16 +67,16 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
         for (int i = 0; i < mBaseSlots.Length; i++)
         {
             int index = i;
-            mBaseSlots[i].Init(() => OnClickMaterialSlot(true, index));
+            mBaseSlots[i].Init(() => OnClickIngredientSlot(true, index));
         }
 
         for (int i = 0; i < mCustomSlots.Length; i++)
         {
             int index = i;
-            mCustomSlots[i].Init(() => OnClickMaterialSlot(false, index));
+            mCustomSlots[i].Init(() => OnClickIngredientSlot(false, index));
         }
 
-        mPicker.Init(OnPickMaterial, OnRemoveMaterial);
+        mPicker.Init(OnPickIngredient, OnRemoveIngredient);
         mCraftResult.Init(OnClickStoreResult, OnClickDiscardResult);
 
         mBtnHot.OnSubscribeOnClick(() => SetTemp(CTable.eDrinkTempType.Hot)).AddTo(this);
@@ -94,7 +94,7 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
         SubscribeModelOnce();
 
         mTemp = CTable.eDrinkTempType.Ice;
-        ClearMaterialSlots();
+        ClearIngredientSlots();
 
         mPicker.Close();
         mTextNotice.SetTextEx(string.Empty);
@@ -106,7 +106,7 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
             mCraftResult.Hide();
 
         SetupRecipeScroll();
-        RefreshMaterialSlots();
+        RefreshIngredientSlots();
         RefreshPickupStatus();
     }
 
@@ -147,22 +147,22 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
             return;
 
         int drinkTid = recipeRow.CurrentData.DrinkTid;
-        var materials = GameInstance.Model.Drink.GetBaseMaterialTids(drinkTid);
+        var ingredients = GameInstance.Model.Drink.GetBaseIngredientTids(drinkTid);
 
         for (int i = 0; i < mBaseSlots.Length; i++)
-            mBaseSlots[i].Set(i < materials.Count ? materials[i] : 0);
+            mBaseSlots[i].Set(i < ingredients.Count ? ingredients[i] : 0);
 
         var drinkRow = GameInstance.Model.Drink.Get(drinkTid)?.Row;
         if (drinkRow != null)
             mTemp = drinkRow.DrinkTempType;
 
         mPicker.Close();
-        RefreshMaterialSlots();
+        RefreshIngredientSlots();
     }
 
     private void RefreshRecipeHighlight()
     {
-        var baseCounts = DrinkCraftHelper.CountMaterials(DrinkCraftHelper.GetFilledTids(mBaseSlots));
+        var baseCounts = DrinkCraftHelper.CountIngredients(DrinkCraftHelper.GetFilledTids(mBaseSlots));
         bool matched = GameInstance.Model.Drink.TryGetRecipeMatch(baseCounts, mTemp, out int matchedTid);
 
         for (int i = 0; i < mRecipeScrollEx.ActiveCount; i++)
@@ -174,9 +174,9 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
 
     #endregion
 
-    #region Material Slots
+    #region Ingredient Slots
 
-    private void OnClickMaterialSlot(bool isBase, int index)
+    private void OnClickIngredientSlot(bool isBase, int index)
     {
         mEditingBase = isBase;
         mEditingIndex = index;
@@ -189,13 +189,13 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
         mPicker.Open(isBase ? "기본 재료 선택" : "커스텀 재료 선택", list, slot.IsFilled);
     }
 
-    private void OnPickMaterial(int materialTid)
+    private void OnPickIngredient(int ingredientTid)
     {
-        GetEditingSlot()?.Set(materialTid);
+        GetEditingSlot()?.Set(ingredientTid);
         CloseEditing();
     }
 
-    private void OnRemoveMaterial()
+    private void OnRemoveIngredient()
     {
         GetEditingSlot()?.Set(0);
         CloseEditing();
@@ -205,16 +205,16 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
     {
         mEditingIndex = -1;
         mPicker.Close();
-        RefreshMaterialSlots();
+        RefreshIngredientSlots();
     }
 
-    private UIDrinkMaterialSlot GetEditingSlot()
+    private UIDrinkIngredientSlot GetEditingSlot()
     {
         var slots = mEditingBase ? mBaseSlots : mCustomSlots;
         return mEditingIndex >= 0 && mEditingIndex < slots.Length ? slots[mEditingIndex] : null;
     }
 
-    private void ClearMaterialSlots()
+    private void ClearIngredientSlots()
     {
         foreach (var slot in mBaseSlots) slot.Set(0);
         foreach (var slot in mCustomSlots) slot.Set(0);
@@ -224,10 +224,10 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
     private void SetTemp(CTable.eDrinkTempType temp)
     {
         mTemp = temp;
-        RefreshMaterialSlots();
+        RefreshIngredientSlots();
     }
 
-    private void RefreshMaterialSlots()
+    private void RefreshIngredientSlots()
     {
         var baseTids = DrinkCraftHelper.GetFilledTids(mBaseSlots);
         var customTids = DrinkCraftHelper.GetFilledTids(mCustomSlots);
@@ -266,11 +266,11 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
         var customTids = DrinkCraftHelper.GetFilledTids(mCustomSlots);
 
         // 미발견 레시피는 커피머신에서 만들 수 없다 → 실패한 음료(얼음도 넣지 않음).
-        bool matched = GameInstance.Model.Drink.TryGetRecipeMatch(DrinkCraftHelper.CountMaterials(baseTids), mTemp, out int drinkTid);
+        bool matched = GameInstance.Model.Drink.TryGetRecipeMatch(DrinkCraftHelper.CountIngredients(baseTids), mTemp, out int drinkTid);
         bool known = matched && GameInstance.Model.RecipeBook.IsDiscovered(drinkTid);
         int iceCount = known ? GameInstance.Model.Drink.GetIceCount(drinkTid) : 0;
 
-        var required = DrinkCraftHelper.BuildRequiredMaterials(baseTids.Concat(customTids), iceCount);
+        var required = DrinkCraftHelper.BuildRequiredIngredients(baseTids.Concat(customTids), iceCount);
         if (DrinkCraftHelper.TryFindShortage(required, out string shortage))
         {
             ShowNotice($"{shortage}이(가) 부족해요.");
@@ -285,9 +285,9 @@ public class UIPopupDrinkRecipeProduction : UIWndBase, IUIParam<UIPopupDrinkReci
 
         var drink = PickupDrinkData.Create(known ? drinkTid : 0, mTemp, baseTids, customTids);
 
-        ClearMaterialSlots();
+        ClearIngredientSlots();
         mPicker.Close();
-        RefreshMaterialSlots();
+        RefreshIngredientSlots();
 
         mCraftResult.Show(drink, message, GameInstance.Model.Delivery.FindEmptyPickupSlot() >= 0);
     }

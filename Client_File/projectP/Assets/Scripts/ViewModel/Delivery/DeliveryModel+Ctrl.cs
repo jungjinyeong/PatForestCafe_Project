@@ -50,7 +50,7 @@ public partial class DeliveryModel
     public static int CountSatisfiedRequests(DeliveryOrderData order, PickupDrinkData drink)
     {
         int count = 0;
-        if (order.HasTopping && drink.CustomMaterialTids.Contains(order.ToppingMaterialTid)) count++;
+        if (order.HasTopping && drink.CustomIngredientTids.Contains(order.ToppingIngredientTid)) count++;
         if (order.HasIncludeTag && drink.Tags.Contains(order.IncludeTag)) count++;
         return count;
     }
@@ -141,24 +141,24 @@ public partial class DeliveryModel
             return null;
 
         int drinkTid = PickWeighted(candidates).DrinkTid;
-        var baseMaterialTids = GameInstance.Model.Drink.GetBaseMaterialTids(drinkTid);
-        var baseTags = PickupDrinkData.CollectTags(baseMaterialTids);
+        var baseIngredientTids = GameInstance.Model.Drink.GetBaseIngredientTids(drinkTid);
+        var baseTags = PickupDrinkData.CollectTags(baseIngredientTids);
 
-        var materialTable = GameInstance.Table.GetTable<CTable.DrinkMaterialRow>();
-        var materialRows = materialTable?.All.Values
+        var ingredientTable = GameInstance.Table.GetTable<CTable.DrinkIngredientRow>();
+        var ingredientRows = ingredientTable?.All.Values
             .Where(m => m.Tid != DrinkModel.ICE_MATERIAL_TID)
-            .ToList() ?? new List<CTable.DrinkMaterialRow>();
+            .ToList() ?? new List<CTable.DrinkIngredientRow>();
 
         int toppingTid = 0;
         if (UnityEngine.Random.value < TOPPING_REQUEST_CHANCE)
         {
-            var toppings = materialRows.Where(m => m.IsTopping && !baseMaterialTids.Contains(m.Tid)).ToList();
+            var toppings = ingredientRows.Where(m => m.IsTopping && !baseIngredientTids.Contains(m.Tid)).ToList();
             if (toppings.Count > 0)
                 toppingTid = toppings[UnityEngine.Random.Range(0, toppings.Count)].Tid;
         }
 
         // 기본 재료로 이미 충족되는 속성은 요청할 의미가 없으므로 제외한다.
-        var tagPool = materialRows.SelectMany(m => m.GetTags()).Distinct().Where(t => !baseTags.Contains(t)).ToList();
+        var tagPool = ingredientRows.SelectMany(m => m.GetTags()).Distinct().Where(t => !baseTags.Contains(t)).ToList();
 
         string includeTag = null;
         if (tagPool.Count > 0 && UnityEngine.Random.value < INCLUDE_TAG_REQUEST_CHANCE)

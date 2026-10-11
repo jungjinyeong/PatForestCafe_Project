@@ -20,10 +20,10 @@ public class UIBreadDoughPanel : UIBase
     [SerializeField] private UIScrollEx mRecipeScrollEx;
     [SerializeField] private GameObject mRecipeRowPrefab;
 
-    [Header("Materials")]
-    [SerializeField] private UIBreadMaterialSlot[] mBaseSlots;
-    [SerializeField] private UIBreadMaterialSlot[] mExtraSlots;
-    [SerializeField] private UIBreadMaterialPicker mPicker;
+    [Header("Ingredients")]
+    [SerializeField] private UIBreadIngredientSlot[] mBaseSlots;
+    [SerializeField] private UIBreadIngredientSlot[] mExtraSlots;
+    [SerializeField] private UIBreadIngredientPicker mPicker;
 
     [Header("Info")]
     [SerializeField] private TextMeshProUGUI mTextRecipeName;
@@ -67,7 +67,7 @@ public class UIBreadDoughPanel : UIBase
             mExtraSlots[i].Init(() => OnClickSlot(false, index));
         }
 
-        mPicker.Init(OnPickMaterial, OnClearMaterial);
+        mPicker.Init(OnPickIngredient, OnClearIngredient);
 
         for (int i = 0; i < mQuantityButtons.Length && i < QUANTITY_DELTAS.Length; i++)
         {
@@ -99,8 +99,8 @@ public class UIBreadDoughPanel : UIBase
         {
             mRecipeTid = tray.RecipeTid;
             mQuantity = tray.Quantity;
-            FillSlots(mBaseSlots, tray.BaseMaterialTids);
-            FillSlots(mExtraSlots, tray.ExtraMaterialTids);
+            FillSlots(mBaseSlots, tray.BaseIngredientTids);
+            FillSlots(mExtraSlots, tray.ExtraIngredientTids);
         }
         else
         {
@@ -143,13 +143,13 @@ public class UIBreadDoughPanel : UIBase
     private void SelectRecipe(int breadTid)
     {
         mRecipeTid = breadTid;
-        FillSlots(mBaseSlots, GameInstance.Table.Get<CTable.BreadRow>(breadTid).GetMaterialTids());
+        FillSlots(mBaseSlots, GameInstance.Table.Get<CTable.BreadRow>(breadTid).GetIngredientTids());
         mPicker.Close();
     }
 
     #endregion
 
-    #region Materials
+    #region Ingredients
 
     private void OnClickSlot(bool isBase, int index)
     {
@@ -160,14 +160,14 @@ public class UIBreadDoughPanel : UIBase
         if (slot == null)
             return;
 
-        var table = GameInstance.Table.GetTable<CTable.BreadMaterialRow>();
+        var table = GameInstance.Table.GetTable<CTable.BreadIngredientRow>();
         if (table == null)
             return;
 
         if (isBase)
         {
             // 기본 재료는 레시피가 정한 분류 안에서 등급만 바꿀 수 있다.
-            var current = table.Get(slot.MaterialTid);
+            var current = table.Get(slot.IngredientTid);
             if (current == null)
                 return;
 
@@ -181,23 +181,23 @@ public class UIBreadDoughPanel : UIBase
         }
     }
 
-    private static List<UIScrollBreadMaterialData> ToPickerData(IEnumerable<CTable.BreadMaterialRow> rows)
+    private static List<UIScrollBreadIngredientData> ToPickerData(IEnumerable<CTable.BreadIngredientRow> rows)
     {
-        return rows.Select(r => new UIScrollBreadMaterialData
+        return rows.Select(r => new UIScrollBreadIngredientData
         {
             Tid = r.Tid,
-            OwnedCount = GameInstance.Model.Material.Get(r.Tid)?.Count.Value ?? 0,
+            OwnedCount = GameInstance.Model.Ingredient.Get(r.Tid)?.Count.Value ?? 0,
         }).ToList();
     }
 
-    private void OnPickMaterial(int materialTid)
+    private void OnPickIngredient(int ingredientTid)
     {
-        GetEditingSlot()?.Set(materialTid);
+        GetEditingSlot()?.Set(ingredientTid);
         mPicker.Close();
         Refresh();
     }
 
-    private void OnClearMaterial()
+    private void OnClearIngredient()
     {
         if (!mEditingBase)
             GetEditingSlot()?.Set(0);
@@ -206,13 +206,13 @@ public class UIBreadDoughPanel : UIBase
         Refresh();
     }
 
-    private UIBreadMaterialSlot GetEditingSlot()
+    private UIBreadIngredientSlot GetEditingSlot()
     {
         var slots = mEditingBase ? mBaseSlots : mExtraSlots;
         return mEditingIndex >= 0 && mEditingIndex < slots.Length ? slots[mEditingIndex] : null;
     }
 
-    private static void FillSlots(UIBreadMaterialSlot[] slots, IList<int> tids)
+    private static void FillSlots(UIBreadIngredientSlot[] slots, IList<int> tids)
     {
         for (int i = 0; i < slots.Length; i++)
             slots[i].Set(tids != null && i < tids.Count ? tids[i] : 0);
@@ -244,8 +244,8 @@ public class UIBreadDoughPanel : UIBase
         for (int i = 0; i < mBaseSlots.Length; i++)
             mBaseSlots[i].SetInteractable(mBaseSlots[i].IsFilled);
 
-        var baseTids = mBaseSlots.Where(s => s.IsFilled).Select(s => s.MaterialTid).ToList();
-        var extraTids = mExtraSlots.Where(s => s.IsFilled).Select(s => s.MaterialTid).ToList();
+        var baseTids = mBaseSlots.Where(s => s.IsFilled).Select(s => s.IngredientTid).ToList();
+        var extraTids = mExtraSlots.Where(s => s.IsFilled).Select(s => s.IngredientTid).ToList();
         var quality = OvenModel.CalcQuality(baseTids);
 
         mTextRecipeName.SetTextEx(menuRow?.Name ?? "레시피 없음");
@@ -253,8 +253,8 @@ public class UIBreadDoughPanel : UIBase
         mTextExpectedQuality.SetTextEx($"예상 품질 <color={BreadQuality.GetColorHex(quality)}>{BreadQuality.GetName(quality)}</color>");
         mTextRecipeTags.SetTextEx(breadRow != null ? string.Join(", ", breadRow.GetTags()) : string.Empty);
 
-        var materialTable = GameInstance.Table.GetTable<CTable.BreadMaterialRow>();
-        var extraTags = extraTids.SelectMany(tid => materialTable?.Get(tid).GetTags() ?? Enumerable.Empty<string>()).Distinct().ToList();
+        var ingredientTable = GameInstance.Table.GetTable<CTable.BreadIngredientRow>();
+        var extraTags = extraTids.SelectMany(tid => ingredientTable?.Get(tid).GetTags() ?? Enumerable.Empty<string>()).Distinct().ToList();
         mTextExtraTags.SetTextEx(extraTags.Count > 0 ? string.Join(", ", extraTags) : "추가 재료 없음");
 
         mQuantity = Mathf.Clamp(mQuantity, 1, Oven.MaxQuantity);
@@ -265,8 +265,8 @@ public class UIBreadDoughPanel : UIBase
 
     private void OnClickSave()
     {
-        var baseTids = mBaseSlots.Where(s => s.IsFilled).Select(s => s.MaterialTid);
-        var extraTids = mExtraSlots.Where(s => s.IsFilled).Select(s => s.MaterialTid);
+        var baseTids = mBaseSlots.Where(s => s.IsFilled).Select(s => s.IngredientTid);
+        var extraTids = mExtraSlots.Where(s => s.IsFilled).Select(s => s.IngredientTid);
 
         if (Oven.SetTray(mTrayIndex, mRecipeTid, mQuantity, baseTids, extraTids))
         {

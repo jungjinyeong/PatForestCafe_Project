@@ -17,17 +17,17 @@ namespace Extension
         }
 
         // 테이블의 Tags 컬럼은 CSV 구분자(,)와 겹치지 않도록 '|'로 구분해 저장한다.
-        public static IEnumerable<string> GetTags(this DrinkMaterialRow materialRow) => ParseTags(materialRow?.Tags);
-        public static IEnumerable<string> GetTags(this BreadMaterialRow materialRow) => ParseTags(materialRow?.Tags);
+        public static IEnumerable<string> GetTags(this DrinkIngredientRow ingredientRow) => ParseTags(ingredientRow?.Tags);
+        public static IEnumerable<string> GetTags(this BreadIngredientRow ingredientRow) => ParseTags(ingredientRow?.Tags);
         public static IEnumerable<string> GetTags(this BreadRow breadRow) => ParseTags(breadRow?.Tags);
 
-        // BreadMaterial1~5 중 0이 아닌 재료 Tid(중복 포함, 순서 유지).
-        public static List<int> GetMaterialTids(this BreadRow breadRow)
+        // BreadIngredient1~5 중 0이 아닌 재료 Tid(중복 포함, 순서 유지).
+        public static List<int> GetIngredientTids(this BreadRow breadRow)
         {
             var list = new List<int>();
             if (breadRow == null) return list;
 
-            foreach (int tid in new[] { breadRow.BreadMaterial1, breadRow.BreadMaterial2, breadRow.BreadMaterial3, breadRow.BreadMaterial4, breadRow.BreadMaterial5 })
+            foreach (int tid in new[] { breadRow.BreadIngredient1, breadRow.BreadIngredient2, breadRow.BreadIngredient3, breadRow.BreadIngredient4, breadRow.BreadIngredient5 })
             {
                 if (tid != 0) list.Add(tid);
             }

@@ -151,7 +151,7 @@ GameObject:
   - component: {fileID: 4649957095384377960}
   - component: {fileID: 4945867604365000031}
   m_Layer: 5
-  m_Name: UIScrollItemDrinkMaterial
+  m_Name: UIScrollItemDrinkIngredient
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3804,7 +3804,7 @@ GameObject:
   - component: {fileID: 3891710794308811154}
   - component: {fileID: 4475318112943365259}
   m_Layer: 5
-  m_Name: Scroll_Material
+  m_Name: Scroll_Ingredient
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6617,7 +6617,7 @@ GameObject:
   - component: {fileID: 3864653427551381763}
   - component: {fileID: 3980356643123183754}
   m_Layer: 5
-  m_Name: MaterialPicker
+  m_Name: IngredientPicker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6739,7 +6739,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIDrinkMaterialPicker
   mTextTitle: {fileID: 7748250136652562535}
   mScrollEx: {fileID: 4475318112943365259}
-  mMaterialRowPrefab: {fileID: 45775476926026043}
+  mIngredientRowPrefab: {fileID: 45775476926026043}
   mBtnRemove: {fileID: 7855259284418166077}
   mBtnClose: {fileID: 5270946761160471597}
   mBtnShade: {fileID: 3864653427551381763}
@@ -12869,7 +12869,7 @@ GameObject:
   - component: {fileID: 381293880928768206}
   - component: {fileID: 5467752532888162596}
   m_Layer: 5
-  m_Name: Text_Materials
+  m_Name: Text_Ingredients
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13655,7 +13655,7 @@ MonoBehaviour:
   mButton: {fileID: 2293619669497594033}
   mImgIcon: {fileID: 1024552071052644469}
   mTextName: {fileID: 2796724977723281235}
-  mTextMaterials: {fileID: 5467752532888162596}
+  mTextIngredients: {fileID: 5467752532888162596}
   mSelectedMark: {fileID: 7258514188858453340}
 --- !u!1 &8792602082760347073
 GameObject:

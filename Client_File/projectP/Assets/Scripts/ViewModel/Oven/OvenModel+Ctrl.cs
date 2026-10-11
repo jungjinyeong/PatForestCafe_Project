@@ -64,7 +64,7 @@ public partial class OvenModel
     #region Tray
 
     // 반죽 설정 저장. 굽는 중이거나 잠긴 트레이는 거부.
-    public bool SetTray(int index, int recipeTid, int quantity, IEnumerable<int> baseMaterialTids, IEnumerable<int> extraMaterialTids)
+    public bool SetTray(int index, int recipeTid, int quantity, IEnumerable<int> baseIngredientTids, IEnumerable<int> extraIngredientTids)
     {
         if (!IsTrayUnlocked(index) || Trays[index].State == eOvenTrayState.Baking || recipeTid == 0)
             return false;
@@ -72,9 +72,9 @@ public partial class OvenModel
         var tray = Trays[index];
         tray.RecipeTid = recipeTid;
         tray.Quantity = Mathf.Clamp(quantity, 1, MaxQuantity);
-        tray.BaseMaterialTids = baseMaterialTids?.Where(t => t != 0).ToList() ?? new List<int>();
-        tray.ExtraMaterialTids = extraMaterialTids?.Where(t => t != 0).ToList() ?? new List<int>();
-        tray.Quality = CalcQuality(tray.BaseMaterialTids);
+        tray.BaseIngredientTids = baseIngredientTids?.Where(t => t != 0).ToList() ?? new List<int>();
+        tray.ExtraIngredientTids = extraIngredientTids?.Where(t => t != 0).ToList() ?? new List<int>();
+        tray.Quality = CalcQuality(tray.BaseIngredientTids);
         tray.State = eOvenTrayState.Ready;
         tray.BakeEndUnixSeconds = 0;
 
@@ -92,12 +92,12 @@ public partial class OvenModel
         return true;
     }
 
-    // 기본 재료 등급(BreadMaterial.Grade) 평균을 반올림한 완성 품질.
-    public static eBreadQuality CalcQuality(IEnumerable<int> baseMaterialTids)
+    // 기본 재료 등급(BreadIngredient.Grade) 평균을 반올림한 완성 품질.
+    public static eBreadQuality CalcQuality(IEnumerable<int> baseIngredientTids)
     {
-        var table = GameInstance.Table.GetTable<CTable.BreadMaterialRow>();
-        var grades = baseMaterialTids.Select(tid => table?.Get(tid)?.Grade ?? 1);
-        return BreadQuality.FromMaterialGrades(grades);
+        var table = GameInstance.Table.GetTable<CTable.BreadIngredientRow>();
+        var grades = baseIngredientTids.Select(tid => table?.Get(tid)?.Grade ?? 1);
+        return BreadQuality.FromIngredientGrades(grades);
     }
 
     #endregion
@@ -105,7 +105,7 @@ public partial class OvenModel
     #region Bake
 
     // 굽기 대기(Ready) 트레이 전체의 필요 재료 합계 = (기본 + 추가 재료) × 수량.
-    public Dictionary<int, int> GetRequiredMaterials()
+    public Dictionary<int, int> GetRequiredIngredients()
     {
         var required = new Dictionary<int, int>();
         foreach (var tray in Trays.Take(UnlockedTrayCount))
@@ -113,7 +113,7 @@ public partial class OvenModel
             if (tray.State != eOvenTrayState.Ready)
                 continue;
 
-            foreach (int tid in tray.BaseMaterialTids.Concat(tray.ExtraMaterialTids))
+            foreach (int tid in tray.BaseIngredientTids.Concat(tray.ExtraIngredientTids))
             {
                 required.TryGetValue(tid, out int count);
                 required[tid] = count + tray.Quantity;
@@ -129,18 +129,18 @@ public partial class OvenModel
         if (ReadyTrayCount == 0)
             return false;
 
-        var required = GetRequiredMaterials();
+        var required = GetRequiredIngredients();
         foreach (var pair in required)
         {
-            if (!GameInstance.Model.Material.HasEnough(pair.Key, pair.Value))
+            if (!GameInstance.Model.Ingredient.HasEnough(pair.Key, pair.Value))
             {
-                shortageName = GameInstance.Table.Get<CTable.BreadMaterialRow>(pair.Key)?.Name ?? pair.Key.ToString();
+                shortageName = GameInstance.Table.Get<CTable.BreadIngredientRow>(pair.Key)?.Name ?? pair.Key.ToString();
                 return false;
             }
         }
 
         foreach (var pair in required)
-            GameInstance.Model.Material.Consume(pair.Key, pair.Value);
+            GameInstance.Model.Ingredient.Consume(pair.Key, pair.Value);
 
         long endTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + BakeSeconds;
         foreach (var tray in Trays.Take(UnlockedTrayCount))
@@ -205,8 +205,8 @@ public partial class OvenModel
             Trays[i].State = src.State;
             Trays[i].RecipeTid = src.RecipeTid;
             Trays[i].Quantity = src.Quantity;
-            Trays[i].BaseMaterialTids = new List<int>(src.BaseMaterialTids);
-            Trays[i].ExtraMaterialTids = new List<int>(src.ExtraMaterialTids);
+            Trays[i].BaseIngredientTids = new List<int>(src.BaseIngredientTids);
+            Trays[i].ExtraIngredientTids = new List<int>(src.ExtraIngredientTids);
             Trays[i].Quality = src.Quality;
             Trays[i].BakeEndUnixSeconds = src.BakeEndUnixSeconds;
             Trays[i].BakeDurationSeconds = src.BakeDurationSeconds > 0 ? src.BakeDurationSeconds : BakeSeconds;

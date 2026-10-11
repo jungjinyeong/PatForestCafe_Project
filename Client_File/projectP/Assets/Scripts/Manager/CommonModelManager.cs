@@ -9,7 +9,7 @@ public class CommonModelManager : MonoBehaviour, IManager
     public PlacementModel Placement { get; private set; }
     public RecipeBookModel RecipeBook { get; private set; }
     public UpgradeModel Upgrade { get; private set; }
-    public MaterialModel Material { get; private set; }
+    public IngredientModel Ingredient { get; private set; }
     public WorkshopModel Workshop { get; private set; }
     public FloorModel Floor { get; private set; }
     public StaffModel Staff { get; private set; }
@@ -29,7 +29,7 @@ public class CommonModelManager : MonoBehaviour, IManager
         Placement = Register(new PlacementModel());
         RecipeBook = Register(new RecipeBookModel());
         Upgrade = Register(new UpgradeModel());
-        Material = Register(new MaterialModel());
+        Ingredient = Register(new IngredientModel());
         Workshop = Register(new WorkshopModel());
         Floor = Register(new FloorModel());
         Staff = Register(new StaffModel());
@@ -53,7 +53,7 @@ public class CommonModelManager : MonoBehaviour, IManager
         Placement = null;
         RecipeBook = null;
         Upgrade = null;
-        Material = null;
+        Ingredient = null;
         Workshop = null;
         Floor = null;
         Staff = null;

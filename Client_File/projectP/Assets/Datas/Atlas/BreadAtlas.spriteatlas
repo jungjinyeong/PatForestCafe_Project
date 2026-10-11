@@ -32,14 +32,27 @@ SpriteAtlas:
       enableAlphaDilation: 0
     secondaryTextureSettings: {}
     variantMultiplier: 1
-    packables: []
+    packables:
+    - {fileID: 102900000, guid: 922023771d04fb5438dbe47d6e5c14ff, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
-    packedSpriteRenderDataKeys: []
+    packedSpriteRenderDataKeys:
+    - e24e53c076e96744ca9554396fcaa13c: 21300000
+    - 3944f9642ee3fa74b802cd3b35a6493a: 21300000
+    - 9a863e27d5816e840acd8ff334e2331f: 21300000
+    - 405a0c7fa593cf94ba50e7ccb59252d9: 21300000
   m_MasterAtlas: {fileID: 0}
-  m_PackedSprites: []
-  m_PackedSpriteNamesToIndex: []
+  m_PackedSprites:
+  - {fileID: 21300000, guid: e24e53c076e96744ca9554396fcaa13c, type: 3}
+  - {fileID: 21300000, guid: 3944f9642ee3fa74b802cd3b35a6493a, type: 3}
+  - {fileID: 21300000, guid: 9a863e27d5816e840acd8ff334e2331f, type: 3}
+  - {fileID: 21300000, guid: 405a0c7fa593cf94ba50e7ccb59252d9, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - dst_0121_strawberry_donut
+  - dst_0100_milk_bread
+  - dst_0130_vegetable_bread
+  - dst_0120_strawberry_donut
   m_RenderDataMap: {}
   m_Tag: BreadAtlas
   m_IsVariant: 0

@@ -51,7 +51,7 @@ public class UIDeliveryOrderSlot : UIBase
         var sb = new StringBuilder();
         if (order.HasTopping)
         {
-            string toppingName = GameInstance.Table.Get<CTable.DrinkMaterialRow>(order.ToppingMaterialTid)?.Name;
+            string toppingName = GameInstance.Table.Get<CTable.DrinkIngredientRow>(order.ToppingIngredientTid)?.Name;
             sb.AppendLine($"└ {toppingName} 추가");
         }
         if (order.HasIncludeTag)

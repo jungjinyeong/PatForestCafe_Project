@@ -62,9 +62,9 @@
 
 - **스크립트**: `UIPopupWarehouse`(빈 안내 → 실제 화면), 그리드 칸 `UIWarehouseCell`(+`UIWarehouseCellData`) 신규. 둘 다 `Assets/Scripts/UI/Lobby/`.
 - **표시 데이터(테이블 수정 없음)**:
-  - 가공섬 재료 탭 = `MaterialModel`(음료 재료 + 빵 재료) 중 보유 수량 > 0.
+  - 가공섬 재료 탭 = `IngredientModel`(음료 재료 + 빵 재료) 중 보유 수량 > 0.
   - 디저트 탭 = 오븐에서 구워 창고에 보관 중인(진열 전) 빵 재고 `BreadData.ProducedCount` > 0.
-  - 상세: 이름 · 분류 도장 · 설명(`DrinkMaterial/BreadMaterial/Bread.csv` Desc) · 정보(분류 / 보관 수량 / 빵 재료 등급 또는 디저트 품질별 수량 / 속성).
+  - 상세: 이름 · 분류 도장 · 설명(`DrinkIngredient/BreadIngredient/Bread.csv` Desc) · 정보(분류 / 보관 수량 / 빵 재료 등급 또는 디저트 품질별 수량 / 속성).
   - 상단 "총 보관 N개"(두 탭 합계). 탭 라벨에 품목 종류 수.
 - **실시간 갱신**: 열려 있는 동안 재료/빵 재고 수량이 바뀌면(공방 생산, 오븐 보관 등) 1프레임 스로틀 후 다시 그림. 닫히면 구독 해제.
 - **프리팹**: `UI_Popup_Warehouse.prefab`을 도감(`UI_Popup_Collection`) 책 레이아웃을 복제해 재구성 — 배경 클릭/✕ 닫기, 탭 2개, `GridLayoutGroup` 4열 스크롤, 빈 상태 안내, 오른쪽 상세(`Detail`). 기존 로비 하단 [창고] 버튼 그대로 연결됨.

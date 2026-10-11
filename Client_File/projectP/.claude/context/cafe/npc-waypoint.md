@@ -36,7 +36,7 @@
 
 컨셉 지시("카운터 CharStaff에 게이지바, 작업속도 테이블 추가, 음료 픽업 속도가 작업속도에 따라 달라짐")를 다음으로 채웠다(CTable 신규 생성 사용자 승인됨, WorkSpeed 배율 방식·기준시간 2초 코드 상수 승인됨):
 
-1. 새 CTable `StaffRow`/`StaffTable`(`Tid, Name, WorkSpeed(float)`) + `Assets/CSV/Staff.csv`(현재 Tid=1 "일반 바리스타" WorkSpeed=1 한 줄만). `DrinkMaterialRow`와 동일한 단순 패턴.
+1. 새 CTable `StaffRow`/`StaffTable`(`Tid, Name, WorkSpeed(float)`) + `Assets/CSV/Staff.csv`(현재 Tid=1 "일반 바리스타" WorkSpeed=1 한 줄만). `DrinkIngredientRow`와 동일한 단순 패턴.
 2. `CharStaff`(`Assets/Scripts/Character/Staff/CharStaff.cs`)에 `mTid`(SerializeField) 추가, `Init()`에서 `GameInstance.Table.Get<CTable.StaffRow>(mTid)`로 `StaffRow` 조회. `WorkSpeed` 프로퍼티(행이 없거나 0 이하면 1.0 폴백).
 3. **픽업 게이지바는 전용 프리팹/스프라이트 에셋 없이 런타임에 절차적으로 생성**(`SpriteRenderer` 2장 — 배경/채움, 1x1 흰색 `Texture2D`를 코드에서 `Sprite.Create`). `CharStaff`가 씬에 직접 배치되는 캐릭터라 전용 프리팹 자체가 없어(=만들 프리팹이 없어) 이 방식을 택함 — 새 UI 프리팹이 필요한 다른 갭과는 다른 케이스. 채움 스프라이트는 중앙 기준 스케일로 늘어나는 러프 버전(왼쪽 정렬 아님).
 4. `CharStaff.BeginPickup(Action onComplete)` — `BaseDrinkPickupSeconds(2f, 코드 상수) / WorkSpeed`만큼 `Observable.EveryUpdate()`로 게이지를 채우고 완료 시 콜백. `CharNpc.TriggerPause()`의 `Trigger_Order` 분기가 예전엔 곧장 `ProcessOrderPayment()`를 호출했지만, 이제 `triggerWaypoint.GetComponentInParent<CharStaff>()`로 소유 스태프를 찾아 `BeginPickup(ProcessOrderPayment)`를 거치도록 변경(스태프를 못 찾으면 예전처럼 즉시 처리 — 폴백).

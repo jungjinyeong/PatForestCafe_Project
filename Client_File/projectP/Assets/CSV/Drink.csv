@@ -1,4 +1,4 @@
-Tid,@Name,DrinkType,DrinkTempType,DrinkMaterial1,DrinkMaterial2,DrinkMaterial3,DrinkMaterial4,DrinkMaterial5,Weight,Desc
+Tid,@Name,DrinkType,DrinkTempType,DrinkIngredient1,DrinkIngredient2,DrinkIngredient3,DrinkIngredient4,DrinkIngredient5,Weight,Desc
 int,@string,Enum(eDrinkType),Enum(eDrinkTempType),int,int,int,int,int,int,string
 @아이디,@음료명,@음료타입,@가격,@음료온도타입,@음료재료1,@음료재료2,@음료재료3,@음료재료4,@음료재료5,@구매확률가중치,@설명
 10001,@아이스 아메리카노,Coffee,Ice,100001,100003,0,0,0,5,시원한 물에 에스프레소를 부어 깔끔하고 쌉쌀한 맛이 살아 있어요.

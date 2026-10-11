@@ -14,14 +14,14 @@ public class ItemCheatTool : EditorWindow
     {
         Wealth,
         Item,
-        DrinkMaterial,
-        BreadMaterial,
+        DrinkIngredient,
+        BreadIngredient,
     }
 
     private static readonly string[] TAB_NAMES = { "재화", "아이템", "음료 재료", "빵 재료" };
     private static readonly int[] QUICK_AMOUNTS = { 1, 10, 100, 1000, 10000 };
 
-    // 한 행에서 조작할 대상. 모델 타입이 제각각(WealthData/ItemData/MaterialData)이라 델리게이트로 감싼다.
+    // 한 행에서 조작할 대상. 모델 타입이 제각각(WealthData/ItemData/IngredientData)이라 델리게이트로 감싼다.
     private class Entry
     {
         public int Tid;
@@ -58,7 +58,7 @@ public class ItemCheatTool : EditorWindow
             return;
         }
 
-        if (GameInstance.Model == null || GameInstance.Model.Item == null || GameInstance.Model.Material == null || GameInstance.Table == null)
+        if (GameInstance.Model == null || GameInstance.Model.Item == null || GameInstance.Model.Ingredient == null || GameInstance.Table == null)
         {
             EditorGUILayout.HelpBox("GameInstance 초기화를 기다리는 중입니다.", MessageType.Warning);
             return;
@@ -207,34 +207,34 @@ public class ItemCheatTool : EditorWindow
                 }
                 break;
 
-            case eTab.DrinkMaterial:
-                AddMaterialEntries(entries, GameInstance.Table.GetTable<CTable.DrinkMaterialRow>()?.All.Keys);
+            case eTab.DrinkIngredient:
+                AddIngredientEntries(entries, GameInstance.Table.GetTable<CTable.DrinkIngredientRow>()?.All.Keys);
                 break;
 
-            case eTab.BreadMaterial:
-                AddMaterialEntries(entries, GameInstance.Table.GetTable<CTable.BreadMaterialRow>()?.All.Keys);
+            case eTab.BreadIngredient:
+                AddIngredientEntries(entries, GameInstance.Table.GetTable<CTable.BreadIngredientRow>()?.All.Keys);
                 break;
         }
 
         return entries.OrderBy(e => e.Tid).ToList();
     }
 
-    // 음료/빵 재료는 MaterialModel 하나에 섞여 있어 테이블 Tid 목록으로 구분한다.
-    private static void AddMaterialEntries(List<Entry> entries, IEnumerable<int> tids)
+    // 음료/빵 재료는 IngredientModel 하나에 섞여 있어 테이블 Tid 목록으로 구분한다.
+    private static void AddIngredientEntries(List<Entry> entries, IEnumerable<int> tids)
     {
         if (tids == null) return;
 
         foreach (int tid in tids)
         {
-            var material = GameInstance.Model.Material.Get(tid);
-            if (material == null) continue;
+            var ingredient = GameInstance.Model.Ingredient.Get(tid);
+            if (ingredient == null) continue;
 
             entries.Add(new Entry
             {
-                Tid = material.Tid,
-                Name = material.Name,
-                GetCount = () => material.Count.Value,
-                SetCount = amount => material.Set(amount),
+                Tid = ingredient.Tid,
+                Name = ingredient.Name,
+                GetCount = () => ingredient.Count.Value,
+                SetCount = amount => ingredient.Set(amount),
             });
         }
     }

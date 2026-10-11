@@ -13,8 +13,8 @@ public class OvenTrayData
     public eOvenTrayState State = eOvenTrayState.Empty;
     public int RecipeTid;
     public int Quantity;
-    public List<int> BaseMaterialTids = new List<int>();
-    public List<int> ExtraMaterialTids = new List<int>();
+    public List<int> BaseIngredientTids = new List<int>();
+    public List<int> ExtraIngredientTids = new List<int>();
     public eBreadQuality Quality = eBreadQuality.Low;
     public long BakeEndUnixSeconds;
     // 굽기 시작 시점의 굽기 시간(초). 굽는 도중 오븐 업그레이드로 굽기 시간이 바뀌어도 진행 게이지가 맞도록 따로 둔다.
@@ -27,8 +27,8 @@ public class OvenTrayData
         State = eOvenTrayState.Empty;
         RecipeTid = 0;
         Quantity = 0;
-        BaseMaterialTids.Clear();
-        ExtraMaterialTids.Clear();
+        BaseIngredientTids.Clear();
+        ExtraIngredientTids.Clear();
         Quality = eBreadQuality.Low;
         BakeEndUnixSeconds = 0;
         BakeDurationSeconds = 0;

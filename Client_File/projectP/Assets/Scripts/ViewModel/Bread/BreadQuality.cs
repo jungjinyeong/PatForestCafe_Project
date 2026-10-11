@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// 빵(및 빵 재료) 품질. 값은 BreadMaterial.csv의 Grade와 같다(1=하급 2=중급 3=고급).
+// 빵(및 빵 재료) 품질. 값은 BreadIngredient.csv의 Grade와 같다(1=하급 2=중급 3=고급).
 public enum eBreadQuality
 {
     Low = 1,
@@ -30,7 +30,7 @@ public static class BreadQuality
 
     // 기본 재료 등급의 평균을 반올림(.5는 올림)한 품질. 재료가 없으면 하급.
     // Mathf.RoundToInt는 .5를 짝수 쪽으로 보내(2.5 → 2) 중·고급 경계가 어긋나므로 쓰지 않는다.
-    public static eBreadQuality FromMaterialGrades(IEnumerable<int> grades)
+    public static eBreadQuality FromIngredientGrades(IEnumerable<int> grades)
     {
         int sum = 0, count = 0;
         foreach (int grade in grades)

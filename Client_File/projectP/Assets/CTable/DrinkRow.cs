@@ -10,11 +10,11 @@ namespace CTable
         public int Tid;
         public eDrinkType DrinkType;
         public eDrinkTempType DrinkTempType;
-        public int DrinkMaterial1;
-        public int DrinkMaterial2;
-        public int DrinkMaterial3;
-        public int DrinkMaterial4;
-        public int DrinkMaterial5;
+        public int DrinkIngredient1;
+        public int DrinkIngredient2;
+        public int DrinkIngredient3;
+        public int DrinkIngredient4;
+        public int DrinkIngredient5;
         public int Weight;
         public string Desc;
     }

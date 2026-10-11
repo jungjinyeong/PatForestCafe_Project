@@ -4,21 +4,21 @@ public class DeliveryOrderData
 {
     public int OrderNo { get; private set; }
     public int DrinkTid { get; private set; }
-    public int ToppingMaterialTid { get; private set; }
+    public int ToppingIngredientTid { get; private set; }
     public string IncludeTag { get; private set; }
     public string ExcludeTag { get; private set; }
 
-    public bool HasTopping => ToppingMaterialTid != 0;
+    public bool HasTopping => ToppingIngredientTid != 0;
     public bool HasIncludeTag => !string.IsNullOrEmpty(IncludeTag);
     public bool HasExcludeTag => !string.IsNullOrEmpty(ExcludeTag);
 
-    public static DeliveryOrderData Create(int orderNo, int drinkTid, int toppingMaterialTid, string includeTag, string excludeTag)
+    public static DeliveryOrderData Create(int orderNo, int drinkTid, int toppingIngredientTid, string includeTag, string excludeTag)
     {
         return new DeliveryOrderData
         {
             OrderNo = orderNo,
             DrinkTid = drinkTid,
-            ToppingMaterialTid = toppingMaterialTid,
+            ToppingIngredientTid = toppingIngredientTid,
             IncludeTag = includeTag ?? string.Empty,
             ExcludeTag = excludeTag ?? string.Empty,
         };

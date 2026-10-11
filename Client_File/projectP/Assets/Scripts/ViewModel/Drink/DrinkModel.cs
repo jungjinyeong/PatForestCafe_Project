@@ -15,7 +15,7 @@ public class DrinkModel : IModelBase
     private readonly Dictionary<string, int> mRecipeSignatureToTid = new();
 
     // 음료별 얼음 제외 재료 목록(중복 포함)과 자동 소모할 얼음 개수.
-    private readonly Dictionary<int, List<int>> mBaseMaterialTids = new();
+    private readonly Dictionary<int, List<int>> mBaseIngredientTids = new();
     private readonly Dictionary<int, int> mIceCounts = new();
 
     public DrinkData DefaultDrink { get; private set; }
@@ -33,21 +33,21 @@ public class DrinkModel : IModelBase
         {
             mDicDrinks[row.Tid] = DrinkData.Create(row);
 
-            var baseMaterials = new List<int>();
+            var baseIngredients = new List<int>();
             int iceCount = 0;
-            foreach (int materialTid in GetMaterialTids(row))
+            foreach (int ingredientTid in GetIngredientTids(row))
             {
-                if (materialTid == ICE_MATERIAL_TID) iceCount++;
-                else baseMaterials.Add(materialTid);
+                if (ingredientTid == ICE_MATERIAL_TID) iceCount++;
+                else baseIngredients.Add(ingredientTid);
             }
 
-            mBaseMaterialTids[row.Tid] = baseMaterials;
+            mBaseIngredientTids[row.Tid] = baseIngredients;
             mIceCounts[row.Tid] = iceCount;
 
-            if (baseMaterials.Count == 0)
+            if (baseIngredients.Count == 0)
                 continue;
 
-            string signature = BuildSignature(CountMaterials(baseMaterials), row.DrinkTempType);
+            string signature = BuildSignature(CountIngredients(baseIngredients), row.DrinkTempType);
             if (mRecipeSignatureToTid.ContainsKey(signature))
                 Logger.Warning($"[DrinkModel] 재료 조합+온도가 중복된 DrinkRow가 있습니다. Tid={row.Tid}");
             else
@@ -72,18 +72,18 @@ public class DrinkModel : IModelBase
 
     // 얼음을 제외한 재료 조합(Tid→개수)과 온도가 정확히 일치하는 DrinkRow의 Tid를 찾는다.
     // O(M log M)(M = 선택한 재료 종류 수, ≤5) — 사전 구축된 mRecipeSignatureToTid 덕분에 DrinkRow 개수와 무관하다.
-    public bool TryGetRecipeMatch(IReadOnlyDictionary<int, int> baseMaterialCounts, CTable.eDrinkTempType temp, out int drinkTid)
+    public bool TryGetRecipeMatch(IReadOnlyDictionary<int, int> baseIngredientCounts, CTable.eDrinkTempType temp, out int drinkTid)
     {
         drinkTid = 0;
-        if (baseMaterialCounts == null || baseMaterialCounts.Count == 0)
+        if (baseIngredientCounts == null || baseIngredientCounts.Count == 0)
             return false;
 
-        return mRecipeSignatureToTid.TryGetValue(BuildSignature(baseMaterialCounts, temp), out drinkTid);
+        return mRecipeSignatureToTid.TryGetValue(BuildSignature(baseIngredientCounts, temp), out drinkTid);
     }
 
-    public IReadOnlyList<int> GetBaseMaterialTids(int drinkTid)
+    public IReadOnlyList<int> GetBaseIngredientTids(int drinkTid)
     {
-        return mBaseMaterialTids.TryGetValue(drinkTid, out var list) ? list : (IReadOnlyList<int>)System.Array.Empty<int>();
+        return mBaseIngredientTids.TryGetValue(drinkTid, out var list) ? list : (IReadOnlyList<int>)System.Array.Empty<int>();
     }
 
     public int GetIceCount(int drinkTid)
@@ -91,19 +91,19 @@ public class DrinkModel : IModelBase
         return mIceCounts.TryGetValue(drinkTid, out int count) ? count : 0;
     }
 
-    private static IEnumerable<int> GetMaterialTids(CTable.DrinkRow row)
+    private static IEnumerable<int> GetIngredientTids(CTable.DrinkRow row)
     {
-        if (row.DrinkMaterial1 != 0) yield return row.DrinkMaterial1;
-        if (row.DrinkMaterial2 != 0) yield return row.DrinkMaterial2;
-        if (row.DrinkMaterial3 != 0) yield return row.DrinkMaterial3;
-        if (row.DrinkMaterial4 != 0) yield return row.DrinkMaterial4;
-        if (row.DrinkMaterial5 != 0) yield return row.DrinkMaterial5;
+        if (row.DrinkIngredient1 != 0) yield return row.DrinkIngredient1;
+        if (row.DrinkIngredient2 != 0) yield return row.DrinkIngredient2;
+        if (row.DrinkIngredient3 != 0) yield return row.DrinkIngredient3;
+        if (row.DrinkIngredient4 != 0) yield return row.DrinkIngredient4;
+        if (row.DrinkIngredient5 != 0) yield return row.DrinkIngredient5;
     }
 
-    private static Dictionary<int, int> CountMaterials(IEnumerable<int> materialTids)
+    private static Dictionary<int, int> CountIngredients(IEnumerable<int> ingredientTids)
     {
         var counts = new Dictionary<int, int>();
-        foreach (int tid in materialTids)
+        foreach (int tid in ingredientTids)
         {
             counts.TryGetValue(tid, out int count);
             counts[tid] = count + 1;
@@ -112,13 +112,13 @@ public class DrinkModel : IModelBase
     }
 
     // 선택 순서와 무관하게 같은 조합이면 같은 문자열이 나오도록 Tid 오름차순으로 정규화한다.
-    private static string BuildSignature(IReadOnlyDictionary<int, int> materialCounts, CTable.eDrinkTempType temp)
+    private static string BuildSignature(IReadOnlyDictionary<int, int> ingredientCounts, CTable.eDrinkTempType temp)
     {
         var sb = new StringBuilder();
-        foreach (var tid in materialCounts.Keys.OrderBy(t => t))
+        foreach (var tid in ingredientCounts.Keys.OrderBy(t => t))
         {
             if (sb.Length > 0) sb.Append(',');
-            sb.Append(tid).Append(':').Append(materialCounts[tid]);
+            sb.Append(tid).Append(':').Append(ingredientCounts[tid]);
         }
         sb.Append('/').Append(temp);
         return sb.ToString();
@@ -128,7 +128,7 @@ public class DrinkModel : IModelBase
     {
         mDicDrinks.Clear();
         mRecipeSignatureToTid.Clear();
-        mBaseMaterialTids.Clear();
+        mBaseIngredientTids.Clear();
         mIceCounts.Clear();
         DefaultDrink = null;
     }

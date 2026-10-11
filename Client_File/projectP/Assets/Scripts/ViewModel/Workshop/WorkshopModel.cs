@@ -21,7 +21,7 @@ public class WorkshopModel : IModelBase
     public IReadOnlyList<WorkshopSlotData> Slots => mSlots;
     private readonly List<WorkshopSlotData> mSlots = new List<WorkshopSlotData>();
 
-    public int AssignedWorkerCount => mSlots.Count(slot => slot.MaterialTid.Value > 0);
+    public int AssignedWorkerCount => mSlots.Count(slot => slot.IngredientTid.Value > 0);
     public bool CanAssignWorker => AssignedWorkerCount < mHiredWorkerCount.Value;
 
     private CompositeDisposable mDisposables;
@@ -54,16 +54,16 @@ public class WorkshopModel : IModelBase
         return true;
     }
 
-    public bool AssignWorker(int slotIndex, int materialTid)
+    public bool AssignWorker(int slotIndex, int ingredientTid)
     {
         var slot = GetSlot(slotIndex);
-        if (slot == null || materialTid <= 0)
+        if (slot == null || ingredientTid <= 0)
             return false;
 
-        if (slot.MaterialTid.Value == 0 && !CanAssignWorker)
+        if (slot.IngredientTid.Value == 0 && !CanAssignWorker)
             return false;
 
-        slot.MaterialTid.Value = materialTid;
+        slot.IngredientTid.Value = ingredientTid;
         return true;
     }
 
@@ -72,7 +72,7 @@ public class WorkshopModel : IModelBase
         var slot = GetSlot(slotIndex);
         if (slot == null) return;
 
-        slot.MaterialTid.Value = 0;
+        slot.IngredientTid.Value = 0;
     }
 
     public void SetHiredWorkerCount(int count)
@@ -80,12 +80,12 @@ public class WorkshopModel : IModelBase
         mHiredWorkerCount.Value = Mathf.Max(0, count);
     }
 
-    public void SetSlotMaterial(int slotIndex, int materialTid)
+    public void SetSlotIngredient(int slotIndex, int ingredientTid)
     {
         var slot = GetSlot(slotIndex);
         if (slot == null) return;
 
-        slot.MaterialTid.Value = materialTid;
+        slot.IngredientTid.Value = ingredientTid;
     }
 
     private WorkshopSlotData GetSlot(int slotIndex)
@@ -97,8 +97,8 @@ public class WorkshopModel : IModelBase
     {
         foreach (var slot in mSlots)
         {
-            if (slot.MaterialTid.Value > 0)
-                GameInstance.Model.Material.Gather(slot.MaterialTid.Value, ProductionAmountPerTick);
+            if (slot.IngredientTid.Value > 0)
+                GameInstance.Model.Ingredient.Gather(slot.IngredientTid.Value, ProductionAmountPerTick);
         }
     }
 

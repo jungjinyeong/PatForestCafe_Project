@@ -50,4 +50,4 @@
 | 포함 속성 요청 확률 | 35% | `INCLUDE_TAG_REQUEST_CHANCE` |
 | 제외 속성 요청 확률 | 30% | `EXCLUDE_TAG_REQUEST_CHANCE` |
 | 요청 1개당 보너스 | +20% | `BONUS_RATE_PER_REQUEST` |
-| 재료 속성/설명/토핑 여부 | 임시 입력 | `CSV/DrinkMaterial.csv` Tags / Desc / IsTopping |
+| 재료 속성/설명/토핑 여부 | 임시 입력 | `CSV/DrinkIngredient.csv` Tags / Desc / IsTopping |

@@ -7,7 +7,7 @@ using Extension;
 
 // 창고(프리팹 UI_Popup_Warehouse, 로비 하단 [창고]). ForestCafe UI Lab 창고 시안 기준.
 // 왼쪽: 분류 탭(가공섬 재료 / 디저트) + 보관 품목 그리드. 오른쪽: 선택한 품목 상세.
-// - 가공섬 재료 = MaterialModel(음료 재료 + 빵 재료) 중 보유 수량이 있는 것.
+// - 가공섬 재료 = IngredientModel(음료 재료 + 빵 재료) 중 보유 수량이 있는 것.
 // - 디저트 = 오븐에서 구워 창고에 보관 중인(진열 전) 빵 재고(BreadData.ProducedCount).
 // 보관 용량/확장은 기획 미정이라 아직 없다(총 보관 수량만 표시).
 public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
@@ -18,7 +18,7 @@ public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
 
     private enum eTab
     {
-        Materials,
+        Ingredients,
         Desserts,
     }
 
@@ -47,7 +47,7 @@ public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
 
     private readonly List<UIWarehouseCell> mCells = new List<UIWarehouseCell>();
     private readonly CompositeDisposable mCountDisposables = new CompositeDisposable();
-    private eTab mTab = eTab.Materials;
+    private eTab mTab = eTab.Ingredients;
     private int mSelectedTid;
 
     public override eUIType GetUIType() => eUIType.PopupWarehouse;
@@ -72,7 +72,7 @@ public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
 
         mSelectedTid = 0;
         SubscribeCounts();
-        SelectTab(eTab.Materials);
+        SelectTab(eTab.Ingredients);
     }
 
     public void Set(Param param)
@@ -99,7 +99,7 @@ public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
     {
         mCountDisposables.Clear();
 
-        var changes = GameInstance.Model.Material.GetAll().Select(m => m.Count.Skip(1).AsUnitObservable())
+        var changes = GameInstance.Model.Ingredient.GetAll().Select(m => m.Count.Skip(1).AsUnitObservable())
             .Concat(GameInstance.Model.Bread.GetAll().Select(b => b.ProducedCount.Skip(1).AsUnitObservable()));
 
         Observable.Merge(changes)
@@ -119,7 +119,7 @@ public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
                 .ToList();
         }
 
-        return GameInstance.Model.Material.GetAll()
+        return GameInstance.Model.Ingredient.GetAll()
             .Where(m => m.Count.Value > 0)
             .OrderBy(m => m.Tid)
             .Select(m => new UIWarehouseCellData { Tid = m.Tid, IsDessert = false, Name = m.Name, Count = m.Count.Value })
@@ -220,23 +220,23 @@ public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
         }
         else
         {
-            var breadMaterial = GameInstance.Table.GetTable<CTable.BreadMaterialRow>()?.Get(entry.Tid);
-            if (breadMaterial != null)
+            var breadIngredient = GameInstance.Table.GetTable<CTable.BreadIngredientRow>()?.Get(entry.Tid);
+            if (breadIngredient != null)
             {
-                var quality = BreadQuality.FromGrade(breadMaterial.Grade);
+                var quality = BreadQuality.FromGrade(breadIngredient.Grade);
                 category = "빵 재료";
-                desc = breadMaterial.Desc;
-                tags = breadMaterial.GetTags();
-                infos.Add(("분류", $"빵 재료 · {breadMaterial.Category}"));
+                desc = breadIngredient.Desc;
+                tags = breadIngredient.GetTags();
+                infos.Add(("분류", $"빵 재료 · {breadIngredient.Category}"));
                 infos.Add(("보관 수량", $"{entry.Count}개"));
                 infos.Add(("등급", $"<color={BreadQuality.GetColorHex(quality)}>{BreadQuality.GetName(quality)}</color>"));
             }
             else
             {
-                var drinkMaterial = GameInstance.Table.GetTable<CTable.DrinkMaterialRow>()?.Get(entry.Tid);
+                var drinkIngredient = GameInstance.Table.GetTable<CTable.DrinkIngredientRow>()?.Get(entry.Tid);
                 category = "음료 재료";
-                desc = drinkMaterial?.Desc ?? string.Empty;
-                tags = drinkMaterial.GetTags();
+                desc = drinkIngredient?.Desc ?? string.Empty;
+                tags = drinkIngredient.GetTags();
                 infos.Add(("분류", "음료 재료"));
                 infos.Add(("보관 수량", $"{entry.Count}개"));
             }

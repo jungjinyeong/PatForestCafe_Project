@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using UniRx;
 using Extension;
+using UnityEngine.Serialization;
 
 public class UIScrollDrinkRecipeData
 {
@@ -16,7 +17,7 @@ public class UIScrollDrinkRecipe : UIScrollRow<UIScrollDrinkRecipeData>
     [SerializeField] private UIButtonEx mButton;
     [SerializeField] private Image mImgIcon;
     [SerializeField] private TextMeshProUGUI mTextName;
-    [SerializeField] private TextMeshProUGUI mTextMaterials;
+    [SerializeField, FormerlySerializedAs("mTextMaterials")] private TextMeshProUGUI mTextIngredients;
     [SerializeField] private GameObject mSelectedMark;
 
     public UIScrollDrinkRecipeData CurrentData { get; private set; }
@@ -36,10 +37,10 @@ public class UIScrollDrinkRecipe : UIScrollRow<UIScrollDrinkRecipeData>
         mImgIcon.SetSpriteEx(menuRow?.Atlas, menuRow?.Icon);
         mTextName.SetTextEx(GameInstance.Model.Drink.GetName(data.DrinkTid));
 
-        var materialTable = GameInstance.Table.GetTable<CTable.DrinkMaterialRow>();
-        var names = GameInstance.Model.Drink.GetBaseMaterialTids(data.DrinkTid)
-            .Select(tid => materialTable?.Get(tid)?.Name ?? tid.ToString());
-        mTextMaterials.SetTextEx("= " + string.Join(" + ", names));
+        var ingredientTable = GameInstance.Table.GetTable<CTable.DrinkIngredientRow>();
+        var names = GameInstance.Model.Drink.GetBaseIngredientTids(data.DrinkTid)
+            .Select(tid => ingredientTable?.Get(tid)?.Name ?? tid.ToString());
+        mTextIngredients.SetTextEx("= " + string.Join(" + ", names));
     }
 
     public void SetSelected(bool selected)

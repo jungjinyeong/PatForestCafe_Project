@@ -5,7 +5,7 @@ int,string,string,string,long
 10002,핫 아메리카노,CoffeeAtlas,HotAmericanoIcon,5000
 20001,소금빵,BreadAtlas,SaltBreadIcon,2000
 20002,식빵,BreadAtlas,PlainBreadIcon,2500
-20003,우유식빵,BreadAtlas,MilkBreadIcon,2800
+20003,우유식빵,BreadAtlas,dst_0100_milk_bread,2800
 20004,크루아상,BreadAtlas,CroissantIcon,3000
 20005,단팥빵,BreadAtlas,RedBeanBreadIcon,2500
 20006,소보로빵,BreadAtlas,StreuselBreadIcon,2500

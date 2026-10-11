@@ -27,8 +27,8 @@ public class OvenTraySaveEntry
     public eOvenTrayState State;
     public int RecipeTid;
     public int Quantity;
-    public List<int> BaseMaterialTids = new List<int>();
-    public List<int> ExtraMaterialTids = new List<int>();
+    public List<int> BaseIngredientTids = new List<int>();
+    public List<int> ExtraIngredientTids = new List<int>();
     public eBreadQuality Quality;
     public long BakeEndUnixSeconds;
     public int BakeDurationSeconds;
@@ -55,7 +55,7 @@ public class DeliveryOrderSaveEntry
 {
     public int OrderNo;
     public int DrinkTid;
-    public int ToppingMaterialTid;
+    public int ToppingIngredientTid;
     public string IncludeTag;
     public string ExcludeTag;
 }
@@ -67,15 +67,15 @@ public class PickupDrinkSaveEntry
     public bool HasDrink;
     public int DrinkTid;
     public CTable.eDrinkTempType Temp;
-    public List<int> BaseMaterialTids = new List<int>();
-    public List<int> CustomMaterialTids = new List<int>();
+    public List<int> BaseIngredientTids = new List<int>();
+    public List<int> CustomIngredientTids = new List<int>();
 }
 
 [Serializable]
 public class SaveData
 {
     public List<ItemSaveEntry> Items = new List<ItemSaveEntry>();
-    public List<ItemSaveEntry> Materials = new List<ItemSaveEntry>();
+    public List<ItemSaveEntry> Ingredients = new List<ItemSaveEntry>();
     public List<BreadSaveEntry> Breads = new List<BreadSaveEntry>();
     public List<PlacedFurnitureSaveEntry> PlacedFurniture = new List<PlacedFurnitureSaveEntry>();
     public List<int> DiscoveredRecipeTids = new List<int>();
@@ -87,7 +87,7 @@ public class SaveData
     public BusinessStats TodayStats = new BusinessStats();
     public BusinessStats NextDayStats = new BusinessStats();
     public int HiredWorkerCount;
-    public List<int> WorkshopSlotMaterialTids = new List<int>();
+    public List<int> WorkshopSlotIngredientTids = new List<int>();
     public int HighestUnlockedFloor;
     public List<int> HiredStaffTids = new List<int>();
     public List<DeliveryOrderSaveEntry> DeliveryOrders = new List<DeliveryOrderSaveEntry>();

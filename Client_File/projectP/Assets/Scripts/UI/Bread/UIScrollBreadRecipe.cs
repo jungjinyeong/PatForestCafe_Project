@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using UniRx;
 using Extension;
+using UnityEngine.Serialization;
 
 public class UIScrollBreadRecipeData
 {
@@ -14,7 +15,7 @@ public class UIScrollBreadRecipe : UIScrollRow<UIScrollBreadRecipeData>
 {
     [SerializeField] private UIButtonEx mButton;
     [SerializeField] private TextMeshProUGUI mTextName;
-    [SerializeField] private TextMeshProUGUI mTextMaterials;
+    [SerializeField, FormerlySerializedAs("mTextMaterials")] private TextMeshProUGUI mTextIngredients;
     [SerializeField] private GameObject mSelectedMark;
 
     public UIScrollBreadRecipeData CurrentData { get; private set; }
@@ -32,10 +33,10 @@ public class UIScrollBreadRecipe : UIScrollRow<UIScrollBreadRecipeData>
 
         mTextName.SetTextEx(GameInstance.Table.Get<CTable.MenuItemRow>(data.BreadTid)?.Name ?? data.BreadTid.ToString());
 
-        var materialTable = GameInstance.Table.GetTable<CTable.BreadMaterialRow>();
-        var names = GameInstance.Table.Get<CTable.BreadRow>(data.BreadTid).GetMaterialTids()
-            .Select(tid => materialTable?.Get(tid)?.Name ?? tid.ToString());
-        mTextMaterials.SetTextEx(string.Join(" + ", names));
+        var ingredientTable = GameInstance.Table.GetTable<CTable.BreadIngredientRow>();
+        var names = GameInstance.Table.Get<CTable.BreadRow>(data.BreadTid).GetIngredientTids()
+            .Select(tid => ingredientTable?.Get(tid)?.Name ?? tid.ToString());
+        mTextIngredients.SetTextEx(string.Join(" + ", names));
     }
 
     public void SetSelected(bool selected)

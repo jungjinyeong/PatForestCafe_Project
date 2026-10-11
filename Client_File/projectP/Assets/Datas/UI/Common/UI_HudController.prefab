@@ -551,9 +551,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIHudController
   mTopbarInfo: {fileID: 1372596025549105773}
-  mBtnBread: {fileID: 0}
-  mBtnToggleMaterialIsland: {fileID: 1769495229526156201}
-  mIconGoToMaterialIsland: {fileID: 1883811313765623200}
+  mBtnToggleIngredientIsland: {fileID: 1769495229526156201}
+  mIconGoToIngredientIsland: {fileID: 1883811313765623200}
   mIconGoToLobby: {fileID: 2831526274226172557}
 --- !u!1 &3328646550746023543
 GameObject:
@@ -1992,7 +1991,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3916550725428638393, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_Name
-      value: UI_Btn_MaterialIsland
+      value: UI_Btn_IngredientIsland
       objectReference: {fileID: 0}
     - target: {fileID: 3916550725428638393, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_IsActive

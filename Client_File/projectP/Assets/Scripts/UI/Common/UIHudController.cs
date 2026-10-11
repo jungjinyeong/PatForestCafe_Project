@@ -1,6 +1,7 @@
 using UnityEngine;
 using UniRx;
 using Extension;
+using UnityEngine.Serialization;
 
 public class UIHudController : MonoBehaviour
 {
@@ -9,13 +10,13 @@ public class UIHudController : MonoBehaviour
     //[Header("Only Lobby")]
     
 
-    [Header("Material Island Toggle")]
-    [SerializeField] private UIButtonEx mBtnToggleMaterialIsland;
-    [SerializeField] private GameObject mIconGoToMaterialIsland;
+    [Header("Ingredient Island Toggle")]
+    [SerializeField, FormerlySerializedAs("mBtnToggleMaterialIsland")] private UIButtonEx mBtnToggleIngredientIsland;
+    [SerializeField, FormerlySerializedAs("mIconGoToMaterialIsland")] private GameObject mIconGoToIngredientIsland;
     [SerializeField] private GameObject mIconGoToLobby;
 
     private bool mIsInitialized;
-    private bool mIsInMaterialIsland;
+    private bool mIsInIngredientIsland;
 
     public void Init()
     {
@@ -25,18 +26,18 @@ public class UIHudController : MonoBehaviour
 
         mTopbarInfo.Init();
 
-        mBtnToggleMaterialIsland.OnSubscribeOnClick(OnClickToggleMaterialIsland).AddTo(this);
+        mBtnToggleIngredientIsland.OnSubscribeOnClick(OnClickToggleIngredientIsland).AddTo(this);
 
-        mIsInMaterialIsland = false;
+        mIsInIngredientIsland = false;
         RefreshToggleIcon();
     }
 
-    private void OnClickToggleMaterialIsland()
+    private void OnClickToggleIngredientIsland()
     {
-        mIsInMaterialIsland = !mIsInMaterialIsland;
+        mIsInIngredientIsland = !mIsInIngredientIsland;
 
-        if (mIsInMaterialIsland)
-            GameInstance.UI.Open<UIRootMaterialIsland, UIRootMaterialIsland.Param>(eUIType.RootMaterialIsland, new UIRootMaterialIsland.Param());
+        if (mIsInIngredientIsland)
+            GameInstance.UI.Open<UIRootIngredientIsland, UIRootIngredientIsland.Param>(eUIType.RootIngredientIsland, new UIRootIngredientIsland.Param());
         else
             GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.RootLobby, new UIRootLobby.Param());
 
@@ -45,10 +46,10 @@ public class UIHudController : MonoBehaviour
 
     private void RefreshToggleIcon()
     {
-        if (mIconGoToMaterialIsland != null)
-            mIconGoToMaterialIsland.SetActive(!mIsInMaterialIsland);
+        if (mIconGoToIngredientIsland != null)
+            mIconGoToIngredientIsland.SetActive(!mIsInIngredientIsland);
 
         if (mIconGoToLobby != null)
-            mIconGoToLobby.SetActive(mIsInMaterialIsland);
+            mIconGoToLobby.SetActive(mIsInIngredientIsland);
     }
 }

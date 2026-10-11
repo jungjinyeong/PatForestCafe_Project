@@ -12,7 +12,7 @@ public enum eUIType
     RootIntro = eUILayerType.Menu << 16,
     RootLobby,
     RootLogin,
-    RootMaterialIsland,
+    RootIngredientIsland,
 
     PopupOption = eUILayerType.Popup << 16,
     PopupDrinkRecipeProduction,
@@ -23,7 +23,7 @@ public enum eUIType
     PopupUpgrade,
     PopupBreadMinigame,
     PopupBreadProduction,
-    PopupMaterialShop,      // 미사용(상점가 서브 패널로 통합). 지우면 뒤 항목 번호가 밀려 UIManager.prefab 등록이 어긋나므로 남겨 둔다.
+    PopupIngredientShop,      // 미사용(상점가 서브 패널로 통합). 지우면 뒤 항목 번호가 밀려 UIManager.prefab 등록이 어긋나므로 남겨 둔다.
     PopupWorkshop,
     PopupFloorUnlock,
     PopupWarehouse,

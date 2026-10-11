@@ -1127,7 +1127,7 @@ GameObject:
   - component: {fileID: 6223826660431524922}
   - component: {fileID: 7671144147409581231}
   m_Layer: 5
-  m_Name: Scroll_Material
+  m_Name: Scroll_Ingredient
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3781,7 +3781,7 @@ GameObject:
   - component: {fileID: 1202005717252076264}
   - component: {fileID: 7035349546915355726}
   m_Layer: 5
-  m_Name: UIScrollItemMaterialShop
+  m_Name: UIScrollItemIngredientShop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4521,7 +4521,7 @@ GameObject:
   - component: {fileID: 1244196623278402479}
   - component: {fileID: 3603308775875813072}
   m_Layer: 0
-  m_Name: Panel_MaterialShop
+  m_Name: Panel_IngredientShop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4561,7 +4561,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIShopStreetMaterialPanel
   mScrollEx: {fileID: 7671144147409581231}
-  mMaterialShopRowPrefab: {fileID: 6626376466562597964}
+  mIngredientShopRowPrefab: {fileID: 6626376466562597964}
   mTextNotice: {fileID: 4591948231208928635}
 --- !u!1 &7320335763692566839
 GameObject:
@@ -4933,13 +4933,13 @@ MonoBehaviour:
   mPanelMouse: {fileID: 7468670854446196391}
   mPanelDdol: {fileID: 6999056670060020026}
   mPanelJob: {fileID: 1032838855447300399}
-  mPanelMaterialShop: {fileID: 3603308775875813072}
+  mPanelIngredientShop: {fileID: 3603308775875813072}
   mBtnIslandContract: {fileID: 7863585070622454805}
   mBtnWorkshopDeal: {fileID: 4387404933037037518}
   mBtnIslandUpgrade: {fileID: 7021821868907443741}
   mBtnResearchTicket: {fileID: 3240121727658241028}
   mBtnBreadRecipe: {fileID: 7431245715788985277}
-  mBtnMaterialShop: {fileID: 6999341745969307759}
+  mBtnIngredientShop: {fileID: 6999341745969307759}
   mBtnBuyFurniture: {fileID: 5459180034935759375}
   mBtnFacilityUpgrade: {fileID: 2537584951865486650}
   mBtnFloorFacility: {fileID: 374684427015044345}

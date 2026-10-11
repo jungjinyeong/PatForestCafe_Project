@@ -42,9 +42,9 @@ public class UIPopupRecipeLab : UIWndBase, IUIParam<UIPopupRecipeLab.Param>
     [SerializeField] private GameObject mHotSelectedMark;
     [SerializeField] private GameObject mIceSelectedMark;
 
-    [Header("Material Slots")]
-    [SerializeField] private UIDrinkMaterialSlot[] mBaseSlots;
-    [SerializeField] private UIDrinkMaterialPicker mPicker;
+    [Header("Ingredient Slots")]
+    [SerializeField] private UIDrinkIngredientSlot[] mBaseSlots;
+    [SerializeField] private UIDrinkIngredientPicker mPicker;
     [SerializeField] private TextMeshProUGUI mTextBaseTags;
     [SerializeField] private UIButtonEx mBtnDevelop;
     [SerializeField] private UIButtonEx mBtnClear;
@@ -105,10 +105,10 @@ public class UIPopupRecipeLab : UIWndBase, IUIParam<UIPopupRecipeLab.Param>
         for (int i = 0; i < mBaseSlots.Length; i++)
         {
             int index = i;
-            mBaseSlots[i].Init(() => OnClickMaterialSlot(index));
+            mBaseSlots[i].Init(() => OnClickIngredientSlot(index));
         }
 
-        mPicker.Init(OnPickMaterial, OnRemoveMaterial);
+        mPicker.Init(OnPickIngredient, OnRemoveIngredient);
         mCraftResult.Init(OnClickStoreResult, OnClickDiscardResult);
         mKnownScrollEx.Init(mKnownRowPrefab);
 
@@ -181,9 +181,9 @@ public class UIPopupRecipeLab : UIWndBase, IUIParam<UIPopupRecipeLab.Param>
         }
     }
 
-    #region Material Slots
+    #region Ingredient Slots
 
-    private void OnClickMaterialSlot(int index)
+    private void OnClickIngredientSlot(int index)
     {
         mEditingIndex = index;
 
@@ -194,13 +194,13 @@ public class UIPopupRecipeLab : UIWndBase, IUIParam<UIPopupRecipeLab.Param>
         mPicker.Open($"{index + 1}번 투입칸에 넣을 재료", DrinkCraftHelper.BuildPickerList(mBaseSlots, slot), slot.IsFilled);
     }
 
-    private void OnPickMaterial(int materialTid)
+    private void OnPickIngredient(int ingredientTid)
     {
-        GetEditingSlot()?.Set(materialTid);
+        GetEditingSlot()?.Set(ingredientTid);
         CloseEditing();
     }
 
-    private void OnRemoveMaterial()
+    private void OnRemoveIngredient()
     {
         GetEditingSlot()?.Set(0);
         CloseEditing();
@@ -213,7 +213,7 @@ public class UIPopupRecipeLab : UIWndBase, IUIParam<UIPopupRecipeLab.Param>
         RefreshSlots();
     }
 
-    private UIDrinkMaterialSlot GetEditingSlot()
+    private UIDrinkIngredientSlot GetEditingSlot()
     {
         return mEditingIndex >= 0 && mEditingIndex < mBaseSlots.Length ? mBaseSlots[mEditingIndex] : null;
     }
@@ -248,7 +248,7 @@ public class UIPopupRecipeLab : UIWndBase, IUIParam<UIPopupRecipeLab.Param>
     // 이미 개발한 조합을 올려 두면 꾸리가 미리 알려 준다(같은 조합을 다시 시도하지 않도록).
     private void RefreshNpcLine()
     {
-        var baseCounts = DrinkCraftHelper.CountMaterials(DrinkCraftHelper.GetFilledTids(mBaseSlots));
+        var baseCounts = DrinkCraftHelper.CountIngredients(DrinkCraftHelper.GetFilledTids(mBaseSlots));
         if (GameInstance.Model.Drink.TryGetRecipeMatch(baseCounts, mTemp, out int drinkTid) &&
             GameInstance.Model.RecipeBook.IsDiscovered(drinkTid))
         {
@@ -308,7 +308,7 @@ public class UIPopupRecipeLab : UIWndBase, IUIParam<UIPopupRecipeLab.Param>
         mConfirmRoot.SetActive(false);
 
         var baseTids = DrinkCraftHelper.GetFilledTids(mBaseSlots);
-        bool matched = GameInstance.Model.Drink.TryGetRecipeMatch(DrinkCraftHelper.CountMaterials(baseTids), mTemp, out int drinkTid);
+        bool matched = GameInstance.Model.Drink.TryGetRecipeMatch(DrinkCraftHelper.CountIngredients(baseTids), mTemp, out int drinkTid);
 
         if (!matched)
         {
@@ -323,7 +323,7 @@ public class UIPopupRecipeLab : UIWndBase, IUIParam<UIPopupRecipeLab.Param>
         }
 
         // 새 레시피 — 이 시점에 소모/등록까지 확정하고, 결과는 분석 연출이 끝난 뒤 보여 준다.
-        var required = DrinkCraftHelper.BuildRequiredMaterials(baseTids, GameInstance.Model.Drink.GetIceCount(drinkTid));
+        var required = DrinkCraftHelper.BuildRequiredIngredients(baseTids, GameInstance.Model.Drink.GetIceCount(drinkTid));
         if (DrinkCraftHelper.TryFindShortage(required, out string shortage))
         {
             ShowNotice($"새 레시피의 기운이 느껴지지만 {shortage}이(가) 부족해요.");

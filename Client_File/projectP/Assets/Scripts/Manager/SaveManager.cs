@@ -80,8 +80,8 @@ public class SaveManager : MonoBehaviour
         foreach (var wealth in GameInstance.Model.Item.GetAllWealth())
             data.Items.Add(new ItemSaveEntry { Tid = wealth.Tid, Count = wealth.Count.Value });
 
-        foreach (var material in GameInstance.Model.Material.GetAll())
-            data.Materials.Add(new ItemSaveEntry { Tid = material.Tid, Count = material.Count.Value });
+        foreach (var ingredient in GameInstance.Model.Ingredient.GetAll())
+            data.Ingredients.Add(new ItemSaveEntry { Tid = ingredient.Tid, Count = ingredient.Count.Value });
 
         // 빵 세이브가 아직 적용 전(로비 FSM의 ApplyPendingBreadData() 이전)에 저장되면 — 자동 저장/OnApplicationPause —
         // BreadModel엔 복원 전 값(0 또는 그 사이 오븐 완료분)만 있어 저장된 재고가 통째로 사라진다.
@@ -134,7 +134,7 @@ public class SaveManager : MonoBehaviour
 
         data.HiredWorkerCount = GameInstance.Model.Workshop.HiredWorkerCount.Value;
         foreach (var slot in GameInstance.Model.Workshop.Slots)
-            data.WorkshopSlotMaterialTids.Add(slot.MaterialTid.Value);
+            data.WorkshopSlotIngredientTids.Add(slot.IngredientTid.Value);
 
         data.HighestUnlockedFloor = GameInstance.Model.Floor.HighestUnlockedFloor;
 
@@ -164,8 +164,8 @@ public class SaveManager : MonoBehaviour
         foreach (var entry in data.Items)
             GameInstance.Model.Item.SetByTid(entry.Tid, entry.Count);
 
-        foreach (var entry in data.Materials)
-            GameInstance.Model.Material.SetByTid(entry.Tid, entry.Count);
+        foreach (var entry in data.Ingredients)
+            GameInstance.Model.Ingredient.SetByTid(entry.Tid, entry.Count);
 
         mPendingBreadSaveEntries = data.Breads;
 
@@ -179,8 +179,8 @@ public class SaveManager : MonoBehaviour
         GameInstance.Model.Business.Restore(data.BusinessDay, data.TodayStats, data.BusinessClosed, data.NextDayStats);
 
         GameInstance.Model.Workshop.SetHiredWorkerCount(data.HiredWorkerCount);
-        for (int i = 0; i < data.WorkshopSlotMaterialTids.Count; i++)
-            GameInstance.Model.Workshop.SetSlotMaterial(i, data.WorkshopSlotMaterialTids[i]);
+        for (int i = 0; i < data.WorkshopSlotIngredientTids.Count; i++)
+            GameInstance.Model.Workshop.SetSlotIngredient(i, data.WorkshopSlotIngredientTids[i]);
 
         GameInstance.Model.Floor.SetHighestUnlockedFloor(data.HighestUnlockedFloor);
 
@@ -253,7 +253,7 @@ public class SaveManager : MonoBehaviour
             {
                 OrderNo = order.OrderNo,
                 DrinkTid = order.DrinkTid,
-                ToppingMaterialTid = order.ToppingMaterialTid,
+                ToppingIngredientTid = order.ToppingIngredientTid,
                 IncludeTag = order.IncludeTag,
                 ExcludeTag = order.ExcludeTag,
             });
@@ -267,8 +267,8 @@ public class SaveManager : MonoBehaviour
             {
                 entry.DrinkTid = drink.DrinkTid;
                 entry.Temp = drink.Temp;
-                entry.BaseMaterialTids.AddRange(drink.BaseMaterialTids);
-                entry.CustomMaterialTids.AddRange(drink.CustomMaterialTids);
+                entry.BaseIngredientTids.AddRange(drink.BaseIngredientTids);
+                entry.CustomIngredientTids.AddRange(drink.CustomIngredientTids);
             }
             data.PickupDrinks.Add(entry);
         }
@@ -283,7 +283,7 @@ public class SaveManager : MonoBehaviour
         if (data.DeliveryOrders != null)
         {
             foreach (var entry in data.DeliveryOrders)
-                orders.Add(DeliveryOrderData.Create(entry.OrderNo, entry.DrinkTid, entry.ToppingMaterialTid, entry.IncludeTag, entry.ExcludeTag));
+                orders.Add(DeliveryOrderData.Create(entry.OrderNo, entry.DrinkTid, entry.ToppingIngredientTid, entry.IncludeTag, entry.ExcludeTag));
         }
 
         var pickups = new List<PickupDrinkData>();
@@ -292,7 +292,7 @@ public class SaveManager : MonoBehaviour
             foreach (var entry in data.PickupDrinks)
             {
                 pickups.Add(entry.HasDrink
-                    ? PickupDrinkData.Create(entry.DrinkTid, entry.Temp, entry.BaseMaterialTids, entry.CustomMaterialTids)
+                    ? PickupDrinkData.Create(entry.DrinkTid, entry.Temp, entry.BaseIngredientTids, entry.CustomIngredientTids)
                     : null);
             }
         }
@@ -312,8 +312,8 @@ public class SaveManager : MonoBehaviour
                 State = tray.State,
                 RecipeTid = tray.RecipeTid,
                 Quantity = tray.Quantity,
-                BaseMaterialTids = new List<int>(tray.BaseMaterialTids),
-                ExtraMaterialTids = new List<int>(tray.ExtraMaterialTids),
+                BaseIngredientTids = new List<int>(tray.BaseIngredientTids),
+                ExtraIngredientTids = new List<int>(tray.ExtraIngredientTids),
                 Quality = tray.Quality,
                 BakeEndUnixSeconds = tray.BakeEndUnixSeconds,
                 BakeDurationSeconds = tray.BakeDurationSeconds,
@@ -333,8 +333,8 @@ public class SaveManager : MonoBehaviour
                     State = entry.State,
                     RecipeTid = entry.RecipeTid,
                     Quantity = entry.Quantity,
-                    BaseMaterialTids = entry.BaseMaterialTids ?? new List<int>(),
-                    ExtraMaterialTids = entry.ExtraMaterialTids ?? new List<int>(),
+                    BaseIngredientTids = entry.BaseIngredientTids ?? new List<int>(),
+                    ExtraIngredientTids = entry.ExtraIngredientTids ?? new List<int>(),
                     Quality = entry.Quality == 0 ? eBreadQuality.Low : entry.Quality,
                     BakeEndUnixSeconds = entry.BakeEndUnixSeconds,
                     BakeDurationSeconds = entry.BakeDurationSeconds,

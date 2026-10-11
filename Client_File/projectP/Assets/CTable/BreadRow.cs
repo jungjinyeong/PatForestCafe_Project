@@ -8,11 +8,11 @@ namespace CTable
     {
         public override int key => Tid;
         public int Tid;
-        public int BreadMaterial1;
-        public int BreadMaterial2;
-        public int BreadMaterial3;
-        public int BreadMaterial4;
-        public int BreadMaterial5;
+        public int BreadIngredient1;
+        public int BreadIngredient2;
+        public int BreadIngredient3;
+        public int BreadIngredient4;
+        public int BreadIngredient5;
         public long RecipePrice;
         public string Tags;
         public string Desc;

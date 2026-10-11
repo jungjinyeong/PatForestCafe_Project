@@ -7,36 +7,36 @@ public class PickupDrinkData
 {
     public int DrinkTid { get; private set; }
     public CTable.eDrinkTempType Temp { get; private set; }
-    public IReadOnlyList<int> BaseMaterialTids { get; private set; }
-    public IReadOnlyList<int> CustomMaterialTids { get; private set; }
+    public IReadOnlyList<int> BaseIngredientTids { get; private set; }
+    public IReadOnlyList<int> CustomIngredientTids { get; private set; }
 
     // 기본+커스텀 재료 속성의 합집합. 생성 시 1회 계산.
     public IReadOnlyCollection<string> Tags { get; private set; }
 
     public bool IsFailed => DrinkTid == 0;
 
-    public static PickupDrinkData Create(int drinkTid, CTable.eDrinkTempType temp, IEnumerable<int> baseMaterialTids, IEnumerable<int> customMaterialTids)
+    public static PickupDrinkData Create(int drinkTid, CTable.eDrinkTempType temp, IEnumerable<int> baseIngredientTids, IEnumerable<int> customIngredientTids)
     {
-        var baseList = baseMaterialTids?.ToList() ?? new List<int>();
-        var customList = customMaterialTids?.ToList() ?? new List<int>();
+        var baseList = baseIngredientTids?.ToList() ?? new List<int>();
+        var customList = customIngredientTids?.ToList() ?? new List<int>();
 
         return new PickupDrinkData
         {
             DrinkTid = drinkTid,
             Temp = temp,
-            BaseMaterialTids = baseList,
-            CustomMaterialTids = customList,
+            BaseIngredientTids = baseList,
+            CustomIngredientTids = customList,
             Tags = CollectTags(baseList.Concat(customList)),
         };
     }
 
-    public static HashSet<string> CollectTags(IEnumerable<int> materialTids)
+    public static HashSet<string> CollectTags(IEnumerable<int> ingredientTids)
     {
         var tags = new HashSet<string>();
-        var table = GameInstance.Table.GetTable<CTable.DrinkMaterialRow>();
+        var table = GameInstance.Table.GetTable<CTable.DrinkIngredientRow>();
         if (table == null) return tags;
 
-        foreach (int tid in materialTids)
+        foreach (int tid in ingredientTids)
             tags.UnionWith(table.Get(tid).GetTags());
 
         return tags;

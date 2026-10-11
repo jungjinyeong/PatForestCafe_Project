@@ -228,9 +228,9 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
             return string.Empty;
 
         string temp = drinkRow.DrinkTempType == CTable.eDrinkTempType.Ice ? "차갑게" : "따뜻하게";
-        var materialTable = GameInstance.Table.GetTable<CTable.DrinkMaterialRow>();
-        var drinkTags = GetDrinkMaterialTids(drinkRow)
-            .SelectMany(tid => materialTable?.Get(tid).GetTags() ?? Enumerable.Empty<string>())
+        var ingredientTable = GameInstance.Table.GetTable<CTable.DrinkIngredientRow>();
+        var drinkTags = GetDrinkIngredientTids(drinkRow)
+            .SelectMany(tid => ingredientTable?.Get(tid).GetTags() ?? Enumerable.Empty<string>())
             .Distinct()
             .ToList();
 
@@ -261,9 +261,9 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
         }
     }
 
-    private static IEnumerable<int> GetDrinkMaterialTids(CTable.DrinkRow row)
+    private static IEnumerable<int> GetDrinkIngredientTids(CTable.DrinkRow row)
     {
-        return new[] { row.DrinkMaterial1, row.DrinkMaterial2, row.DrinkMaterial3, row.DrinkMaterial4, row.DrinkMaterial5 }
+        return new[] { row.DrinkIngredient1, row.DrinkIngredient2, row.DrinkIngredient3, row.DrinkIngredient4, row.DrinkIngredient5 }
             .Where(tid => tid != 0);
     }
 
@@ -277,19 +277,19 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
             var drinkRow = GameInstance.Table.Get<CTable.DrinkRow>(entry.Tid);
             if (drinkRow == null) return result;
 
-            foreach (int tid in GetDrinkMaterialTids(drinkRow))
-                result.Add((GameInstance.Table.Get<CTable.DrinkMaterialRow>(tid)?.Name ?? tid.ToString(), GetOwned(tid)));
+            foreach (int tid in GetDrinkIngredientTids(drinkRow))
+                result.Add((GameInstance.Table.Get<CTable.DrinkIngredientRow>(tid)?.Name ?? tid.ToString(), GetOwned(tid)));
         }
         else
         {
-            foreach (int tid in GameInstance.Table.Get<CTable.BreadRow>(entry.Tid).GetMaterialTids())
-                result.Add((GameInstance.Table.Get<CTable.BreadMaterialRow>(tid)?.Name ?? tid.ToString(), GetOwned(tid)));
+            foreach (int tid in GameInstance.Table.Get<CTable.BreadRow>(entry.Tid).GetIngredientTids())
+                result.Add((GameInstance.Table.Get<CTable.BreadIngredientRow>(tid)?.Name ?? tid.ToString(), GetOwned(tid)));
         }
 
         return result;
     }
 
-    private static int GetOwned(int materialTid) => GameInstance.Model.Material.Get(materialTid)?.Count.Value ?? 0;
+    private static int GetOwned(int ingredientTid) => GameInstance.Model.Ingredient.Get(ingredientTid)?.Count.Value ?? 0;
 
     // 미발견 레시피는 재료 개수만 보여 주고 이름은 가린다.
     private void SetIngredients(List<(string Name, int Owned)> ingredients, bool discovered)

@@ -1182,7 +1182,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3619530777156385255, guid: 33bb1df68d8097e4fb4da6429e7c4323, type: 3}
       propertyPath: m_Name
-      value: UI_Root_MaterialIsland
+      value: UI_Root_IngredientIsland
       objectReference: {fileID: 0}
     - target: {fileID: 3619530777156385255, guid: 33bb1df68d8097e4fb4da6429e7c4323, type: 3}
       propertyPath: m_IsActive
