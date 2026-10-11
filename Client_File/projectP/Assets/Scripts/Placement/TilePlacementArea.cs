@@ -104,14 +104,7 @@ public class TilePlacementArea : MonoBehaviour
             return false;
 
         Vector3Int origin = GetFootprintOrigin(worldPos, footprintCells);
-
-        foreach (var cell in IterateFootprintCells(origin, footprintCells))
-        {
-            if (!IsBaseCellAvailable(cell, surface, layer, selfPlacementId))
-                return false;
-        }
-
-        if (!AreAccessCellsAvailable(origin, accessOffsets, selfPlacementId) || !AreClearanceCellsAvailable(origin, clearanceOffsets, selfPlacementId))
+        if (!IsBasePlacementValid(origin, footprintCells, selfPlacementId, surface, layer, accessOffsets, clearanceOffsets))
             return false;
 
         snappedPos = GetFootprintCenterWorld(origin, footprintCells, worldPos.z);
@@ -129,12 +122,8 @@ public class TilePlacementArea : MonoBehaviour
             return false;
 
         Vector3Int origin = GetFootprintOrigin(worldPos, footprintCells);
-
-        foreach (var cell in IterateFootprintCells(origin, footprintCells))
-        {
-            if (!IsSubCellAvailable(cell, allowedGroupId, selfPlacementId))
-                return false;
-        }
+        if (!IsSubPlacementValid(origin, footprintCells, allowedGroupId, selfPlacementId))
+            return false;
 
         snappedPos = GetFootprintCenterWorld(origin, footprintCells, worldPos.z);
         return true;
@@ -273,22 +262,42 @@ public class TilePlacementArea : MonoBehaviour
 
     #region Highlight
 
-    // 드래그 중 베이스 가구를 놓을 수 있는 칸(면 일치 + 같은 레이어 비어 있음 + 손님 접근 칸 확보)은 밝게,
-    // 같은 면인데 놓을 수 없는 칸은 붉게 강조한다. 접근 칸은 그 칸을 기준 셀로 놓았을 때 기준(1칸 가구 기준).
-    public void ShowBaseHighlight(ePlacementSurface surface, int layer, int selfPlacementId,
+    // 드래그 중 베이스 가구를 실제로 놓을 수 있는 자리(footprint 전체 + 손님 칸 + 비워둘 칸 조건을 배치 판정과 똑같이 검사)가
+    // 덮는 칸은 밝게, 같은 면인데 어떤 자리로도 덮이지 않는 칸은 붉게 강조한다. 2×2 카펫처럼 큰 가구도 실제 배치 가능 영역과 일치한다.
+    public void ShowBaseHighlight(Vector2Int footprintCells, ePlacementSurface surface, int layer, int selfPlacementId,
         IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets)
     {
-        ShowHighlight(
-            cell => IsBaseCellAvailable(cell, surface, layer, selfPlacementId)
-                    && AreAccessCellsAvailable(cell, accessOffsets, selfPlacementId)
-                    && AreClearanceCellsAvailable(cell, clearanceOffsets, selfPlacementId),
-            cell => GetSurface(cell) == surface);
+        var coverable = CollectCoverableCells(footprintCells,
+            origin => IsBasePlacementValid(origin, footprintCells, selfPlacementId, surface, layer, accessOffsets, clearanceOffsets));
+        ShowHighlight(coverable.Contains, cell => GetSurface(cell) == surface);
     }
 
-    // 드래그 중 sub가구를 놓을 수 있는 칸(허용 그룹 베이스 위 + sub 비어 있음)을 강조한다.
-    public void ShowSubHighlight(int allowedGroupId, int selfPlacementId)
+    // 드래그 중 sub가구를 놓을 수 있는 자리(허용 그룹 베이스 위 + sub 비어 있음)가 덮는 칸을 강조한다.
+    public void ShowSubHighlight(Vector2Int footprintCells, int allowedGroupId, int selfPlacementId)
     {
-        ShowHighlight(cell => allowedGroupId > 0 && IsSubCellAvailable(cell, allowedGroupId, selfPlacementId), null);
+        if (allowedGroupId <= 0)
+        {
+            ShowHighlight(_ => false, null);
+            return;
+        }
+
+        var coverable = CollectCoverableCells(footprintCells, origin => IsSubPlacementValid(origin, footprintCells, allowedGroupId, selfPlacementId));
+        ShowHighlight(coverable.Contains, null);
+    }
+
+    // 배치 영역의 모든 칸을 기준 셀(좌하단)로 놓아 보고, 놓을 수 있는 자리의 footprint 칸을 모은다.
+    private HashSet<Vector3Int> CollectCoverableCells(Vector2Int footprintCells, System.Func<Vector3Int, bool> isValidOrigin)
+    {
+        var coverable = new HashSet<Vector3Int>();
+        foreach (var origin in mTilemap.cellBounds.allPositionsWithin)
+        {
+            if (!mTilemap.HasTile(origin) || !isValidOrigin(origin))
+                continue;
+
+            foreach (var cell in IterateFootprintCells(origin, footprintCells))
+                coverable.Add(cell);
+        }
+        return coverable;
     }
 
     public void HideHighlight()
@@ -417,6 +426,29 @@ public class TilePlacementArea : MonoBehaviour
     }
 
     #endregion
+
+    // 기준 셀 origin에 베이스 가구를 놓을 수 있는지 — 실제 배치(TryGetSnappedPositionForBase)와 강조 표시가 같이 쓰는 단일 판정.
+    private bool IsBasePlacementValid(Vector3Int origin, Vector2Int footprintCells, int selfPlacementId, ePlacementSurface surface, int layer,
+        IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets)
+    {
+        foreach (var cell in IterateFootprintCells(origin, footprintCells))
+        {
+            if (!IsBaseCellAvailable(cell, surface, layer, selfPlacementId))
+                return false;
+        }
+
+        return AreAccessCellsAvailable(origin, accessOffsets, selfPlacementId) && AreClearanceCellsAvailable(origin, clearanceOffsets, selfPlacementId);
+    }
+
+    private bool IsSubPlacementValid(Vector3Int origin, Vector2Int footprintCells, int allowedGroupId, int selfPlacementId)
+    {
+        foreach (var cell in IterateFootprintCells(origin, footprintCells))
+        {
+            if (!IsSubCellAvailable(cell, allowedGroupId, selfPlacementId))
+                return false;
+        }
+        return true;
+    }
 
     private bool IsBaseCellAvailable(Vector3Int cell, ePlacementSurface surface, int layer, int selfPlacementId)
     {

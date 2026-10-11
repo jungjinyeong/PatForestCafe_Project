@@ -117,9 +117,9 @@ public partial class PlacementModel
     private void ShowPlacingHighlight()
     {
         if (mPlaceable != null && mPlaceable.IsSubFurniture)
-            mArea.ShowSubHighlight(mPlaceable.AllowedGroupId, mPlaceable.PlacementId);
+            mArea.ShowSubHighlight(mFootprint, mPlaceable.AllowedGroupId, mPlaceable.PlacementId);
         else if (mPlaceable != null)
-            mArea.ShowBaseHighlight(mPlaceable.Surface, mPlaceable.LayoutOrder, mPlaceable.PlacementId, mPlaceable.AccessOffsets, mPlaceable.ClearanceOffsets);
+            mArea.ShowBaseHighlight(mFootprint, mPlaceable.Surface, mPlaceable.LayoutOrder, mPlaceable.PlacementId, mPlaceable.AccessOffsets, mPlaceable.ClearanceOffsets);
 
         RefreshPlacementPreview();
     }

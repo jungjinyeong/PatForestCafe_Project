@@ -52,6 +52,8 @@ public class UIPopupFurnitureList : UIWndBase, IUIParam<UIPopupFurnitureList.Par
     {
         var category = mCategoryTabs != null ? mCategoryTabs.Selected : CTable.eFurnitureCategory.All;
         mScrollEx.SetData(GameInstance.Model.Placement.BuildFurnitureShopData(category));
+        // 탭을 바꾸거나 다시 열면 목록 처음부터 보이게 한다.
+        mScrollEx.ScrollToTop();
     }
 
     private void OnClickAdd(UIScrollRow row)
