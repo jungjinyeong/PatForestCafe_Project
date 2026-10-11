@@ -9,9 +9,12 @@ using Extension;
 [RequireComponent(typeof(BoxCollider2D))]
 public class Intaraction_BreadStand : MonoBehaviour
 {
-    // 진열된 빵끼리 겹치지 않도록 mActiveBreadQueue 순번 기준으로 격자 배치한다(러프 버전 — 픽업으로 앞쪽이 비면 뒤쪽이 당겨지진 않음).
-    private const float BreadSpawnSpacing = 0.35f;
-    private const int BreadSpawnPerRow = 4;
+    // 진열된 빵을 mActiveBreadQueue 순번 기준으로 테이블 1칸 안에 격자 배치한다(러프 버전 — 픽업으로 앞쪽이 비면 뒤쪽이 당겨지진 않음).
+    // 빵 1개 폭이 약 0.5라 3열 × 0.25 간격이면 칸 폭(1)에 들어간다. 3줄을 넘으면 다시 첫 줄부터 위에 겹쳐 쌓는다.
+    private const float BreadSpawnSpacingX = 0.25f;
+    private const float BreadSpawnSpacingY = 0.15f;
+    private const int BreadSpawnPerRow = 3;
+    private const int BreadSpawnRows = 3;
 
     [Header("ID")]
     [SerializeField] private int mTableId;
@@ -160,8 +163,8 @@ public class Intaraction_BreadStand : MonoBehaviour
 
         int index = mActiveBreadQueue.Count;
         int col = index % BreadSpawnPerRow;
-        int row = index / BreadSpawnPerRow;
-        Vector3 offset = new Vector3((col - (BreadSpawnPerRow - 1) * 0.5f) * BreadSpawnSpacing, row * BreadSpawnSpacing, 0f);
+        int row = index / BreadSpawnPerRow % BreadSpawnRows;
+        Vector3 offset = new Vector3((col - (BreadSpawnPerRow - 1) * 0.5f) * BreadSpawnSpacingX, (row - (BreadSpawnRows - 1) * 0.5f) * BreadSpawnSpacingY, 0f);
 
         var go = GameInstance.Pool.Spawn(Intaraction_Bread.PoolName, mRootTransform.position + offset, Quaternion.identity);
         if (go == null) return;

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-// 가구가 붙을 수 있는 면. 벽 셀 = 이 층 배경(BackgroundGrid)의 WallTilemap에 타일이 있는 배치 셀, 나머지 배치 셀 = 바닥.
+// 가구가 붙을 수 있는 면. 벽 셀 = 이 층의 PlacementWallTilemap에 타일이 있는 배치 셀, 나머지 배치 셀 = 바닥.
 public enum ePlacementSurface
 {
     Floor,
@@ -19,7 +19,7 @@ public class TilePlacementArea : MonoBehaviour
     private static readonly Color HIGHLIGHT_BORDER = new Color(1f, 1f, 0.75f, 0.85f);
 
     [SerializeField] private Tilemap mTilemap;
-    // 이 층 배경의 벽 타일맵(BackgroundGrid/World_N/WallTilemap). 비어 있으면 모든 셀을 바닥으로 취급한다.
+    // 벽 가구를 놓을 수 있는 셀을 칠해 둔 보이지 않는 타일맵(PlaceableObjects/PlacementWallTilemap). 비어 있으면 모든 셀을 바닥으로 취급한다.
     [SerializeField] private Tilemap mWallTilemap;
 
     private struct BaseSlot
@@ -59,6 +59,16 @@ public class TilePlacementArea : MonoBehaviour
             Bounds bounds = new Bounds();
             bounds.SetMinMax(min, max);
             return bounds;
+        }
+    }
+
+    // 이 영역이 속한 층 번호(부모 WaypointGroup.Order). 세이브에 가구의 층을 기록하는 데 쓴다.
+    public int Floor
+    {
+        get
+        {
+            var group = GetComponentInParent<WaypointGroup>();
+            return group != null ? group.Order : 0;
         }
     }
 
@@ -195,7 +205,7 @@ public class TilePlacementArea : MonoBehaviour
         HideHighlight();
     }
 
-    // 배치 셀이 벽인지 바닥인지. 벽 타일맵은 다른 Grid(BackgroundGrid)에 있어 월드 좌표로 변환해 조회한다.
+    // 배치 셀이 벽인지 바닥인지. 벽 타일맵이 다른 Grid에 있어도 되도록 월드 좌표로 변환해 조회한다.
     public ePlacementSurface GetSurface(Vector3Int cell)
     {
         if (mWallTilemap == null || mTilemap == null)
@@ -351,13 +361,21 @@ public class TilePlacementArea : MonoBehaviour
         return cells;
     }
 
-    private Vector3Int GetFootprintOrigin(Vector3 worldPos, Vector2Int footprintCells)
+    // footprintCells 크기 가구의 기준 셀(좌하단). worldPos는 가구 중심.
+    // 짝수 칸 가구는 스냅된 중심이 칸 경계에 걸려 WorldToCell이 부동소수 오차로 한 칸 밀릴 수 있다 —
+    // 그 축은 반 칸 밀어서 경계가 아닌 칸 안쪽에서 셀을 구한다(GetFootprintCenterWorld와 왕복해도 같은 셀이 나오게).
+    public Vector3Int GetFootprintOrigin(Vector3 worldPos, Vector2Int footprintCells)
     {
+        Vector3 cellSize = mTilemap.layoutGrid.cellSize;
+        worldPos.x += footprintCells.x % 2 == 0 ? cellSize.x * 0.5f : 0f;
+        worldPos.y += footprintCells.y % 2 == 0 ? cellSize.y * 0.5f : 0f;
+
         Vector3Int center = mTilemap.WorldToCell(worldPos);
-        return new Vector3Int(center.x - footprintCells.x / 2, center.y - footprintCells.y / 2, center.z);
+        return new Vector3Int(center.x - footprintCells.x / 2, center.y - footprintCells.y / 2, 0);
     }
 
-    private Vector3 GetFootprintCenterWorld(Vector3Int origin, Vector2Int footprintCells, float z)
+    // 기준 셀(origin)에서 footprintCells만큼 차지할 때의 가구 중심 월드 좌표.
+    public Vector3 GetFootprintCenterWorld(Vector3Int origin, Vector2Int footprintCells, float z)
     {
         Vector3 min = mTilemap.GetCellCenterWorld(origin);
         Vector3 max = mTilemap.GetCellCenterWorld(new Vector3Int(origin.x + footprintCells.x - 1, origin.y + footprintCells.y - 1, origin.z));

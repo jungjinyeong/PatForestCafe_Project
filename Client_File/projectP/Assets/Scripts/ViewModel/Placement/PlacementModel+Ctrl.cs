@@ -5,23 +5,27 @@ public partial class PlacementModel
 {
     public IEnumerable<KeyValuePair<int, PlacedFurnitureRecord>> GetAllPlacements() => mDicPlacedFurniture;
 
-    public int RegisterPlacement(int tid, Vector3 position, bool isSub = false)
+    public int RegisterPlacement(int tid, Vector3 position, int floor, Vector2Int cell, bool isSub = false)
     {
         int placementId = mNextPlacementId++;
-        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, IsSub = isSub };
+        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, IsSub = isSub };
         return placementId;
     }
 
-    public void UpdatePlacementPosition(int placementId, Vector3 position)
+    public void UpdatePlacementPosition(int placementId, Vector3 position, int floor, Vector2Int cell)
     {
-        if (mDicPlacedFurniture.TryGetValue(placementId, out var record))
-            record.Position = position;
+        if (!mDicPlacedFurniture.TryGetValue(placementId, out var record))
+            return;
+
+        record.Position = position;
+        record.Floor = floor;
+        record.Cell = cell;
     }
 
     // 세이브 로드 복원 전용 — 저장된 id를 그대로 재사용해야 이후 이동 시 같은 레코드를 갱신한다.
-    public void RestorePlacement(int placementId, int tid, Vector3 position, int assignedBreadTid = 0, bool isSub = false)
+    public void RestorePlacement(int placementId, int tid, Vector3 position, int floor, Vector2Int cell, int assignedBreadTid = 0, bool isSub = false)
     {
-        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, AssignedBreadTid = assignedBreadTid, IsSub = isSub };
+        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, AssignedBreadTid = assignedBreadTid, IsSub = isSub };
 
         if (placementId >= mNextPlacementId)
             mNextPlacementId = placementId + 1;
@@ -118,10 +122,13 @@ public partial class PlacementModel
         var placeable = mPlaceable;
         if (placeable != null && placeable.FurnitureTid > 0)
         {
+            var origin = mArea.GetFootprintOrigin(mTarget.position, mFootprint);
+            var cell = new Vector2Int(origin.x, origin.y);
+
             if (placeable.PlacementId < 0)
-                placeable.SetPlacementId(RegisterPlacement(placeable.FurnitureTid, mTarget.position, placeable.IsSubFurniture));
+                placeable.SetPlacementId(RegisterPlacement(placeable.FurnitureTid, mTarget.position, mArea.Floor, cell, placeable.IsSubFurniture));
             else
-                UpdatePlacementPosition(placeable.PlacementId, mTarget.position);
+                UpdatePlacementPosition(placeable.PlacementId, mTarget.position, mArea.Floor, cell);
 
             if (placeable.IsSubFurniture)
                 mArea.OccupySub(mTarget.position, mFootprint, placeable.PlacementId);
@@ -258,8 +265,9 @@ public partial class PlacementModel
     // 씬의 TilePlacementArea/WaypointGroup이 등록된 뒤(UIRootLobby.Init)에 호출해야 한다.
     public void RespawnSavedFurniture()
     {
-        // 층마다 별도 TilePlacementArea가 있어 "아무 영역이나 하나" 쓰면 안 된다 — 저장된 절대좌표를
-        // 실제로 포함하는 영역을 찾아 그 층에 맞게 연결해야, 이후 재드래그 시 올바른 층 범위 안에서 스냅된다.
+        // 층마다 별도 TilePlacementArea가 있어 "아무 영역이나 하나" 쓰면 안 된다 — 저장된 층(Floor)의 영역에 연결하고
+        // 위치는 그 영역의 셀(Cell)로 다시 계산한다. 그래야 칸 배치/Grid 위치가 바뀌어도 가구가 같은 칸에 놓인다.
+        // Floor가 없는 구 세이브(월드 좌표만 저장)는 저장 좌표를 포함하는 영역을 찾아 층/셀을 역산해 채운다.
         var allAreas = Object.FindObjectsByType<TilePlacementArea>(FindObjectsSortMode.None);
 
         foreach (var kvp in mDicPlacedFurniture)
@@ -278,7 +286,10 @@ public partial class PlacementModel
                 continue;
             }
 
-            var area = FindAreaContaining(allAreas, record.Position);
+            var area = record.Floor > 0 ? FindAreaByFloor(allAreas, record.Floor) : null;
+            if (area == null)
+                area = FindAreaContaining(allAreas, record.Position);
+
             var instance = Object.Instantiate(prefab, record.Position, Quaternion.identity, area != null ? area.transform : null);
             var placeable = instance.GetComponent<PlaceableObject>();
             if (placeable == null)
@@ -288,6 +299,21 @@ public partial class PlacementModel
                 placeable.SetSubFurnitureTid(record.Tid);
             else
                 placeable.SetFurnitureTid(record.Tid);
+
+            // footprint는 Tid 지정 후에야 알 수 있으므로 위치 보정은 여기서 한다.
+            if (area != null)
+            {
+                if (record.Floor <= 0 || area.Floor != record.Floor)
+                {
+                    var legacyOrigin = area.GetFootprintOrigin(record.Position, placeable.Footprint);
+                    record.Floor = area.Floor;
+                    record.Cell = new Vector2Int(legacyOrigin.x, legacyOrigin.y);
+                }
+
+                var origin = new Vector3Int(record.Cell.x, record.Cell.y, 0);
+                record.Position = area.GetFootprintCenterWorld(origin, placeable.Footprint, record.Position.z);
+                instance.transform.position = record.Position;
+            }
 
             placeable.SetPlacementId(placementId);
             placeable.SetArea(area);
@@ -368,6 +394,18 @@ public partial class PlacementModel
         if (row == null)
             Logger.Warning($"[PlacementModel] 저장된 가구 Tid를 찾을 수 없습니다. Tid={tid}");
         return row?.PrefabPath;
+    }
+
+    private static TilePlacementArea FindAreaByFloor(TilePlacementArea[] areas, int floor)
+    {
+        foreach (var area in areas)
+        {
+            if (area != null && area.Floor == floor)
+                return area;
+        }
+
+        Logger.Warning($"[PlacementModel] {floor}층의 TilePlacementArea를 찾지 못했습니다. 저장된 월드 좌표로 영역을 다시 찾습니다.");
+        return null;
     }
 
     private static TilePlacementArea FindAreaContaining(TilePlacementArea[] areas, Vector3 position)

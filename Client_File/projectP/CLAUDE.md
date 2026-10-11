@@ -13,9 +13,16 @@ Assets/
 ├── CSV/                              # 데이터 테이블 csv
 ├── CTable/                           # 데이터 테이블 스크립트
 ├── Scenes/                           # 씬 파일
-├── Datas/Textures/                   # 텍스처 이미지
+├── Datas/Texture/                    # 텍스처 이미지
 ├── Datas/Characters/                 # 캐릭터 프리팹
 ├── Datas/Characters/Animations/      # 애니메이션 클립 및 컨트롤러
+├── Datas/FurnitureArt/               # 가구 아트 원본 (png, 타일 에셋, 타일 팔레트)
+│   ├── Tiles/                        # 바닥·벽 타일 및 타일 팔레트
+│   ├── Display/                      # 빵·상품 진열용 가구 = 매장용
+│   └── Dining/                       # 손님이 사용하는 테이블·의자 = 테라스용
+├── Datas/FurniturePrefabs/           # 배치용 가구 프리팹만 (FurnitureArt와 같은 하위 분류)
+│                                     #  Addressables 그룹 FurniturePrefabs, 주소 FurniturePrefabs/{프리팹명}
+│                                     #  = Furniture.csv / SubFurniture.csv의 PrefabPath
 └── Datas/UI/                         # UI 관련 에셋
 ```
 

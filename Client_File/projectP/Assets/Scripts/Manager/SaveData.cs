@@ -40,6 +40,9 @@ public class PlacedFurnitureSaveEntry
     public int PlacementId;
     public int Tid;
     public Vector3 Position;
+    // 층(WaypointGroup.Order) + footprint 기준 셀. 0층이면 Floor/Cell이 없던 구 세이브.
+    public int Floor;
+    public Vector2Int Cell;
     public int AssignedBreadTid;
     // true면 CTable.SubFurnitureRow, false면 CTable.FurnitureRow 소속 Tid.
     public bool IsSub;
