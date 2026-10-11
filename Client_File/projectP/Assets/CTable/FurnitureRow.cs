@@ -22,5 +22,6 @@ namespace CTable
         public string FrontResourceName;
         public string SideResourceName;
         public int FurnitureType;
+        public int Category;
     }
 }

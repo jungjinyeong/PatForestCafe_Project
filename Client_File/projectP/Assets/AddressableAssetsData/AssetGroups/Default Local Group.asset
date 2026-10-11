@@ -14,7 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Default Local Group
   m_GUID: f579d8088ccfb534ea802bd1b871588b
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 6851f3cc6ac03c143a9e4e90a0549135
+    m_Address: FurnitureAtlas
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 50a14d6e0cac9554a8b608e24836664d, type: 2}
   m_SchemaSet:

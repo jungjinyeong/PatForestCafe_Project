@@ -13,6 +13,8 @@ public class UIPopupPlacementConfirm : UIWndBase, IUIParam<UIPopupPlacementConfi
 
     [SerializeField] private UIButtonEx mBtnConfirm;
     [SerializeField] private UIButtonEx mBtnCancel;
+    // 회전 가능한 가구(표의 CanRotate)를 배치 중일 때만 보인다. PC는 R키로도 돌릴 수 있다.
+    [SerializeField] private UIButtonEx mBtnRotate;
 
     public override eUIType GetUIType() => eUIType.PopupPlacementConfirm;
 
@@ -22,6 +24,16 @@ public class UIPopupPlacementConfirm : UIWndBase, IUIParam<UIPopupPlacementConfi
 
         mBtnConfirm.OnSubscribeOnClick(OnClickConfirm).AddTo(this);
         mBtnCancel.OnSubscribeOnClick(OnClickCancel).AddTo(this);
+        if (mBtnRotate != null)
+            mBtnRotate.OnSubscribeOnClick(OnClickRotate).AddTo(this);
+    }
+
+    public override void Open()
+    {
+        base.Open();
+
+        if (mBtnRotate != null)
+            mBtnRotate.gameObject.SetActive(GameInstance.Model.Placement.CanRotatePlacing);
     }
 
     public void Set(Param param)
@@ -36,5 +48,10 @@ public class UIPopupPlacementConfirm : UIWndBase, IUIParam<UIPopupPlacementConfi
     private void OnClickCancel()
     {
         GameInstance.Model.Placement.Cancel();
+    }
+
+    private void OnClickRotate()
+    {
+        GameInstance.Model.Placement.RotatePlacing();
     }
 }

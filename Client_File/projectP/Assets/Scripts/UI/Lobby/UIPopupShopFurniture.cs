@@ -15,16 +15,28 @@ public class UIPopupShopFurniture : UIWndBase, IUIParam<UIPopupShopFurniture.Par
 
     [SerializeField] private Transform mListContainer;
     [SerializeField] private GameObject mRowButtonTemplate;
+    [SerializeField] private UIFurnitureCategoryTabs mCategoryTabs;
 
     private readonly List<GameObject> mSpawnedRows = new List<GameObject>();
 
     public override eUIType GetUIType() => eUIType.PopupShopFurniture;
 
+    public override void Init()
+    {
+        base.Init();
+
+        if (mCategoryTabs != null)
+            mCategoryTabs.Init(_ => RefreshList());
+    }
+
     public override void Open()
     {
         base.Open();
 
-        RefreshList();
+        if (mCategoryTabs != null)
+            mCategoryTabs.Select(CTable.eFurnitureCategory.All);
+        else
+            RefreshList();
     }
 
     public void Set(Param param)
@@ -33,21 +45,26 @@ public class UIPopupShopFurniture : UIWndBase, IUIParam<UIPopupShopFurniture.Par
 
     private void RefreshList()
     {
+        // Destroy는 프레임 끝에 처리되므로, 탭을 바꾼 같은 프레임에 이전 행이 새 행과 겹쳐 보이지 않게 먼저 숨긴다.
         foreach (var go in mSpawnedRows)
+        {
+            go.SetActive(false);
             Destroy(go);
+        }
         mSpawnedRows.Clear();
 
         if (mListContainer == null || mRowButtonTemplate == null)
             return;
 
-        foreach (var data in GameInstance.Model.Placement.BuildFurnitureShopData())
+        var category = mCategoryTabs != null ? mCategoryTabs.Selected : CTable.eFurnitureCategory.All;
+        foreach (var data in GameInstance.Model.Placement.BuildFurnitureShopData(category))
         {
             var row = Instantiate(mRowButtonTemplate, mListContainer);
             row.SetActive(true);
 
             var text = row.GetComponentInChildren<TextMeshProUGUI>();
             if (text != null)
-                text.text = $"{data.Name}  {data.Price:N0}G";
+                text.text = $"{data.Name} <size=80%>{data.SizeText}</size>  {data.Price:N0}G";
 
             var btn = row.GetComponent<UIButtonEx>();
             var captured = data;

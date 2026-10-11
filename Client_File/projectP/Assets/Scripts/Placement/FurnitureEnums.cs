@@ -24,4 +24,27 @@ namespace CTable
         Tile,       // 타일
         Carpet,     // 카펫
     }
+
+    // 배치된 가구가 바라보는 방향. 프리팹은 Down(정면이 아래) 기준으로 만들고, 회전할 때마다 Down→Right→Up→Left 순서로
+    // 칸/손님 위치를 반시계 90°씩 돌린다(정면이 아래→오른쪽을 보게 됨). 그림은 Down/Up=앞면, Right=옆면, Left=옆면 좌우반전.
+    public enum eFurnitureDirection
+    {
+        Down,
+        Right,
+        Up,
+        Left,
+    }
+
+    // FurnitureRow.Category / SubFurnitureRow.Category(int)를 코드에서 읽을 때 쓰는 타입. 가구 구입 목록의 탭 분류.
+    // All은 표에 쓰지 않는 "전체" 탭 전용 값이다.
+    public enum eFurnitureCategory
+    {
+        All,        // 전체
+        Display,    // 진열대
+        Table,      // 테이블
+        Chair,      // 의자
+        Stand,      // 스탠드
+        Deco,       // 장식
+        Partition,  // 파티션
+    }
 }

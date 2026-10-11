@@ -1,0 +1,131 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: FurnitureAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 2
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 4445c349271a3c344b830575652a76fc, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - 9e931e611d5f0a843bb7261291f99f0c: -1127541704
+    - 9e931e611d5f0a843bb7261291f99f0c: -918457108
+    - 9e931e611d5f0a843bb7261291f99f0c: 18312565
+    - 21b8e1834c215544d86a52f4e5bcdd3c: -332665530
+    - 21b8e1834c215544d86a52f4e5bcdd3c: -609649123
+    - 21b8e1834c215544d86a52f4e5bcdd3c: 1489791817
+    - 7f1ad924060479a428ac23445350d4a2: 1578955239
+    - 7f1ad924060479a428ac23445350d4a2: -3205622
+    - 7f1ad924060479a428ac23445350d4a2: 1219819989
+    - 0cd097f515e5d1441a76513e75535ed3: -563552300
+    - 0cd097f515e5d1441a76513e75535ed3: 1492681866
+    - 0cd097f515e5d1441a76513e75535ed3: 1377592216
+    - 295184982f62fc0418e173026550f6a2: 321291503
+    - 295184982f62fc0418e173026550f6a2: -1154975165
+    - 295184982f62fc0418e173026550f6a2: 253644315
+    - 295184982f62fc0418e173026550f6a2: -295997903
+    - 295184982f62fc0418e173026550f6a2: -206245224
+    - 295184982f62fc0418e173026550f6a2: 342822638
+    - 6fa9b0a976860d241a29973fbb98acc9: 21300000
+    - 49c14ed931e7a704fa835c6926d5425f: -1379338596
+    - 49c14ed931e7a704fa835c6926d5425f: 1821350149
+    - 49c14ed931e7a704fa835c6926d5425f: -1615792788
+    - f798dbeb53727d643ad723b31d5269a5: 1988095989
+    - f798dbeb53727d643ad723b31d5269a5: 1615864167
+    - f798dbeb53727d643ad723b31d5269a5: 949048528
+    - 9abd17ee35bc03845908e815d40c48c6: -1895748916
+    - 9abd17ee35bc03845908e815d40c48c6: 2232369
+    - 9abd17ee35bc03845908e815d40c48c6: 2120080677
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: -1127541704, guid: 9e931e611d5f0a843bb7261291f99f0c, type: 3}
+  - {fileID: -918457108, guid: 9e931e611d5f0a843bb7261291f99f0c, type: 3}
+  - {fileID: 18312565, guid: 9e931e611d5f0a843bb7261291f99f0c, type: 3}
+  - {fileID: -332665530, guid: 21b8e1834c215544d86a52f4e5bcdd3c, type: 3}
+  - {fileID: -609649123, guid: 21b8e1834c215544d86a52f4e5bcdd3c, type: 3}
+  - {fileID: 1489791817, guid: 21b8e1834c215544d86a52f4e5bcdd3c, type: 3}
+  - {fileID: 1578955239, guid: 7f1ad924060479a428ac23445350d4a2, type: 3}
+  - {fileID: -3205622, guid: 7f1ad924060479a428ac23445350d4a2, type: 3}
+  - {fileID: 1219819989, guid: 7f1ad924060479a428ac23445350d4a2, type: 3}
+  - {fileID: -563552300, guid: 0cd097f515e5d1441a76513e75535ed3, type: 3}
+  - {fileID: 1492681866, guid: 0cd097f515e5d1441a76513e75535ed3, type: 3}
+  - {fileID: 1377592216, guid: 0cd097f515e5d1441a76513e75535ed3, type: 3}
+  - {fileID: 321291503, guid: 295184982f62fc0418e173026550f6a2, type: 3}
+  - {fileID: -1154975165, guid: 295184982f62fc0418e173026550f6a2, type: 3}
+  - {fileID: 253644315, guid: 295184982f62fc0418e173026550f6a2, type: 3}
+  - {fileID: -295997903, guid: 295184982f62fc0418e173026550f6a2, type: 3}
+  - {fileID: -206245224, guid: 295184982f62fc0418e173026550f6a2, type: 3}
+  - {fileID: 342822638, guid: 295184982f62fc0418e173026550f6a2, type: 3}
+  - {fileID: 21300000, guid: 6fa9b0a976860d241a29973fbb98acc9, type: 3}
+  - {fileID: -1379338596, guid: 49c14ed931e7a704fa835c6926d5425f, type: 3}
+  - {fileID: 1821350149, guid: 49c14ed931e7a704fa835c6926d5425f, type: 3}
+  - {fileID: -1615792788, guid: 49c14ed931e7a704fa835c6926d5425f, type: 3}
+  - {fileID: 1988095989, guid: f798dbeb53727d643ad723b31d5269a5, type: 3}
+  - {fileID: 1615864167, guid: f798dbeb53727d643ad723b31d5269a5, type: 3}
+  - {fileID: 949048528, guid: f798dbeb53727d643ad723b31d5269a5, type: 3}
+  - {fileID: -1895748916, guid: 9abd17ee35bc03845908e815d40c48c6, type: 3}
+  - {fileID: 2232369, guid: 9abd17ee35bc03845908e815d40c48c6, type: 3}
+  - {fileID: 2120080677, guid: 9abd17ee35bc03845908e815d40c48c6, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - flr_0110_ForestGardenStone_Natural_2
+  - flr_0110_ForestGardenStone_Natural_1
+  - flr_0110_ForestGardenStone_Natural_0
+  - flr_0113_ForestGardenStone_Moss_1
+  - flr_0113_ForestGardenStone_Moss_0
+  - flr_0113_ForestGardenStone_Moss_2
+  - wal_0100_forest_stone_wall_set_0
+  - wal_0100_forest_stone_wall_set_1
+  - wal_0100_forest_stone_wall_set_2
+  - flr_0114_ForestGardenStone_Moonlight_1
+  - flr_0114_ForestGardenStone_Moonlight_0
+  - flr_0114_ForestGardenStone_Moonlight_2
+  - flr_0100_forest_path_stone_tile_5
+  - flr_0100_forest_path_stone_tile_4
+  - flr_0100_forest_path_stone_tile_1
+  - flr_0100_forest_path_stone_tile_0
+  - flr_0100_forest_path_stone_tile_3
+  - flr_0100_forest_path_stone_tile_2
+  - fur_0100_bread_display_table_v01
+  - flr_0112_ForestGardenStone_Autumn_2
+  - flr_0112_ForestGardenStone_Autumn_0
+  - flr_0112_ForestGardenStone_Autumn_1
+  - flr_0111_ForestGardenStone_Blossom_2
+  - flr_0111_ForestGardenStone_Blossom_0
+  - flr_0111_ForestGardenStone_Blossom_1
+  - wal_0110_forest_vine_wall_set_0
+  - wal_0110_forest_vine_wall_set_1
+  - wal_0110_forest_vine_wall_set_2
+  m_RenderDataMap: {}
+  m_Tag: FurnitureAtlas
+  m_IsVariant: 0
+  m_Guid: 6851f3cc6ac03c143a9e4e90a0549135

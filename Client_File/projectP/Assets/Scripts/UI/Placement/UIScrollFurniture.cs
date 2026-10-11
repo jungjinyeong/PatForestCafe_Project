@@ -11,6 +11,13 @@ public class UIScrollFurnitureData
     public string PrefabPath;
     // true면 CTable.SubFurnitureRow, false면 CTable.FurnitureRow 소속 Tid.
     public bool IsSub;
+    // 구입 목록 탭 분류(표의 Category).
+    public CTable.eFurnitureCategory Category;
+    // 차지하는 칸 수(가로×세로). 목록에 "1×3"처럼 표시한다.
+    public int Width;
+    public int Height;
+
+    public string SizeText => $"{Width}×{Height}";
 }
 
 public class UIScrollFurniture : UIScrollRow<UIScrollFurnitureData>
@@ -31,7 +38,7 @@ public class UIScrollFurniture : UIScrollRow<UIScrollFurnitureData>
         CurrentData = data;
         if (data == null) return;
 
-        mName.SetTextEx(data.Name);
+        mName.SetTextEx($"{data.Name}\n<size=70%>{data.SizeText}</size>");
         mPrice.SetTextEx(data.Price.ToString());
     }
 }

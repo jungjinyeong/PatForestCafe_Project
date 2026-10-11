@@ -46,6 +46,8 @@ public class PlacedFurnitureSaveEntry
     public int AssignedBreadTid;
     // true면 CTable.SubFurnitureRow, false면 CTable.FurnitureRow 소속 Tid.
     public bool IsSub;
+    // 가구 방향(CTable.eFurnitureDirection). 구 세이브는 0(Down).
+    public int Direction;
 }
 
 [Serializable]

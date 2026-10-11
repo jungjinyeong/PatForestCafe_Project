@@ -13,6 +13,7 @@ public class UIPopupFurnitureList : UIWndBase, IUIParam<UIPopupFurnitureList.Par
 
     [SerializeField] private UIScrollEx mScrollEx;
     [SerializeField] private GameObject mFurnitureRowPrefab;
+    [SerializeField] private UIFurnitureCategoryTabs mCategoryTabs;
 
     [Header("Reset")]
     [SerializeField] private UIButtonEx mBtnResetPlacement;
@@ -26,6 +27,9 @@ public class UIPopupFurnitureList : UIWndBase, IUIParam<UIPopupFurnitureList.Par
         mScrollEx.Init(mFurnitureRowPrefab);
         mScrollEx.SetOnSelect(OnClickAdd);
 
+        if (mCategoryTabs != null)
+            mCategoryTabs.Init(_ => RefreshList());
+
         if (mBtnResetPlacement != null)
             mBtnResetPlacement.OnSubscribeOnClick(OnClickReset).AddTo(this);
     }
@@ -34,11 +38,20 @@ public class UIPopupFurnitureList : UIWndBase, IUIParam<UIPopupFurnitureList.Par
     {
         base.Open();
 
-        mScrollEx.SetData(GameInstance.Model.Placement.BuildFurnitureShopData());
+        if (mCategoryTabs != null)
+            mCategoryTabs.Select(CTable.eFurnitureCategory.All);
+        else
+            RefreshList();
     }
 
     public void Set(Param param)
     {
+    }
+
+    private void RefreshList()
+    {
+        var category = mCategoryTabs != null ? mCategoryTabs.Selected : CTable.eFurnitureCategory.All;
+        mScrollEx.SetData(GameInstance.Model.Placement.BuildFurnitureShopData(category));
     }
 
     private void OnClickAdd(UIScrollRow row)

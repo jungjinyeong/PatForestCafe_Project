@@ -29,6 +29,11 @@ public class PlaceableObject : MonoBehaviour
     [SerializeField] private Color mValidColor = Color.white;
     [SerializeField] private Color mInvalidColor = new Color(1f, 0.4f, 0.4f, 0.6f);
 
+    [Header("Clearance")]
+    [Tooltip("다른 가구를 놓지 못하게 비워둘 칸. 가구 정면이 아래(Down)일 때 기준, 가구 좌하단 칸이 (0,0). 예: 왼쪽 (-1,0), 아래 (0,-1).\n" +
+             "벽/배치 영역 밖에 걸려도 배치는 되고, 바닥타일·카펫은 이 칸에 깔 수 있다. 회전하면 같이 돈다. 선택하면 Scene 뷰에 빨간 칸으로 보인다.")]
+    [SerializeField] private List<Vector2Int> mClearanceOffsets = new List<Vector2Int>();
+
     private static readonly List<RaycastResult> mUIRaycastResults = new List<RaycastResult>();
 
     private BoxCollider2D mCollider;
@@ -48,6 +53,25 @@ public class PlaceableObject : MonoBehaviour
     private int mGroupId;
     // sub가구가 올라갈 수 있는 베이스 그룹(SubFurnitureRow.AllowedGroupId). 베이스 가구에게는 의미 없음(0).
     private int mAllowedGroupId;
+    // 손님이 서는 접근 칸(footprint 기준 셀 기준 오프셋). 프리팹 자식 Waypoint 위치에서 계산한다(빵 테이블의 Waypoint_1 등).
+    private readonly List<Vector2Int> mAccessOffsets = new List<Vector2Int>();
+    // 현재 방향으로 돌린 비워둘 칸(mClearanceOffsets는 Down 기준 원본).
+    private readonly List<Vector2Int> mRotatedClearanceOffsets = new List<Vector2Int>();
+
+    // 회전 전(Down) 기준값. 회전할 때마다 여기서 다시 계산해 오차가 쌓이지 않게 한다.
+    private bool mIsBaseCached;
+    private Vector2Int mBaseFootprint = Vector2Int.one;
+    private Waypoint[] mWaypoints;
+    private Vector3[] mWaypointBaseLocals;
+    private Vector2 mBaseColliderOffset;
+    private Vector2 mBaseColliderSize;
+    private Sprite mBaseSprite;
+
+    private CTable.eFurnitureDirection mDirection = CTable.eFurnitureDirection.Down;
+    private bool mCanRotate;
+    private string mAtlas;
+    private string mFrontResourceName;
+    private string mSideResourceName;
 
     public int FurnitureTid => mFurnitureTid;
     public int PlacementId => mPlacementId;
@@ -55,6 +79,11 @@ public class PlaceableObject : MonoBehaviour
     public int GroupId => mGroupId;
     public int AllowedGroupId => mAllowedGroupId;
     public Vector2Int Footprint => mFootprint;
+    public IReadOnlyList<Vector2Int> AccessOffsets => mAccessOffsets;
+    public IReadOnlyList<Vector2Int> ClearanceOffsets => mRotatedClearanceOffsets;
+    public CTable.eFurnitureDirection Direction => mDirection;
+    // 표의 CanRotate. sub가구는 회전하지 않는다.
+    public bool CanRotate => mCanRotate && !mIsSubFurniture;
 
     // 벽 가구(FurnitureType=벽 또는 FixedType=벽고정)는 벽 셀에만, 나머지 베이스 가구는 바닥 셀에만 배치된다.
     public ePlacementSurface Surface { get; private set; } = ePlacementSurface.Floor;
@@ -69,7 +98,7 @@ public class PlaceableObject : MonoBehaviour
         mIsSubFurniture = false;
 
         var row = GameInstance.Table.Get<CTable.FurnitureRow>(tid);
-        mFootprint = row != null
+        mBaseFootprint = row != null
             ? new Vector2Int(Mathf.Max(1, row.Width), Mathf.Max(1, row.Height))
             : Vector2Int.one;
         mGroupId = row != null ? row.GroupId : 0;
@@ -77,8 +106,130 @@ public class PlaceableObject : MonoBehaviour
             ? ePlacementSurface.Wall
             : ePlacementSurface.Floor;
         LayoutOrder = row != null ? Mathf.Max(0, row.LayoutOrder) : LAYER_CARPET + 1;
+        mCanRotate = row != null && row.CanRotate;
+        mAtlas = row?.Atlas;
+        mFrontResourceName = row?.FrontResourceName;
+        mSideResourceName = row?.SideResourceName;
 
+        CacheBaseLayout();
+        SetDirection(CTable.eFurnitureDirection.Down);
         ApplySortingOrder();
+    }
+
+    // 방향을 바꾼다: footprint 가로/세로, 손님 칸(자식 Waypoint 위치), 비워둘 칸, 콜라이더, 그림(앞면/옆면/좌우반전)을 함께 돌린다.
+    // 픽셀아트라 스프라이트 자체는 돌리지 않는다.
+    public void SetDirection(CTable.eFurnitureDirection direction)
+    {
+        if (mIsSubFurniture)
+            return;
+
+        CacheBaseLayout();
+
+        mDirection = direction;
+        int steps = (int)direction;
+        mFootprint = steps % 2 == 0 ? mBaseFootprint : new Vector2Int(mBaseFootprint.y, mBaseFootprint.x);
+
+        // 가구 루트 = footprint 중심이라, 자식 로컬 위치는 원점 기준으로 돌리면 된다.
+        for (int i = 0; i < mWaypoints.Length; i++)
+        {
+            if (mWaypoints[i] == null)
+                continue;
+
+            Vector2 rotated = RotateCounterClockwise(mWaypointBaseLocals[i], steps);
+            mWaypoints[i].transform.position = transform.TransformPoint(new Vector3(rotated.x, rotated.y, mWaypointBaseLocals[i].z));
+        }
+
+        if (mCollider != null)
+        {
+            mCollider.offset = RotateCounterClockwise(mBaseColliderOffset, steps);
+            mCollider.size = steps % 2 == 0 ? mBaseColliderSize : new Vector2(mBaseColliderSize.y, mBaseColliderSize.x);
+        }
+
+        mRotatedClearanceOffsets.Clear();
+        foreach (var offset in mClearanceOffsets)
+            mRotatedClearanceOffsets.Add(RotateCellOffset(offset, mBaseFootprint, steps));
+
+        RefreshAccessOffsets();
+        ApplyDirectionSprite();
+    }
+
+    // 다음 방향(Down→Right→Up→Left→Down).
+    public CTable.eFurnitureDirection GetNextDirection()
+    {
+        return (CTable.eFurnitureDirection)(((int)mDirection + 1) % 4);
+    }
+
+    // 회전 기준값은 프리팹 원래 상태(Down)에서 한 번만 잡는다. 이후 회전은 항상 이 값에서 다시 계산한다.
+    private void CacheBaseLayout()
+    {
+        if (mIsBaseCached)
+            return;
+
+        mIsBaseCached = true;
+        mWaypoints = GetComponentsInChildren<Waypoint>(true);
+        mWaypointBaseLocals = new Vector3[mWaypoints.Length];
+        for (int i = 0; i < mWaypoints.Length; i++)
+            mWaypointBaseLocals[i] = transform.InverseTransformPoint(mWaypoints[i].transform.position);
+
+        if (mCollider == null)
+            mCollider = GetComponent<BoxCollider2D>();
+        mBaseColliderOffset = mCollider != null ? mCollider.offset : Vector2.zero;
+        mBaseColliderSize = mCollider != null ? mCollider.size : Vector2.one;
+        mBaseSprite = mSpriteRenderer != null ? mSpriteRenderer.sprite : null;
+    }
+
+    private static Vector2 RotateCounterClockwise(Vector2 v, int steps)
+    {
+        for (int i = 0; i < steps; i++)
+            v = new Vector2(-v.y, v.x);
+        return v;
+    }
+
+    // footprint 좌하단 기준 셀 오프셋을 돌린다: footprint 중심 기준으로 바꿔 회전한 뒤, 돌아간 footprint의 좌하단 기준으로 되돌린다.
+    private static Vector2Int RotateCellOffset(Vector2Int offset, Vector2Int baseFootprint, int steps)
+    {
+        var center = new Vector2(offset.x - (baseFootprint.x - 1) * 0.5f, offset.y - (baseFootprint.y - 1) * 0.5f);
+        Vector2 rotated = RotateCounterClockwise(center, steps);
+        var footprint = steps % 2 == 0 ? baseFootprint : new Vector2Int(baseFootprint.y, baseFootprint.x);
+        return new Vector2Int(
+            Mathf.RoundToInt(rotated.x + (footprint.x - 1) * 0.5f),
+            Mathf.RoundToInt(rotated.y + (footprint.y - 1) * 0.5f));
+    }
+
+    // 자식 Waypoint(손님이 서는 위치)가 놓인 칸을 footprint 기준 셀(좌하단) 오프셋으로 바꿔 둔다. 1칸 = 로컬 1 단위.
+    // 프리팹에서 Waypoint를 옮기면 접근 칸도 따라 바뀐다. 가구 자신의 칸 안에 있는 Waypoint는 제외.
+    private void RefreshAccessOffsets()
+    {
+        mAccessOffsets.Clear();
+
+        foreach (var waypoint in GetComponentsInChildren<Waypoint>(true))
+        {
+            Vector3 local = transform.InverseTransformPoint(waypoint.transform.position);
+            var offset = new Vector2Int(
+                Mathf.RoundToInt(local.x + (mFootprint.x - 1) * 0.5f),
+                Mathf.RoundToInt(local.y + (mFootprint.y - 1) * 0.5f));
+
+            bool insideSelf = offset.x >= 0 && offset.x < mFootprint.x && offset.y >= 0 && offset.y < mFootprint.y;
+            if (!insideSelf && !mAccessOffsets.Contains(offset))
+                mAccessOffsets.Add(offset);
+        }
+    }
+
+    // 방향별 그림: Down/Up = 표의 FrontResourceName, Right = SideResourceName, Left = SideResourceName 좌우반전.
+    // 벽지처럼 여러 가구가 프리팹 하나를 같이 쓰는 경우에도 이 경로로 그림만 바꿔 끼운다.
+    // 아틀라스에 해당 스프라이트가 없으면 프리팹에 지정된 그림을 그대로 쓴다(옆면 그림이 없으면 앞면 그림 + 좌우반전만).
+    private void ApplyDirectionSprite()
+    {
+        if (mSpriteRenderer == null)
+            return;
+
+        bool isSide = mDirection == CTable.eFurnitureDirection.Right || mDirection == CTable.eFurnitureDirection.Left;
+        var sprite = isSide ? Extension.ExtensionUI.GetAtlasSprite(mAtlas, mSideResourceName) : null;
+        if (sprite == null)
+            sprite = Extension.ExtensionUI.GetAtlasSprite(mAtlas, mFrontResourceName);
+
+        mSpriteRenderer.sprite = sprite != null ? sprite : mBaseSprite;
+        mSpriteRenderer.flipX = mDirection == CTable.eFurnitureDirection.Left;
     }
 
     // 벽지/바닥타일/카펫처럼 면에 깔리는 가구만 정렬 순서를 레이어에 맞춰 덮어쓴다.
@@ -202,6 +353,12 @@ public class PlaceableObject : MonoBehaviour
             .Where(_ => mIsDragging && Pointer.current != null && Pointer.current.press.wasReleasedThisFrame)
             .Subscribe(_ => OnPointerUp())
             .AddTo(mDragDisposables);
+
+        // PC: 배치 중 R키로 회전(모바일은 확정/취소 옆 회전 버튼).
+        Observable.EveryUpdate()
+            .Where(_ => mIsDragging && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+            .Subscribe(_ => GameInstance.Model.Placement.RotatePlacing())
+            .AddTo(mDragDisposables);
     }
 
     private void OnPointerUp()
@@ -270,4 +427,58 @@ public class PlaceableObject : MonoBehaviour
 
         UpdateVisual(true);
     }
+
+#if UNITY_EDITOR
+    // 작업자 확인용: 선택하면 Scene 뷰에 칸을 그린다 — 가구 칸 흰색, 손님 칸(자식 Waypoint) 파란색, 비워둘 칸 빨간색.
+    // 에디터에서는 표의 가로/세로를 모르므로 콜라이더 크기로 칸 수를 어림한다(1칸 = 로컬 1).
+    private void OnDrawGizmosSelected()
+    {
+        Vector2Int footprint = mFootprint;
+        IEnumerable<Vector2Int> access = mAccessOffsets;
+        IEnumerable<Vector2Int> clearance = mRotatedClearanceOffsets;
+
+        if (!Application.isPlaying || mFurnitureTid <= 0)
+        {
+            var box = GetComponent<BoxCollider2D>();
+            footprint = box != null
+                ? new Vector2Int(Mathf.Max(1, Mathf.RoundToInt(box.size.x)), Mathf.Max(1, Mathf.RoundToInt(box.size.y)))
+                : Vector2Int.one;
+
+            var editAccess = new List<Vector2Int>();
+            foreach (var waypoint in GetComponentsInChildren<Waypoint>(true))
+            {
+                Vector3 local = transform.InverseTransformPoint(waypoint.transform.position);
+                editAccess.Add(new Vector2Int(Mathf.RoundToInt(local.x + (footprint.x - 1) * 0.5f), Mathf.RoundToInt(local.y + (footprint.y - 1) * 0.5f)));
+            }
+            access = editAccess;
+            clearance = mClearanceOffsets;
+        }
+
+        var originCenter = new Vector3(-(footprint.x - 1) * 0.5f, -(footprint.y - 1) * 0.5f, 0f);
+        Gizmos.matrix = transform.localToWorldMatrix;
+
+        Gizmos.color = new Color(1f, 1f, 1f, 0.9f);
+        for (int x = 0; x < footprint.x; x++)
+            for (int y = 0; y < footprint.y; y++)
+                Gizmos.DrawWireCube(originCenter + new Vector3(x, y, 0f), new Vector3(0.95f, 0.95f, 0f));
+
+        DrawGizmoCells(access, originCenter, new Color(0.3f, 0.6f, 1f, 0.45f));
+        DrawGizmoCells(clearance, originCenter, new Color(1f, 0.25f, 0.25f, 0.45f));
+    }
+
+    private static void DrawGizmoCells(IEnumerable<Vector2Int> cells, Vector3 originCenter, Color color)
+    {
+        if (cells == null)
+            return;
+
+        foreach (var cell in cells)
+        {
+            var center = originCenter + new Vector3(cell.x, cell.y, 0f);
+            Gizmos.color = color;
+            Gizmos.DrawCube(center, new Vector3(0.9f, 0.9f, 0f));
+            Gizmos.color = new Color(color.r, color.g, color.b, 1f);
+            Gizmos.DrawWireCube(center, new Vector3(0.9f, 0.9f, 0f));
+        }
+    }
+#endif
 }

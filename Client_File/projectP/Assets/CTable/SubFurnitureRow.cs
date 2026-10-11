@@ -16,5 +16,6 @@ namespace CTable
         public int Width;
         public int Height;
         public int AllowedGroupId;
+        public int Category;
     }
 }

@@ -16,6 +16,9 @@ public class PlacedFurnitureRecord
 
     // true면 Tid가 CTable.SubFurnitureRow, false면 CTable.FurnitureRow를 가리킨다.
     public bool IsSub;
+
+    // 가구가 바라보는 방향. 구 세이브는 Down(0).
+    public CTable.eFurnitureDirection Direction;
 }
 
 public partial class PlacementModel : IModelBase
@@ -33,6 +36,8 @@ public partial class PlacementModel : IModelBase
     private PlaceableObject mPlaceable;
     private TilePlacementArea mArea;
     private Vector3 mOriginPosition;
+    // 재드래그를 취소하면 되돌릴 시작 방향.
+    private CTable.eFurnitureDirection mOriginDirection;
     private Vector2Int mFootprint = Vector2Int.one;
 
     // 배치 확정된 가구(Tid+위치) 레지스트리. placementId는 최초 배치 시 발급되고,

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -17,6 +18,11 @@ public class TilePlacementArea : MonoBehaviour
     private const int HIGHLIGHT_TEXTURE_SIZE = 32;
     private static readonly Color HIGHLIGHT_FILL = new Color(1f, 1f, 1f, 0.22f);
     private static readonly Color HIGHLIGHT_BORDER = new Color(1f, 1f, 0.75f, 0.85f);
+    // 같은 면(바닥/벽)인데 놓을 수 없는 칸(다른 가구가 차지, 손님 접근 칸, 테이블 앞 칸이 막힘 등)은 붉게 표시한다.
+    private static readonly Color HIGHLIGHT_BLOCKED_FILL = new Color(1f, 0.25f, 0.25f, 0.28f);
+    private static readonly Color HIGHLIGHT_BLOCKED_BORDER = new Color(1f, 0.35f, 0.35f, 0.85f);
+    // 이 레이어 이상(일반 가구)만 손님 접근 칸을 막는다. 바닥타일(0)/카펫(1)은 위에 서도 되므로 깔 수 있다.
+    private const int ACCESS_BLOCKING_LAYER = 2;
 
     [SerializeField] private Tilemap mTilemap;
     // 벽 가구를 놓을 수 있는 셀을 칠해 둔 보이지 않는 타일맵(PlaceableObjects/PlacementWallTilemap). 비어 있으면 모든 셀을 바닥으로 취급한다.
@@ -40,9 +46,17 @@ public class TilePlacementArea : MonoBehaviour
     private readonly Dictionary<Vector3Int, CellOccupant> mOccupants = new Dictionary<Vector3Int, CellOccupant>();
     // placementId -> 그 placement가 차지한 셀 목록. ReleaseByPlacementId에서 역조회용.
     private readonly Dictionary<int, List<Vector3Int>> mCellsByPlacementId = new Dictionary<int, List<Vector3Int>>();
+    // 비워둬야 하는 칸(손님 접근 칸 + 작업자가 지정한 비워둘 칸) -> 그 칸을 예약한 placementId들. 일반 가구는 이 칸에 놓을 수 없다.
+    // 두 테이블이 같은 칸을 함께 비워두게 할 수 있어 칸 하나에 여러 placement가 걸릴 수 있다.
+    private readonly Dictionary<Vector3Int, List<int>> mAccessReservedBy = new Dictionary<Vector3Int, List<int>>();
+    // placementId -> 그 placement가 예약한 칸 목록. ReleaseByPlacementId에서 역조회용.
+    private readonly Dictionary<int, List<Vector3Int>> mAccessCellsByPlacementId = new Dictionary<int, List<Vector3Int>>();
 
     private Tilemap mHighlightTilemap;
     private Tile mHighlightTile;
+    private Tile mBlockedTile;
+    // 드래그 중인 가구 자신의 칸/손님 접근 칸을 붉게 덮어 칠한 칸 -> 덮기 전 강조 타일(되돌리기용).
+    private readonly Dictionary<Vector3Int, TileBase> mPreviewOverwritten = new Dictionary<Vector3Int, TileBase>();
 
     // 신규 구매 가구를 처음 스폰할 때 이 영역 중앙 근처에 놓기 위한 용도(드래그 시작 전 임시 위치).
     public Bounds Bounds
@@ -79,7 +93,10 @@ public class TilePlacementArea : MonoBehaviour
 
     // 일반(베이스) 가구용 유효 위치 판정: footprint 전체 셀이 타일이 있고, 가구가 붙는 면(벽/바닥)과 일치하며,
     // 같은 레이어를 다른 베이스가 점유하지 않은(또는 selfPlacementId 자신) 경우만 유효. 벽과 바닥에 걸치면 무효.
-    public bool TryGetSnappedPositionForBase(Vector3 worldPos, Vector2Int footprintCells, int selfPlacementId, ePlacementSurface surface, int layer, out Vector3 snappedPos)
+    // accessOffsets(footprint 기준 셀 오프셋)가 있으면 그 접근 칸들도 손님이 설 수 있는 바닥이어야 하고,
+    // clearanceOffsets(비워둘 칸)는 영역 안이면 다른 일반 가구가 없어야 한다(벽/영역 밖은 통과).
+    public bool TryGetSnappedPositionForBase(Vector3 worldPos, Vector2Int footprintCells, int selfPlacementId, ePlacementSurface surface, int layer,
+        IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets, out Vector3 snappedPos)
     {
         snappedPos = worldPos;
 
@@ -93,6 +110,9 @@ public class TilePlacementArea : MonoBehaviour
             if (!IsBaseCellAvailable(cell, surface, layer, selfPlacementId))
                 return false;
         }
+
+        if (!AreAccessCellsAvailable(origin, accessOffsets, selfPlacementId) || !AreClearanceCellsAvailable(origin, clearanceOffsets, selfPlacementId))
+            return false;
 
         snappedPos = GetFootprintCenterWorld(origin, footprintCells, worldPos.z);
         return true;
@@ -120,7 +140,8 @@ public class TilePlacementArea : MonoBehaviour
         return true;
     }
 
-    public void OccupyBase(Vector3 worldPos, Vector2Int footprintCells, int placementId, int groupId, int layer)
+    public void OccupyBase(Vector3 worldPos, Vector2Int footprintCells, int placementId, int groupId, int layer,
+        IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets)
     {
         ReleaseByPlacementId(placementId);
 
@@ -132,6 +153,24 @@ public class TilePlacementArea : MonoBehaviour
             GetOrCreateOccupant(cell).Bases[layer] = new BaseSlot { PlacementId = placementId, GroupId = groupId };
             cells.Add(cell);
         }
+
+        List<Vector3Int> reservedCells = null;
+        foreach (var cell in IterateAccessCells(origin, accessOffsets).Concat(IterateAccessCells(origin, clearanceOffsets)))
+        {
+            reservedCells ??= new List<Vector3Int>();
+            if (reservedCells.Contains(cell))
+                continue;
+
+            if (!mAccessReservedBy.TryGetValue(cell, out List<int> owners))
+            {
+                owners = new List<int>();
+                mAccessReservedBy[cell] = owners;
+            }
+            owners.Add(placementId);
+            reservedCells.Add(cell);
+        }
+        if (reservedCells != null)
+            mAccessCellsByPlacementId[placementId] = reservedCells;
     }
 
     public void OccupySub(Vector3 worldPos, Vector2Int footprintCells, int placementId)
@@ -152,6 +191,20 @@ public class TilePlacementArea : MonoBehaviour
     // 베이스인지 sub인지, 어느 레이어인지는 셀에 실제로 기록된 값으로 판단하므로 호출부에서 구분해 넘길 필요 없다.
     public void ReleaseByPlacementId(int placementId)
     {
+        if (mAccessCellsByPlacementId.TryGetValue(placementId, out List<Vector3Int> accessCells))
+        {
+            foreach (var cell in accessCells)
+            {
+                if (!mAccessReservedBy.TryGetValue(cell, out List<int> owners))
+                    continue;
+
+                owners.Remove(placementId);
+                if (owners.Count == 0)
+                    mAccessReservedBy.Remove(cell);
+            }
+            mAccessCellsByPlacementId.Remove(placementId);
+        }
+
         if (!mCellsByPlacementId.TryGetValue(placementId, out List<Vector3Int> cells))
             return;
 
@@ -202,6 +255,8 @@ public class TilePlacementArea : MonoBehaviour
     {
         mOccupants.Clear();
         mCellsByPlacementId.Clear();
+        mAccessReservedBy.Clear();
+        mAccessCellsByPlacementId.Clear();
         HideHighlight();
     }
 
@@ -217,25 +272,69 @@ public class TilePlacementArea : MonoBehaviour
 
     #region Highlight
 
-    // 드래그 중 베이스 가구를 놓을 수 있는 칸(면 일치 + 같은 레이어 비어 있음)을 강조한다.
-    public void ShowBaseHighlight(ePlacementSurface surface, int layer, int selfPlacementId)
+    // 드래그 중 베이스 가구를 놓을 수 있는 칸(면 일치 + 같은 레이어 비어 있음 + 손님 접근 칸 확보)은 밝게,
+    // 같은 면인데 놓을 수 없는 칸은 붉게 강조한다. 접근 칸은 그 칸을 기준 셀로 놓았을 때 기준(1칸 가구 기준).
+    public void ShowBaseHighlight(ePlacementSurface surface, int layer, int selfPlacementId,
+        IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets)
     {
-        ShowHighlight(cell => IsBaseCellAvailable(cell, surface, layer, selfPlacementId));
+        ShowHighlight(
+            cell => IsBaseCellAvailable(cell, surface, layer, selfPlacementId)
+                    && AreAccessCellsAvailable(cell, accessOffsets, selfPlacementId)
+                    && AreClearanceCellsAvailable(cell, clearanceOffsets, selfPlacementId),
+            cell => GetSurface(cell) == surface);
     }
 
     // 드래그 중 sub가구를 놓을 수 있는 칸(허용 그룹 베이스 위 + sub 비어 있음)을 강조한다.
     public void ShowSubHighlight(int allowedGroupId, int selfPlacementId)
     {
-        ShowHighlight(cell => allowedGroupId > 0 && IsSubCellAvailable(cell, allowedGroupId, selfPlacementId));
+        ShowHighlight(cell => allowedGroupId > 0 && IsSubCellAvailable(cell, allowedGroupId, selfPlacementId), null);
     }
 
     public void HideHighlight()
     {
+        mPreviewOverwritten.Clear();
         if (mHighlightTilemap != null)
             mHighlightTilemap.ClearAllTiles();
     }
 
-    private void ShowHighlight(System.Func<Vector3Int, bool> isAvailable)
+    // 드래그 중인 가구가 놓이면 막게 될 칸(자기 칸 + 손님 접근 칸)을 다른 가구처럼 붉게 표시한다. 가구를 따라 매번 갱신.
+    // 이전에 덮어 칠한 칸은 원래 강조(흰/붉은/없음)로 되돌린 뒤 새 위치를 칠한다.
+    public void ShowPlacementPreview(Vector3Int origin, Vector2Int footprintCells, IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets)
+    {
+        if (mHighlightTilemap == null)
+            return;
+
+        ClearPlacementPreview();
+
+        foreach (var cell in IterateFootprintCells(origin, footprintCells))
+            PaintPreviewCell(cell);
+        foreach (var cell in IterateAccessCells(origin, accessOffsets))
+            PaintPreviewCell(cell);
+        foreach (var cell in IterateAccessCells(origin, clearanceOffsets))
+            PaintPreviewCell(cell);
+    }
+
+    public void ClearPlacementPreview()
+    {
+        if (mHighlightTilemap != null)
+        {
+            foreach (var pair in mPreviewOverwritten)
+                mHighlightTilemap.SetTile(pair.Key, pair.Value);
+        }
+        mPreviewOverwritten.Clear();
+    }
+
+    private void PaintPreviewCell(Vector3Int cell)
+    {
+        if (!mTilemap.HasTile(cell) || mPreviewOverwritten.ContainsKey(cell))
+            return;
+
+        mPreviewOverwritten[cell] = mHighlightTilemap.GetTile(cell);
+        mHighlightTilemap.SetTile(cell, mBlockedTile);
+    }
+
+    // isAvailable 칸은 밝게, 그렇지 않은데 isBlockedCandidate(같은 면 등)인 칸은 붉게 칠한다. isBlockedCandidate가 null이면 붉은 칸은 없다.
+    private void ShowHighlight(System.Func<Vector3Int, bool> isAvailable, System.Func<Vector3Int, bool> isBlockedCandidate)
     {
         if (mTilemap == null || !EnsureHighlightTilemap())
             return;
@@ -245,8 +344,13 @@ public class TilePlacementArea : MonoBehaviour
         BoundsInt bounds = mTilemap.cellBounds;
         foreach (var cell in bounds.allPositionsWithin)
         {
-            if (mTilemap.HasTile(cell) && isAvailable(cell))
+            if (!mTilemap.HasTile(cell))
+                continue;
+
+            if (isAvailable(cell))
                 mHighlightTilemap.SetTile(cell, mHighlightTile);
+            else if (isBlockedCandidate != null && isBlockedCandidate(cell))
+                mHighlightTilemap.SetTile(cell, mBlockedTile);
         }
     }
 
@@ -269,15 +373,22 @@ public class TilePlacementArea : MonoBehaviour
         var renderer = go.AddComponent<TilemapRenderer>();
         renderer.sortingOrder = HIGHLIGHT_SORTING_ORDER;
 
-        var texture = CreateHighlightTexture();
-        mHighlightTile = ScriptableObject.CreateInstance<Tile>();
-        mHighlightTile.hideFlags = HideFlags.DontSave;
-        mHighlightTile.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), texture.width);
-        mHighlightTile.colliderType = Tile.ColliderType.None;
+        mHighlightTile = CreateHighlightTile(HIGHLIGHT_FILL, HIGHLIGHT_BORDER);
+        mBlockedTile = CreateHighlightTile(HIGHLIGHT_BLOCKED_FILL, HIGHLIGHT_BLOCKED_BORDER);
         return true;
     }
 
-    private static Texture2D CreateHighlightTexture()
+    private static Tile CreateHighlightTile(Color fill, Color border)
+    {
+        var texture = CreateHighlightTexture(fill, border);
+        var tile = ScriptableObject.CreateInstance<Tile>();
+        tile.hideFlags = HideFlags.DontSave;
+        tile.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), texture.width);
+        tile.colliderType = Tile.ColliderType.None;
+        return tile;
+    }
+
+    private static Texture2D CreateHighlightTexture(Color fill, Color border)
     {
         int size = HIGHLIGHT_TEXTURE_SIZE;
         var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
@@ -292,8 +403,8 @@ public class TilePlacementArea : MonoBehaviour
         {
             for (int x = 0; x < size; x++)
             {
-                bool border = x == 0 || y == 0 || x == size - 1 || y == size - 1;
-                pixels[y * size + x] = border ? HIGHLIGHT_BORDER : HIGHLIGHT_FILL;
+                bool isBorder = x == 0 || y == 0 || x == size - 1 || y == size - 1;
+                pixels[y * size + x] = isBorder ? border : fill;
             }
         }
 
@@ -309,9 +420,82 @@ public class TilePlacementArea : MonoBehaviour
         if (!mTilemap.HasTile(cell) || GetSurface(cell) != surface)
             return false;
 
+        // 다른 가구의 손님 접근 칸에는 일반 가구를 놓을 수 없다(바닥타일/카펫은 가능).
+        if (layer >= ACCESS_BLOCKING_LAYER && IsReservedByOther(cell, selfPlacementId))
+            return false;
+
         return !mOccupants.TryGetValue(cell, out CellOccupant occupant) ||
                !occupant.Bases.TryGetValue(layer, out BaseSlot slot) ||
                slot.PlacementId == selfPlacementId;
+    }
+
+    // 손님 접근 칸: 배치 영역 안의 바닥이고, 다른 일반 가구(레이어 2 이상)가 차지하지 않은 칸이어야 손님이 설 수 있다.
+    private bool IsAccessCellAvailable(Vector3Int cell, int selfPlacementId)
+    {
+        if (!mTilemap.HasTile(cell) || GetSurface(cell) != ePlacementSurface.Floor)
+            return false;
+
+        if (!mOccupants.TryGetValue(cell, out CellOccupant occupant))
+            return true;
+
+        foreach (var pair in occupant.Bases)
+        {
+            if (pair.Key >= ACCESS_BLOCKING_LAYER && pair.Value.PlacementId != selfPlacementId)
+                return false;
+        }
+        return true;
+    }
+
+    private bool IsReservedByOther(Vector3Int cell, int selfPlacementId)
+    {
+        if (!mAccessReservedBy.TryGetValue(cell, out List<int> owners))
+            return false;
+
+        foreach (int owner in owners)
+        {
+            if (owner != selfPlacementId)
+                return true;
+        }
+        return false;
+    }
+
+    // 비워둘 칸: 벽이거나 배치 영역 밖이면 상관없고(벽에 붙여 놓기 허용), 영역 안 바닥이면 다른 일반 가구가 없어야 한다.
+    private bool IsClearanceCellAvailable(Vector3Int cell, int selfPlacementId)
+    {
+        if (!mTilemap.HasTile(cell) || GetSurface(cell) != ePlacementSurface.Floor)
+            return true;
+
+        return IsAccessCellAvailable(cell, selfPlacementId);
+    }
+
+    private bool AreClearanceCellsAvailable(Vector3Int origin, IReadOnlyList<Vector2Int> clearanceOffsets, int selfPlacementId)
+    {
+        foreach (var cell in IterateAccessCells(origin, clearanceOffsets))
+        {
+            if (!IsClearanceCellAvailable(cell, selfPlacementId))
+                return false;
+        }
+        return true;
+    }
+
+    private bool AreAccessCellsAvailable(Vector3Int origin, IReadOnlyList<Vector2Int> accessOffsets, int selfPlacementId)
+    {
+        foreach (var cell in IterateAccessCells(origin, accessOffsets))
+        {
+            if (!IsAccessCellAvailable(cell, selfPlacementId))
+                return false;
+        }
+        return true;
+    }
+
+    // footprint 기준 셀(origin)에 접근 칸 오프셋을 더한 셀들. 오프셋이 없으면 아무것도 내놓지 않는다.
+    private IEnumerable<Vector3Int> IterateAccessCells(Vector3Int origin, IReadOnlyList<Vector2Int> accessOffsets)
+    {
+        if (accessOffsets == null)
+            yield break;
+
+        foreach (var offset in accessOffsets)
+            yield return new Vector3Int(origin.x + offset.x, origin.y + offset.y, origin.z);
     }
 
     private bool IsSubCellAvailable(Vector3Int cell, int allowedGroupId, int selfPlacementId)
