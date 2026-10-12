@@ -16,6 +16,8 @@ public class UIScrollFurnitureData
     // 차지하는 칸 수(가로×세로). 목록에 "1×3"처럼 표시한다.
     public int Width;
     public int Height;
+    // 보관 중(산 뒤 배치하지 않은) 개수. 0보다 크면 배치 목록에서 골드 없이 꺼내 놓는다.
+    public int StoredCount;
 
     public string SizeText => $"{Width}×{Height}";
 }
@@ -39,6 +41,7 @@ public class UIScrollFurniture : UIScrollRow<UIScrollFurnitureData>
         if (data == null) return;
 
         mName.SetTextEx($"{data.Name}\n<size=70%>{data.SizeText}</size>");
-        mPrice.SetTextEx(data.Price.ToString());
+        // 보관 중인 가구가 있으면 가격 대신 보관 수를 보여준다(누르면 골드 없이 배치).
+        mPrice.SetTextEx(data.StoredCount > 0 ? $"보관 {data.StoredCount}" : data.Price.ToString());
     }
 }

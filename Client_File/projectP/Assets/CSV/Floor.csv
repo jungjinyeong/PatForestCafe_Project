@@ -1,0 +1,10 @@
+Tid,Name,FloorType,UnlockOrder,UnlockCost
+int,string,int,int,long
+@층ID(아래→위 =WaypointGroup.Order),@표시이름,@층종류(0=매장 1=테라스),@해금순서(0=기본개방 같은 종류 안에서 작은 수부터),@해금비용(골드)
+1,B3,0,3,2000
+2,B2,0,2,1000
+3,B1,0,1,500
+4,1F,0,0,0
+5,T1,1,0,0
+6,T2,1,1,4000
+7,T3,1,2,8000

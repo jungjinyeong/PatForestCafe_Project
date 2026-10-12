@@ -28,10 +28,17 @@ public class UIPopupFurnitureList : UIWndBase, IUIParam<UIPopupFurnitureList.Par
         mScrollEx.SetOnSelect(OnClickAdd);
 
         if (mCategoryTabs != null)
-            mCategoryTabs.Init(_ => RefreshList());
+            mCategoryTabs.Init(_ => RefreshList(true));
 
         if (mBtnResetPlacement != null)
             mBtnResetPlacement.OnSubscribeOnClick(OnClickReset).AddTo(this);
+
+        // 구매·배치·리셋으로 보관 수가 바뀌면 열려 있는 목록의 가격/보관 표시를 다시 그린다(스크롤 위치 유지).
+        GameInstance.Model.Placement.InventoryVersion
+            .Skip(1)
+            .Where(_ => gameObject.activeInHierarchy)
+            .Subscribe(_ => RefreshList(false))
+            .AddTo(this);
     }
 
     public override void Open()
@@ -41,19 +48,20 @@ public class UIPopupFurnitureList : UIWndBase, IUIParam<UIPopupFurnitureList.Par
         if (mCategoryTabs != null)
             mCategoryTabs.Select(CTable.eFurnitureCategory.All);
         else
-            RefreshList();
+            RefreshList(true);
     }
 
     public void Set(Param param)
     {
     }
 
-    private void RefreshList()
+    private void RefreshList(bool scrollToTop)
     {
         var category = mCategoryTabs != null ? mCategoryTabs.Selected : CTable.eFurnitureCategory.All;
         mScrollEx.SetData(GameInstance.Model.Placement.BuildFurnitureShopData(category));
         // 탭을 바꾸거나 다시 열면 목록 처음부터 보이게 한다.
-        mScrollEx.ScrollToTop();
+        if (scrollToTop)
+            mScrollEx.ScrollToTop();
     }
 
     private void OnClickAdd(UIScrollRow row)
@@ -61,7 +69,8 @@ public class UIPopupFurnitureList : UIWndBase, IUIParam<UIPopupFurnitureList.Par
         if (row is not UIScrollFurniture furnitureRow || furnitureRow.CurrentData == null)
             return;
 
-        GameInstance.Model.Placement.TryPurchaseAndBeginPlacement(furnitureRow.CurrentData);
+        // 보관 중인 가구가 있으면 골드 없이 꺼내 놓고, 없으면 산다.
+        GameInstance.Model.Placement.TryPlaceOrPurchase(furnitureRow.CurrentData);
     }
 
     private void OnClickReset()

@@ -76,7 +76,7 @@ public class TilePlacementArea : MonoBehaviour
         }
     }
 
-    // 이 영역이 속한 층 번호(부모 WaypointGroup.Order). 세이브에 가구의 층을 기록하는 데 쓴다.
+    // 이 영역이 속한 층 ID(부모 WaypointGroup.Order = Floor.csv Tid). 세이브에 가구의 층을 기록하는 데 쓴다.
     public int Floor
     {
         get

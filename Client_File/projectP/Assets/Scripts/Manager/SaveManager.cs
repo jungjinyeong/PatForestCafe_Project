@@ -118,6 +118,9 @@ public class SaveManager : MonoBehaviour
         // BreadModel에 없는 Tid(테이블에서 빠진 빵 등)의 대기 세이브도 그대로 보존한다.
         data.Breads.AddRange(pendingBreads.Values);
 
+        foreach (var kvp in GameInstance.Model.Placement.GetAllOwned())
+            data.OwnedFurniture.Add(new OwnedFurnitureSaveEntry { Tid = kvp.Key.tid, IsSub = kvp.Key.isSub, Count = kvp.Value });
+
         foreach (var kvp in GameInstance.Model.Placement.GetAllPlacements())
             data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, Floor = kvp.Value.Floor, Cell = kvp.Value.Cell, AssignedBreadTid = kvp.Value.AssignedBreadTid, IsSub = kvp.Value.IsSub, Direction = (int)kvp.Value.Direction });
 
@@ -136,7 +139,8 @@ public class SaveManager : MonoBehaviour
         foreach (var slot in GameInstance.Model.Workshop.Slots)
             data.WorkshopSlotIngredientTids.Add(slot.IngredientTid.Value);
 
-        data.HighestUnlockedFloor = GameInstance.Model.Floor.HighestUnlockedFloor;
+        data.UnlockedFloors.AddRange(GameInstance.Model.Floor.UnlockedFloors);
+        data.FloorLayoutVersion = FLOOR_LAYOUT_VERSION;
 
         foreach (var staff in GameInstance.Model.Staff.HiredStaff)
             data.HiredStaffTids.Add(staff.Tid);
@@ -169,9 +173,18 @@ public class SaveManager : MonoBehaviour
 
         mPendingBreadSaveEntries = data.Breads;
 
+        MigrateFloorLayout(data);
+
         foreach (var entry in data.PlacedFurniture)
             GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position, entry.Floor, entry.Cell,
                 (CTable.eFurnitureDirection)entry.Direction, entry.AssignedBreadTid, entry.IsSub);
+
+        if (data.OwnedFurniture != null)
+        {
+            foreach (var entry in data.OwnedFurniture)
+                GameInstance.Model.Placement.RestoreOwned(entry.Tid, entry.IsSub, entry.Count);
+        }
+        GameInstance.Model.Placement.EnsureOwnedCoversPlacements();
 
         GameInstance.Model.RecipeBook.SetDiscovered(data.DiscoveredRecipeTids);
         GameInstance.Model.Upgrade.SetLevel(data.GoldIncomeUpgradeLevel);
@@ -182,7 +195,7 @@ public class SaveManager : MonoBehaviour
         for (int i = 0; i < data.WorkshopSlotIngredientTids.Count; i++)
             GameInstance.Model.Workshop.SetSlotIngredient(i, data.WorkshopSlotIngredientTids[i]);
 
-        GameInstance.Model.Floor.SetHighestUnlockedFloor(data.HighestUnlockedFloor);
+        GameInstance.Model.Floor.RestoreUnlockedFloors(data.UnlockedFloors);
 
         if (data.HiredStaffTids != null)
         {
@@ -196,6 +209,30 @@ public class SaveManager : MonoBehaviour
         ApplyOfflineIncome(data.LastSaveUnixSeconds);
 
         Logger.Log($"[SaveManager] 불러오기 완료: {SavePath}");
+    }
+
+    // 층 ID 체계 버전(SaveData.FloorLayoutVersion). 2 = 아래→위 1~7(B3 B2 B1 1F T1 T2 T3).
+    private const int FLOOR_LAYOUT_VERSION = 2;
+
+    // 구 세이브는 B2가 Order 1인 6층 구성(B2 B1 1F T1 T2 T3)이라 층 ID가 지금보다 1 작다 — 가구 층과 열린 층을 +1로 옮긴다.
+    // 열린 층은 "Order 1~HighestUnlockedFloor"였으므로 그 범위를 +1 한 층들로 바꾼다(기본 개방 층은 FloorModel이 항상 더함).
+    private static void MigrateFloorLayout(SaveData data)
+    {
+        if (data.FloorLayoutVersion >= FLOOR_LAYOUT_VERSION)
+            return;
+
+        foreach (var entry in data.PlacedFurniture)
+        {
+            if (entry.Floor > 0)
+                entry.Floor += 1;
+        }
+
+        data.UnlockedFloors = new List<int>();
+        for (int floor = 1; floor <= data.HighestUnlockedFloor; floor++)
+            data.UnlockedFloors.Add(floor + 1);
+
+        data.FloorLayoutVersion = FLOOR_LAYOUT_VERSION;
+        Logger.Log($"[SaveManager] 구 층 구성 세이브를 변환했습니다(층 ID +1, 열린 층 {data.UnlockedFloors.Count}개).");
     }
 
     /// <summary>

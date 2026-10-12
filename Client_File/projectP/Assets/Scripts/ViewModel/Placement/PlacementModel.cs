@@ -45,6 +45,14 @@ public partial class PlacementModel : IModelBase
     private readonly Dictionary<int, PlacedFurnitureRecord> mDicPlacedFurniture = new();
     private int mNextPlacementId = 1;
 
+    // 보유 가구 수(구매한 총 개수, 배치된 것 포함). 보관 중(미배치) = 보유 − 배치. 키 = (IsSub, Tid).
+    // 가구는 팔 수 없다 — 리셋/취소해도 보유 수는 그대로이고 보관 중으로 돌아간다.
+    private readonly Dictionary<(bool isSub, int tid), int> mOwnedFurniture = new();
+
+    // 보유/배치 수가 바뀔 때마다 증가(가구 목록 UI 갱신용).
+    public IReadOnlyReactiveProperty<int> InventoryVersion => mInventoryVersion;
+    private readonly ReactiveProperty<int> mInventoryVersion = new ReactiveProperty<int>(0);
+
     public void Init() { }
 
     public void Dispose()
@@ -52,6 +60,8 @@ public partial class PlacementModel : IModelBase
         mIsPlacing.Dispose();
         mIsValidPosition.Dispose();
         mIsEditMode.Dispose();
+        mInventoryVersion.Dispose();
         mDicPlacedFurniture.Clear();
+        mOwnedFurniture.Clear();
     }
 }

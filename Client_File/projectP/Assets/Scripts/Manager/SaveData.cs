@@ -50,6 +50,15 @@ public class PlacedFurnitureSaveEntry
     public int Direction;
 }
 
+// 보유 가구 수(구매한 총 개수, 배치된 것 포함). 보관 중 = Count − 배치 수.
+[Serializable]
+public class OwnedFurnitureSaveEntry
+{
+    public int Tid;
+    public bool IsSub;
+    public int Count;
+}
+
 [Serializable]
 public class DeliveryOrderSaveEntry
 {
@@ -78,6 +87,8 @@ public class SaveData
     public List<ItemSaveEntry> Ingredients = new List<ItemSaveEntry>();
     public List<BreadSaveEntry> Breads = new List<BreadSaveEntry>();
     public List<PlacedFurnitureSaveEntry> PlacedFurniture = new List<PlacedFurnitureSaveEntry>();
+    // 없던 구 세이브는 배치된 가구 수로 채운다(PlacementModel.EnsureOwnedCoversPlacements).
+    public List<OwnedFurnitureSaveEntry> OwnedFurniture = new List<OwnedFurnitureSaveEntry>();
     public List<int> DiscoveredRecipeTids = new List<int>();
     public int GoldIncomeUpgradeLevel;
     public int CafeLevel;
@@ -88,7 +99,12 @@ public class SaveData
     public BusinessStats NextDayStats = new BusinessStats();
     public int HiredWorkerCount;
     public List<int> WorkshopSlotIngredientTids = new List<int>();
+    // 구 세이브(FloorLayoutVersion < 2) 읽기 전용 — "Order 1~N층까지 열림". 새 세이브는 UnlockedFloors를 쓴다.
     public int HighestUnlockedFloor;
+    // 열린 층 ID 목록(Floor.csv Tid = WaypointGroup.Order).
+    public List<int> UnlockedFloors = new List<int>();
+    // 층 ID 체계 버전. 2 = 아래→위 1~7(B3 B2 B1 1F T1 T2 T3). 0/1 = 그 이전(B2가 Order 1이던 6층 구성).
+    public int FloorLayoutVersion;
     public List<int> HiredStaffTids = new List<int>();
     public List<DeliveryOrderSaveEntry> DeliveryOrders = new List<DeliveryOrderSaveEntry>();
     public List<PickupDrinkSaveEntry> PickupDrinks = new List<PickupDrinkSaveEntry>();

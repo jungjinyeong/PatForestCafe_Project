@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class WaypointGroup : MonoBehaviour
 {
+    // 층 ID = Floor.csv Tid(아래→위 1~7: B3 B2 B1 1F T1 T2 T3). 해금·세이브·카메라 층 이동이 이 값으로 층을 찾는다.
     [SerializeField] private int mOrder;
     [Header("Static Waypoints (SpwanPoint / Exit)")]
     [SerializeField] private Waypoint[] mStaticWaypoints;
@@ -13,6 +14,7 @@ public class WaypointGroup : MonoBehaviour
     [SerializeField] private TilePlacementArea[] mZoneAreas;
 
     [Header("Option")]
+    // 테라스층(T1~T3)이면 체크. 손님은 매장층 방문 후 열린 테라스 중 무작위 한 곳으로 간다.
     [SerializeField] private bool mIsTerraceZone = false;
 
     private readonly List<Waypoint> mDynamicTriggerWaypoints = new List<Waypoint>();

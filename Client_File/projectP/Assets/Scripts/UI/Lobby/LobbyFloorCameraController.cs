@@ -4,17 +4,18 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
+using TMPro;
 using Extension;
 
-// 6층 온천탑 로비 카메라. 층 이동(층 이동 버튼)과 마우스 휠 줌을 담당한다.
-// 층 이동 목표 Y좌표는 GameInstance.WayPoint에 등록된 WaypointGroup(Order=층 번호)의 위치를 그대로 사용한다.
+// 로비 카메라(매장 B3~1F + 테라스 T1~T3). 층 이동(층 이동 버튼)과 마우스 휠 줌을 담당한다.
+// 층 이동 목표 Y좌표는 GameInstance.WayPoint에 등록된 WaypointGroup(Order=층 ID, Floor.csv Tid)의 위치를 그대로 사용한다.
 // 잠긴 층도 미리보기 삼아 자유롭게 이동 가능하고, 실제 스폰/구매 제한은 FloorModel.IsUnlocked 쪽에서 건다.
 // 2026-09: 휠 = 층 이동 → 휠 = 줌 인/아웃으로 변경. 팝업이 떠 있거나 포인터가 UI 위에 있으면 줌하지 않는다.
 public class LobbyFloorCameraController : MonoBehaviour
 {
     [SerializeField] private Camera mCamera;
     [SerializeField] private float mMoveSpeed = 5f;
-    [SerializeField] private UIButtonEx[] mFloorButtons; // index 0 = 1층 ... index 5 = 6층(테라스)
+    [SerializeField] private UIButtonEx[] mFloorButtons; // 아래→위 순서. index i = Floor.csv 층 ID 순 i번째 층(0=B3 … 6=T3)
     [SerializeField] private float mScrollThrottleSeconds = 0.2f; // 휠 한 번(노치)당 줌 한 단계만 바뀌도록 하는 디바운스 간격
 
     [Header("Zoom")]
@@ -52,14 +53,14 @@ public class LobbyFloorCameraController : MonoBehaviour
         SubscribeFloorButtons();
         SubscribeZoomInput();
 
-        var firstFloor = FindGroupByFloor(FloorModel.FirstFloor);
-        if (firstFloor != null)
-            SnapToFloor(firstFloor);
+        var startFloor = FindGroupByFloor(GameInstance.Model.Floor.DefaultViewFloor);
+        if (startFloor != null)
+            SnapToFloor(startFloor);
     }
 
     public void MoveToFloor(int floor)
     {
-        floor = Mathf.Clamp(floor, FloorModel.FirstFloor, FloorModel.LastFloor);
+        if (!GameInstance.Model.Floor.Exists(floor)) return;
 
         var group = FindGroupByFloor(floor);
         if (group == null) return;
@@ -84,11 +85,28 @@ public class LobbyFloorCameraController : MonoBehaviour
     {
         if (mFloorButtons == null) return;
 
+        // 버튼 글자는 Floor.csv의 Name(B3, 1F, T1 …)으로 채운다. 층보다 버튼이 많으면 남는 버튼은 숨긴다.
+        var floors = GameInstance.Model.Floor.Floors;
         for (int i = 0; i < mFloorButtons.Length; i++)
         {
-            int floor = i + 1;
-            mFloorButtons[i]?.OnSubscribeOnClick(() => MoveToFloor(floor)).AddTo(this);
+            var button = mFloorButtons[i];
+            if (button == null) continue;
+
+            if (i >= floors.Count)
+            {
+                button.gameObject.SetActive(false);
+                continue;
+            }
+
+            var info = floors[i];
+            button.GetComponentInChildren<TextMeshProUGUI>(true)?.SetTextEx(info.Name);
+
+            int floor = info.Id;
+            button.OnSubscribeOnClick(() => MoveToFloor(floor)).AddTo(this);
         }
+
+        if (mFloorButtons.Length < floors.Count)
+            Logger.Warning($"[LobbyFloorCameraController] 층 버튼이 {mFloorButtons.Length}개라 {floors.Count}개 층 중 일부로 이동할 버튼이 없습니다.");
     }
 
     private void SubscribeZoomInput()

@@ -9,6 +9,7 @@ public partial class PlacementModel
     {
         int placementId = mNextPlacementId++;
         mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, IsSub = isSub, Direction = direction };
+        mInventoryVersion.Value++;
         return placementId;
     }
 
@@ -47,7 +48,58 @@ public partial class PlacementModel
     {
         mDicPlacedFurniture.Clear();
         mNextPlacementId = 1;
+        mInventoryVersion.Value++;
     }
+
+    #region Owned Furniture
+
+    // 구매한 총 개수(배치된 것 포함).
+    public int GetOwnedCount(int tid, bool isSub) => mOwnedFurniture.TryGetValue((isSub, tid), out int count) ? count : 0;
+
+    public int GetPlacedCount(int tid, bool isSub)
+    {
+        int count = 0;
+        foreach (var record in mDicPlacedFurniture.Values)
+        {
+            if (record.Tid == tid && record.IsSub == isSub)
+                count++;
+        }
+        return count;
+    }
+
+    // 보관 중(배치하지 않은) 개수. 배치 목록에서 이 수만큼은 골드 없이 꺼내 놓을 수 있다.
+    public int GetStoredCount(int tid, bool isSub) => Mathf.Max(0, GetOwnedCount(tid, isSub) - GetPlacedCount(tid, isSub));
+
+    public IEnumerable<KeyValuePair<(bool isSub, int tid), int>> GetAllOwned() => mOwnedFurniture;
+
+    // 세이브 복원 전용.
+    public void RestoreOwned(int tid, bool isSub, int count)
+    {
+        if (count > 0)
+            mOwnedFurniture[(isSub, tid)] = count;
+    }
+
+    // 보유 수 기록이 없던 구 세이브 — 배치된 가구는 이미 산 것이므로 보유 수가 배치 수보다 적으면 맞춰 준다.
+    // RestorePlacement/RestoreOwned를 모두 끝낸 뒤 호출한다.
+    public void EnsureOwnedCoversPlacements()
+    {
+        foreach (var record in mDicPlacedFurniture.Values)
+        {
+            var key = (record.IsSub, record.Tid);
+            int placed = GetPlacedCount(record.Tid, record.IsSub);
+            if (GetOwnedCount(record.Tid, record.IsSub) < placed)
+                mOwnedFurniture[key] = placed;
+        }
+        mInventoryVersion.Value++;
+    }
+
+    private void AddOwned(int tid, bool isSub)
+    {
+        mOwnedFurniture[(isSub, tid)] = GetOwnedCount(tid, isSub) + 1;
+        mInventoryVersion.Value++;
+    }
+
+    #endregion
 
     public void ToggleEditMode()
     {
@@ -197,13 +249,10 @@ public partial class PlacementModel
 
         var placeable = mPlaceable;
 
-        // 구매 직후(아직 한 번도 확정된 적 없는) 가구를 취소하면 배치될 곳이 없어 그대로 사라진다 —
-        // 이미 소모된 골드를 환불하고 오브젝트도 제거해서, 등록되지 않은 채 씬에 남아있다가
-        // 다음 Save/Load 때 조용히 사라지는(골드만 날리는) 상황을 막는다.
+        // 아직 한 번도 확정된 적 없는(방금 사거나 보관함에서 꺼낸) 가구를 취소하면 오브젝트만 제거한다.
+        // 보유 수는 그대로라 보관 중으로 돌아간다(가구는 팔지 않으므로 골드 환불도 없다).
         if (placeable != null && placeable.FurnitureTid > 0 && placeable.PlacementId < 0)
         {
-            RefundFurniture(placeable.FurnitureTid, placeable.IsSubFurniture);
-
             mArea?.HideHighlight();
             mTarget = null;
             mPlaceable = null;
@@ -257,7 +306,8 @@ public partial class PlacementModel
         {
             foreach (var row in furnitureGroup.All.Values)
                 dataList.Add(new UIScrollFurnitureData { Tid = row.Tid, Name = row.Name, Price = row.Price, PrefabPath = row.PrefabPath, IsSub = false,
-                    Category = (CTable.eFurnitureCategory)row.Category, Width = Mathf.Max(1, row.Width), Height = Mathf.Max(1, row.Height) });
+                    Category = (CTable.eFurnitureCategory)row.Category, Width = Mathf.Max(1, row.Width), Height = Mathf.Max(1, row.Height),
+                    StoredCount = GetStoredCount(row.Tid, false) });
         }
 
         var subFurnitureGroup = GameInstance.Table.GetTable<CTable.SubFurnitureRow>();
@@ -265,7 +315,8 @@ public partial class PlacementModel
         {
             foreach (var row in subFurnitureGroup.All.Values)
                 dataList.Add(new UIScrollFurnitureData { Tid = row.Tid, Name = row.Name, Price = row.Price, PrefabPath = row.PrefabPath, IsSub = true,
-                    Category = (CTable.eFurnitureCategory)row.Category, Width = Mathf.Max(1, row.Width), Height = Mathf.Max(1, row.Height) });
+                    Category = (CTable.eFurnitureCategory)row.Category, Width = Mathf.Max(1, row.Width), Height = Mathf.Max(1, row.Height),
+                    StoredCount = GetStoredCount(row.Tid, true) });
         }
 
         if (category != CTable.eFurnitureCategory.All)
@@ -274,9 +325,13 @@ public partial class PlacementModel
         return dataList;
     }
 
-    // 가구를 구매(골드 소모)하고 곧바로 드래그 배치 모드로 전환한다. "어디서 눌렀는지"와 무관하게 동일해야 하므로
-    // 가구배치 팝업과 상점가 가구 구입이 모두 이 경로를 쓴다.
-    public bool TryPurchaseAndBeginPlacement(UIScrollFurnitureData data)
+    // 상점가 [가구 구입] — 항상 골드로 새로 사서(보유 +1) 곧바로 드래그 배치 모드로 전환한다.
+    public bool TryPurchaseAndBeginPlacement(UIScrollFurnitureData data) => TryBeginPlacement(data, useStored: false);
+
+    // 로비 가구배치 목록 — 보관 중인 가구가 있으면 골드 없이 꺼내 놓고, 없으면 골드로 산다.
+    public bool TryPlaceOrPurchase(UIScrollFurnitureData data) => TryBeginPlacement(data, useStored: true);
+
+    private bool TryBeginPlacement(UIScrollFurnitureData data, bool useStored)
     {
         if (data == null || mIsPlacing.Value)
             return false;
@@ -296,14 +351,19 @@ public partial class PlacementModel
             return false;
         }
 
-        var gold = GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold);
-        if (gold == null || gold.Count.Value < data.Price)
+        bool fromStorage = useStored && GetStoredCount(data.Tid, data.IsSub) > 0;
+        if (!fromStorage)
         {
-            Logger.Log("[PlacementModel] 골드가 부족합니다.");
-            return false;
-        }
+            var gold = GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold);
+            if (gold == null || gold.Count.Value < data.Price)
+            {
+                Logger.Log("[PlacementModel] 골드가 부족합니다.");
+                return false;
+            }
 
-        gold.Consume((int)data.Price);
+            gold.Consume((int)data.Price);
+            AddOwned(data.Tid, data.IsSub);
+        }
 
         // 층별 TilePlacementArea 오브젝트 아래에 생성해서 씬 계층 구조에서 어느 층 소속인지 바로 보이게 한다.
         var instance = Object.Instantiate(prefab, area.Bounds.center, Quaternion.identity, area.transform);
@@ -317,7 +377,7 @@ public partial class PlacementModel
         placeable.BeginPlacementFromSpawn(area);
 
         // Table.prefab처럼 가구에 Intaraction_BreadStand가 같이 붙어 있으면(다른 가구는 없음) 여기서 Init() —
-        // 방금 산 새 가구는 mTableId==0(미지정)으로 시작해, 이후 UIPopupBreadSelect에서 처음 넣는 빵으로 종류가 정해진다.
+        // 새로 놓는 가구는 mTableId==0(미지정)으로 시작해, 이후 UIPopupBreadSelect에서 처음 넣는 빵으로 종류가 정해진다.
         instance.GetComponent<Intaraction_BreadStand>()?.Init();
         return true;
     }
@@ -409,6 +469,7 @@ public partial class PlacementModel
     }
 
     // 가구배치 리셋 — 지금까지 배치한 가구를 전부 씬에서 제거하고 배치 기록도 함께 비운다.
+    // 가구를 팔지 않는다: 보유 수는 그대로라 치운 가구는 전부 보관 중으로 돌아가고, 배치 목록에서 골드 없이 다시 놓을 수 있다.
     // 배치 모드/드래그 중이면 먼저 취소해서 PlaceableObject.OnPointerDown 등이 파괴된 오브젝트를 참조하지 않게 한다.
     public void ResetAllPlacedFurniture()
     {
@@ -488,24 +549,4 @@ public partial class PlacementModel
     }
 
     #endregion
-
-    private void RefundFurniture(int tid, bool isSub)
-    {
-        long price;
-
-        if (isSub)
-        {
-            var row = GameInstance.Table.Get<CTable.SubFurnitureRow>(tid);
-            if (row == null) return;
-            price = row.Price;
-        }
-        else
-        {
-            var row = GameInstance.Table.Get<CTable.FurnitureRow>(tid);
-            if (row == null) return;
-            price = row.Price;
-        }
-
-        GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add((int)price);
-    }
 }

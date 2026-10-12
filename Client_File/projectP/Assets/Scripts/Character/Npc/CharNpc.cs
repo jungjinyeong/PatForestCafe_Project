@@ -158,7 +158,7 @@ public class CharNpc : CharBase, IBreadPickup
         return false;
     }
 
-    // 손님 동선: 층(비-테라스) 방문을 마치면 항상 테라스로 향한다(순차 Order 체인이 아님).
+    // 손님 동선: 매장층(B3~1F) 방문을 마치면 열린 테라스층(T1~T3) 중 무작위 한 곳으로 향한다(순차 Order 체인이 아님).
     // 이미 테라스에 있다면 더 갈 곳이 없어 false(호출 측에서 디스폰 처리).
     private bool TryMoveToNextGroup()
     {

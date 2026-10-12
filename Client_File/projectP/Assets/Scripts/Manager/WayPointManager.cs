@@ -24,7 +24,7 @@ public class WayPointManager : MonoBehaviour
         MessageBroker.Default.Publish(new CEvent.WaypointGroupRegist(mWaypointGroups.ToArray()));
     }
 
-    // 손님 스폰 대상 선택용: 테라스가 아니고 언락된 층 중 무작위 하나.
+    // 손님 스폰 대상 선택용: 테라스가 아니고 언락된 매장층(B3~1F) 중 무작위 하나.
     public WaypointGroup GetRandomUnlockedFloorGroup()
     {
         var candidates = new List<WaypointGroup>();
@@ -43,14 +43,20 @@ public class WayPointManager : MonoBehaviour
         return candidates[UnityEngine.Random.Range(0, candidates.Count)];
     }
 
-    // 손님이 층 방문을 마친 뒤 항상 향하는 목적지. 테라스가 아직 언락되지 않았으면 null(그 자리에서 퇴장 처리).
+    // 손님이 매장층 방문을 마친 뒤 향하는 목적지: 열린 테라스층(T1~T3) 중 무작위 하나.
+    // 열린 테라스가 없으면 null(그 자리에서 퇴장 처리).
     public WaypointGroup GetTerraceGroup()
     {
+        var candidates = new List<WaypointGroup>();
         foreach (var group in mWaypointGroups)
         {
             if (group != null && group.IsTerraceZone && GameInstance.Model.Floor.IsUnlocked(group.Order))
-                return group;
+                candidates.Add(group);
         }
-        return null;
+
+        if (candidates.Count == 0)
+            return null;
+
+        return candidates[UnityEngine.Random.Range(0, candidates.Count)];
     }
 }
