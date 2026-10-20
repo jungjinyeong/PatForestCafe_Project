@@ -157,6 +157,30 @@ public class Intaraction_BreadStand : MonoBehaviour
         GameInstance.Model.Bread.Consume(mTableId, bread.Quality);
     }
 
+    // 진열대가 철거/리셋으로 사라지기 직전에 호출한다. 진열된 빵을 진열 수량에서 빼 같은 품질 그대로 생산 재고(창고)로 되돌리고,
+    // 빵 오브젝트는 풀로 반납한다 — 진열대의 자식으로 붙어 있어 그대로 두면 진열대와 함께 파괴돼 풀이 죽은 오브젝트를 쥐게 된다.
+    public void ReturnDisplayedBreadToStorage()
+    {
+        while (mActiveBreadQueue.Count > 0)
+        {
+            var bread = mActiveBreadQueue.Dequeue();
+            if (bread == null)
+                continue;
+
+            // 진열 수량은 같은 빵 종류의 진열대끼리 공유하고 오브젝트 수와 어긋날 수 있으므로, 실제로 진열 수량에서 뺀 만큼만 창고로 돌린다.
+            var breadData = mTableId != 0 ? GameInstance.Model.Bread.Get(mTableId) : null;
+            if (breadData != null && breadData.GetCount(bread.Quality) > 0)
+            {
+                GameInstance.Model.Bread.Consume(mTableId, bread.Quality);
+                GameInstance.Model.Bread.AddProduced(mTableId, bread.Quality);
+            }
+
+            if (GameInstance.Pool != null)
+                bread.transform.SetParent(GameInstance.Pool.transform, true);
+            bread.Despawn();
+        }
+    }
+
     private void SpawnBread(eBreadQuality quality)
     {
         if (GameInstance.Pool == null || mRootTransform == null) return;

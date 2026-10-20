@@ -37,6 +37,12 @@ public class WaypointGroup : MonoBehaviour
             .Where(isPlacing => !isPlacing)
             .Subscribe(_ => RescanDynamicWaypoints())
             .AddTo(mDisposables);
+
+        // 철거/대량 설치/리셋처럼 들고 있기(IsPlacing)를 거치지 않고 배치가 바뀌는 경우에도 손님 목표 후보를 다시 모은다.
+        // 철거된 가구는 파괴 전에 비활성화되므로 같은 프레임의 재스캔(FindObjectsByType)에 걸리지 않는다.
+        GameInstance.Model.Placement.PlacedLayoutChanged
+            .Subscribe(_ => RescanDynamicWaypoints())
+            .AddTo(mDisposables);
     }
 
     public void RescanDynamicWaypoints()

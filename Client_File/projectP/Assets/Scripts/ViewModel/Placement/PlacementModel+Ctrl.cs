@@ -1,20 +1,24 @@
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 public partial class PlacementModel
 {
     public IEnumerable<KeyValuePair<int, PlacedFurnitureRecord>> GetAllPlacements() => mDicPlacedFurniture;
 
-    public int RegisterPlacement(int tid, Vector3 position, int floor, Vector2Int cell, CTable.eFurnitureDirection direction, bool isSub = false)
+    // notify=false면 목록 UI 갱신(InventoryVersion)을 호출부가 모아서 한 번에 한다(대량 설치).
+    public int RegisterPlacement(int tid, Vector3 position, int floor, Vector2Int cell, CTable.eFurnitureDirection direction, bool flipX,
+        bool isSub = false, bool notify = true)
     {
         int placementId = mNextPlacementId++;
-        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, IsSub = isSub, Direction = direction };
-        mInventoryVersion.Value++;
+        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, IsSub = isSub, Direction = direction, FlipX = flipX };
+        if (notify)
+            mInventoryVersion.Value++;
         return placementId;
     }
 
-    // 방향을 빠뜨리면 저장된 회전이 조용히 초기화되므로 기본값 없이 항상 넘긴다.
-    public void UpdatePlacementPosition(int placementId, Vector3 position, int floor, Vector2Int cell, CTable.eFurnitureDirection direction)
+    // 방향/좌우반전을 빠뜨리면 저장된 회전이 조용히 초기화되므로 기본값 없이 항상 넘긴다.
+    public void UpdatePlacementPosition(int placementId, Vector3 position, int floor, Vector2Int cell, CTable.eFurnitureDirection direction, bool flipX)
     {
         if (!mDicPlacedFurniture.TryGetValue(placementId, out var record))
             return;
@@ -23,13 +27,15 @@ public partial class PlacementModel
         record.Floor = floor;
         record.Cell = cell;
         record.Direction = direction;
+        record.FlipX = flipX;
     }
 
     // 세이브 로드 복원 전용 — 저장된 id를 그대로 재사용해야 이후 이동 시 같은 레코드를 갱신한다.
-    public void RestorePlacement(int placementId, int tid, Vector3 position, int floor, Vector2Int cell, CTable.eFurnitureDirection direction,
+    public void RestorePlacement(int placementId, int tid, Vector3 position, int floor, Vector2Int cell, CTable.eFurnitureDirection direction, bool flipX,
         int assignedBreadTid = 0, bool isSub = false)
     {
-        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, AssignedBreadTid = assignedBreadTid, IsSub = isSub, Direction = direction };
+        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, AssignedBreadTid = assignedBreadTid, IsSub = isSub,
+            Direction = direction, FlipX = flipX };
 
         if (placementId >= mNextPlacementId)
             mNextPlacementId = placementId + 1;
@@ -93,10 +99,12 @@ public partial class PlacementModel
         mInventoryVersion.Value++;
     }
 
-    private void AddOwned(int tid, bool isSub)
+    // notify=false면 목록 UI 갱신(InventoryVersion)을 호출부가 모아서 한 번에 한다(대량 설치).
+    private void AddOwned(int tid, bool isSub, bool notify = true)
     {
         mOwnedFurniture[(isSub, tid)] = GetOwnedCount(tid, isSub) + 1;
-        mInventoryVersion.Value++;
+        if (notify)
+            mInventoryVersion.Value++;
     }
 
     #endregion
@@ -112,7 +120,76 @@ public partial class PlacementModel
         if (!isEdit && mIsPlacing.Value)
             Cancel();
 
+        if (!isEdit)
+            mIsDemolishMode.Value = false;
+
         mIsEditMode.Value = isEdit;
+    }
+
+    public void ToggleGridOverlay()
+    {
+        mIsGridOverlayOn.Value = !mIsGridOverlayOn.Value;
+    }
+
+    public void SetGridOverlay(bool isOn)
+    {
+        mIsGridOverlayOn.Value = isOn;
+    }
+
+    public void ToggleDemolishMode()
+    {
+        SetDemolishMode(!mIsDemolishMode.Value);
+    }
+
+    // 배치 모드가 아니거나 가구를 들고 있으면 켜지 않는다.
+    public void SetDemolishMode(bool isDemolish)
+    {
+        if (isDemolish && (!mIsEditMode.Value || mIsPlacing.Value))
+            return;
+
+        mIsDemolishMode.Value = isDemolish;
+    }
+
+    // 배치된 가구를 철거해 보관함으로 회수한다(보유 수는 그대로 → 보관 수량 +1). 베이스 위에 올라간 sub가구도 함께 회수하고,
+    // 빵 진열대면 진열된 빵을 창고 재고로 되돌린다. 아직 한 번도 놓지 않은 가구(PlacementId<0)나 들고 있는 동안에는 하지 않는다.
+    public bool Demolish(PlaceableObject target)
+    {
+        if (target == null || target.PlacementId < 0 || mIsPlacing.Value)
+            return false;
+
+        var victims = new List<PlaceableObject> { target };
+        if (!target.IsSubFurniture && target.Area != null)
+        {
+            foreach (int subId in target.Area.GetSubPlacementIdsOnBase(target.PlacementId))
+            {
+                var sub = PlaceableObject.FindByPlacementId(target.Area, subId);
+                if (sub != null)
+                    victims.Add(sub);
+            }
+        }
+
+        foreach (var victim in victims)
+        {
+            ReleasePlacedObject(victim);
+            mDicPlacedFurniture.Remove(victim.PlacementId);
+        }
+
+        mInventoryVersion.Value++;
+        Physics2D.SyncTransforms();
+        mPlacedLayoutChanged.OnNext(Unit.Default);
+        return true;
+    }
+
+    // 배치된 오브젝트를 씬에서 치운다(칸 점유 해제 + 빵 진열대 정리 + 파괴). 배치 기록 정리는 호출부가 한다.
+    // Destroy는 프레임 끝에 일어나므로 먼저 비활성화해 같은 프레임의 클릭 판정(FindTopmostAt)에 다시 걸리지 않게 한다.
+    private static void ReleasePlacedObject(PlaceableObject placeable)
+    {
+        if (placeable.BreadStand != null)
+            placeable.BreadStand.ReturnDisplayedBreadToStorage();
+        if (placeable.Area != null)
+            placeable.Area.ReleaseByPlacementId(placeable.PlacementId);
+        placeable.gameObject.SetActive(false);
+        Object.Destroy(placeable.gameObject);
     }
 
     public void BeginPlacement(Transform target, TilePlacementArea area, Vector2Int footprint)
@@ -135,12 +212,16 @@ public partial class PlacementModel
             area.ReleaseByPlacementId(placeable.PlacementId);
         }
 
+        // 철거 모드에서 목록으로 새 가구를 꺼내는 경우 등 — 들고 있는 동안은 철거 모드가 아니다.
+        mIsDemolishMode.Value = false;
+
         mTarget = target;
         mPlaceable = placeable;
         mArea = area;
         mFootprint = footprint;
         mOriginPosition = target.position;
         mOriginDirection = placeable != null ? placeable.Direction : CTable.eFurnitureDirection.Down;
+        mOriginFlipX = placeable != null && placeable.FlipX;
 
         mIsValidPosition.Value = false;
         mIsPlacing.Value = true;
@@ -148,17 +229,104 @@ public partial class PlacementModel
         ShowPlacingHighlight();
     }
 
-    // 배치 중인 가구가 회전 가능한지(확정/취소 팝업의 회전 버튼 표시용).
-    public bool CanRotatePlacing => mIsPlacing.Value && mPlaceable != null && mPlaceable.CanRotate;
+    // 들고 있는 것이 새로 꺼낸(아직 한 번도 놓지 않은) 대량 설치 대상(바닥타일)인지. 이미 깔린 타일을 다시 집은 경우는 이동이라
+    // 지금처럼 하나만 놓는다. true면 PC 입력은 들고 있는 타일을 그대로 두고 칸마다 복사본을 깐다(PlaceBulkCopies).
+    public bool IsBulkPlacing => mIsPlacing.Value && mPlaceable != null && mPlaceable.PlacementId < 0 && mPlaceable.IsBulkPlaceable;
 
-    // 배치 중인 가구를 다음 방향(Down→Right→Up→Left)으로 돌린다. 회전 버튼 / R키.
-    // footprint 가로·세로와 손님 칸/비워둘 칸이 바뀌므로 강조 칸과 유효 위치를 다시 계산한다.
+    // 들고 있는 가구가 차지하는 칸 수(회전 반영). 대량 설치가 footprint 간격으로 칸을 고르는 데 쓴다.
+    public Vector2Int PlacingFootprint => mFootprint;
+
+    // 월드 좌표 → 들고 있는 가구 footprint 기준 셀(좌하단). 들고 있지 않으면 false.
+    public bool TryGetPlacingCell(Vector3 worldPos, out Vector3Int cell)
+    {
+        cell = default;
+        if (!mIsPlacing.Value || mArea == null)
+            return false;
+
+        cell = mArea.GetFootprintOrigin(worldPos, mFootprint);
+        return true;
+    }
+
+    // 사각형 채우기 범위 미리보기. UpdatePreview가 매번 미리보기를 지우므로 그 다음에 호출한다.
+    public void ShowBulkFillPreview(IEnumerable<Vector3Int> cells)
+    {
+        if (mIsPlacing.Value && mArea != null)
+            mArea.ShowFillPreview(cells, mFootprint);
+    }
+
+    // 들고 있는 바닥타일과 같은 타일(같은 방향/좌우반전)을 cells(footprint 기준 셀)마다 깐다. 놓을 수 없는 칸은 건너뛴다.
+    // 비용: 들고 있는 타일 몫 1개를 뺀 보관 수량을 먼저 쓰고, 모자라면 칸마다 골드로 산다. 골드가 떨어지면 거기서 멈추고 outOfGold=true.
+    // 목록 UI 갱신(InventoryVersion)은 끝에 한 번만 한다. 반환값 = 실제로 깐 수.
+    public int PlaceBulkCopies(IReadOnlyList<Vector3Int> cells, out bool outOfGold)
+    {
+        outOfGold = false;
+        if (!IsBulkPlacing || mArea == null || mTarget == null || cells == null || cells.Count == 0)
+            return 0;
+
+        var ghost = mPlaceable;
+        var row = GameInstance.Table.Get<CTable.FurnitureRow>(ghost.FurnitureTid);
+        var prefab = LoadFurniturePrefab(ghost.FurnitureTid, false);
+        if (row == null || prefab == null)
+            return 0;
+
+        int placed = 0;
+        foreach (var cell in cells)
+        {
+            var worldPos = mArea.GetFootprintCenterWorld(cell, mFootprint, mTarget.position.z);
+            if (!mArea.TryGetSnappedPositionForBase(worldPos, mFootprint, -1, ghost.Surface, ghost.LayoutOrder,
+                    ghost.AccessOffsets, ghost.ClearanceOffsets, out var snappedPos))
+                continue;
+
+            // 들고 있는 타일도 보관 수량에 포함돼 있으므로 1개는 남겨 둔다(취소하면 보관함으로 돌아가는 몫).
+            if (!TryConsumeForPlacement(ghost.FurnitureTid, false, row.Price, reservedStoredCount: 1, notify: false))
+            {
+                outOfGold = true;
+                break;
+            }
+
+            var instance = Object.Instantiate(prefab, snappedPos, Quaternion.identity, mArea.transform);
+            var placeable = instance.GetComponent<PlaceableObject>();
+            placeable.SetFurnitureTid(ghost.FurnitureTid);
+            placeable.SetArea(mArea);
+            placeable.SetOrientation(ghost.Direction, ghost.FlipX);
+
+            int placementId = RegisterPlacement(ghost.FurnitureTid, snappedPos, mArea.Floor, new Vector2Int(cell.x, cell.y),
+                placeable.Direction, placeable.FlipX, isSub: false, notify: false);
+            placeable.SetPlacementId(placementId);
+            mArea.OccupyBase(snappedPos, placeable.Footprint, placementId, placeable.GroupId, placeable.LayoutOrder,
+                placeable.AccessOffsets, placeable.ClearanceOffsets);
+            placed++;
+        }
+
+        if (placed > 0)
+        {
+            mInventoryVersion.Value++;
+            Physics2D.SyncTransforms();
+            mPlacedLayoutChanged.OnNext(Unit.Default);
+            // 방금 깐 칸은 더 이상 놓을 수 없으므로 강조/유효 위치를 다시 계산한다.
+            ShowPlacingHighlight();
+            UpdatePreview(mTarget.position);
+        }
+
+        if (outOfGold)
+            Logger.Log("[PlacementModel] 골드가 부족해 연속 설치를 멈췄습니다.");
+
+        return placed;
+    }
+
+    // 배치 중인 가구가 회전 가능한지(확정/취소 팝업의 회전 버튼, 조작 안내 표시용).
+    public bool CanRotatePlacing => mIsPlacing.Value && mPlaceable != null && mPlaceable.CanRotate;
+    // 배치 중인 가구의 회전 방식(조작 안내에서 "회전"/"좌우 반전" 문구를 고르는 데 쓴다). 배치 중이 아니면 None.
+    public CTable.eFurnitureOrientMode PlacingOrientMode => mIsPlacing.Value && mPlaceable != null ? mPlaceable.OrientMode : CTable.eFurnitureOrientMode.None;
+
+    // 배치 중인 가구에 R 한 번(회전 버튼 / R키) — 회전 방식에 따라 시계 방향 90° 회전 또는 좌우반전(PlaceableObject.RotateNext).
+    // footprint 가로·세로와 손님 칸/비워둘 칸이 바뀔 수 있으므로 강조 칸과 유효 위치를 다시 계산한다.
     public void RotatePlacing()
     {
         if (!CanRotatePlacing || mTarget == null || mArea == null)
             return;
 
-        mPlaceable.SetDirection(mPlaceable.GetNextDirection());
+        mPlaceable.RotateNext();
         mFootprint = mPlaceable.Footprint;
 
         ShowPlacingHighlight();
@@ -176,10 +344,13 @@ public partial class PlacementModel
         RefreshPlacementPreview();
     }
 
+    // 들고 있는 가구를 worldPos(커서 위치) 근처 칸에 맞춘다. z는 가구 원래 깊이를 유지한다(호출부는 화면→월드 좌표만 넘기면 됨).
     public void UpdatePreview(Vector3 worldPos)
     {
         if (!mIsPlacing.Value || mTarget == null || mArea == null)
             return;
+
+        worldPos.z = mTarget.position.z;
 
         bool isValid;
         Vector3 snappedPos;
@@ -224,9 +395,9 @@ public partial class PlacementModel
             var cell = new Vector2Int(origin.x, origin.y);
 
             if (placeable.PlacementId < 0)
-                placeable.SetPlacementId(RegisterPlacement(placeable.FurnitureTid, mTarget.position, mArea.Floor, cell, placeable.Direction, placeable.IsSubFurniture));
+                placeable.SetPlacementId(RegisterPlacement(placeable.FurnitureTid, mTarget.position, mArea.Floor, cell, placeable.Direction, placeable.FlipX, placeable.IsSubFurniture));
             else
-                UpdatePlacementPosition(placeable.PlacementId, mTarget.position, mArea.Floor, cell, placeable.Direction);
+                UpdatePlacementPosition(placeable.PlacementId, mTarget.position, mArea.Floor, cell, placeable.Direction, placeable.FlipX);
 
             if (placeable.IsSubFurniture)
                 mArea.OccupySub(mTarget.position, mFootprint, placeable.PlacementId);
@@ -267,10 +438,10 @@ public partial class PlacementModel
         if (mTarget != null)
             mTarget.position = mOriginPosition;
 
-        // 드래그 중 돌렸다면 시작 방향으로 되돌린다(footprint/손님 칸/비워둘 칸도 같이 복원).
-        if (placeable != null && placeable.Direction != mOriginDirection)
+        // 드래그 중 돌렸거나 뒤집었다면 시작 상태로 되돌린다(footprint/손님 칸/비워둘 칸도 같이 복원).
+        if (placeable != null && (placeable.Direction != mOriginDirection || placeable.FlipX != mOriginFlipX))
         {
-            placeable.SetDirection(mOriginDirection);
+            placeable.SetOrientation(mOriginDirection, mOriginFlipX);
             mFootprint = placeable.Footprint;
         }
 
@@ -305,7 +476,7 @@ public partial class PlacementModel
         if (furnitureGroup != null)
         {
             foreach (var row in furnitureGroup.All.Values)
-                dataList.Add(new UIScrollFurnitureData { Tid = row.Tid, Name = row.Name, Price = row.Price, PrefabPath = row.PrefabPath, IsSub = false,
+                dataList.Add(new UIScrollFurnitureData { Tid = row.Tid, Name = row.Name, Price = row.Price, IsSub = false,
                     Category = (CTable.eFurnitureCategory)row.Category, Width = Mathf.Max(1, row.Width), Height = Mathf.Max(1, row.Height),
                     StoredCount = GetStoredCount(row.Tid, false) });
         }
@@ -314,7 +485,7 @@ public partial class PlacementModel
         if (subFurnitureGroup != null)
         {
             foreach (var row in subFurnitureGroup.All.Values)
-                dataList.Add(new UIScrollFurnitureData { Tid = row.Tid, Name = row.Name, Price = row.Price, PrefabPath = row.PrefabPath, IsSub = true,
+                dataList.Add(new UIScrollFurnitureData { Tid = row.Tid, Name = row.Name, Price = row.Price, IsSub = true,
                     Category = (CTable.eFurnitureCategory)row.Category, Width = Mathf.Max(1, row.Width), Height = Mathf.Max(1, row.Height),
                     StoredCount = GetStoredCount(row.Tid, true) });
         }
@@ -344,25 +515,17 @@ public partial class PlacementModel
             return false;
         }
 
-        var prefab = GameInstance.Resource.LoadSync<GameObject>(data.PrefabPath);
+        var prefab = LoadFurniturePrefab(data.Tid, data.IsSub);
         if (prefab == null)
-        {
-            Logger.Warning($"[PlacementModel] 가구 프리팹을 찾을 수 없습니다. Path: {data.PrefabPath}");
             return false;
-        }
 
-        bool fromStorage = useStored && GetStoredCount(data.Tid, data.IsSub) > 0;
-        if (!fromStorage)
+        bool hasUnit = useStored
+            ? TryConsumeForPlacement(data.Tid, data.IsSub, data.Price, reservedStoredCount: 0)
+            : TryPurchase(data.Tid, data.IsSub, data.Price);
+        if (!hasUnit)
         {
-            var gold = GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold);
-            if (gold == null || gold.Count.Value < data.Price)
-            {
-                Logger.Log("[PlacementModel] 골드가 부족합니다.");
-                return false;
-            }
-
-            gold.Consume((int)data.Price);
-            AddOwned(data.Tid, data.IsSub);
+            Logger.Log("[PlacementModel] 골드가 부족합니다.");
+            return false;
         }
 
         // 층별 TilePlacementArea 오브젝트 아래에 생성해서 씬 계층 구조에서 어느 층 소속인지 바로 보이게 한다.
@@ -382,6 +545,27 @@ public partial class PlacementModel
         return true;
     }
 
+    // 가구 1개를 놓을 몫을 확보한다: 보관 수량(reservedStoredCount개는 남겨 둠)이 있으면 그걸 쓰고(보유/골드 변화 없음),
+    // 없으면 골드로 산다(보유 +1). 골드가 부족하면 false.
+    private bool TryConsumeForPlacement(int tid, bool isSub, long price, int reservedStoredCount, bool notify = true)
+    {
+        if (GetStoredCount(tid, isSub) > reservedStoredCount)
+            return true;
+
+        return TryPurchase(tid, isSub, price, notify);
+    }
+
+    private bool TryPurchase(int tid, bool isSub, long price, bool notify = true)
+    {
+        var gold = GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold);
+        if (gold == null || gold.Count.Value < price)
+            return false;
+
+        gold.Consume((int)price);
+        AddOwned(tid, isSub, notify);
+        return true;
+    }
+
     // 세이브에 저장된 배치 목록을 그대로 씬에 재생성한다. 드래그/골드 소모가 필요 없는 복원 전용 경로.
     // 씬의 TilePlacementArea/WaypointGroup이 등록된 뒤(UIRootLobby.Init)에 호출해야 한다.
     public void RespawnSavedFurniture()
@@ -396,16 +580,9 @@ public partial class PlacementModel
             int placementId = kvp.Key;
             var record = kvp.Value;
 
-            string prefabPath = GetFurniturePrefabPath(record.Tid, record.IsSub);
-            if (prefabPath == null)
-                continue;
-
-            var prefab = GameInstance.Resource.LoadSync<GameObject>(prefabPath);
+            var prefab = LoadFurniturePrefab(record.Tid, record.IsSub);
             if (prefab == null)
-            {
-                Logger.Warning($"[PlacementModel] 가구 프리팹을 찾을 수 없습니다. Path: {prefabPath}");
                 continue;
-            }
 
             var area = record.Floor > 0 ? FindAreaByFloor(allAreas, record.Floor) : null;
             if (area == null)
@@ -421,9 +598,10 @@ public partial class PlacementModel
             else
             {
                 placeable.SetFurnitureTid(record.Tid);
-                // 회전 불가 가구에 방향이 남아 있으면(표에서 CanRotate를 껐을 때 등) 기본 방향으로 둔다.
-                placeable.SetDirection(placeable.CanRotate ? record.Direction : CTable.eFurnitureDirection.Down);
+                // 아트 설정의 회전 방식에서 쓸 수 없는 방향/반전이 남아 있으면(회전 방식을 바꿨을 때 등) SetOrientation이 기본값으로 정리한다.
+                placeable.SetOrientation(record.Direction, record.FlipX);
                 record.Direction = placeable.Direction;
+                record.FlipX = placeable.FlipX;
             }
 
             // footprint는 Tid 지정 후에야 알 수 있으므로 위치 보정은 여기서 한다.
@@ -470,7 +648,7 @@ public partial class PlacementModel
 
     // 가구배치 리셋 — 지금까지 배치한 가구를 전부 씬에서 제거하고 배치 기록도 함께 비운다.
     // 가구를 팔지 않는다: 보유 수는 그대로라 치운 가구는 전부 보관 중으로 돌아가고, 배치 목록에서 골드 없이 다시 놓을 수 있다.
-    // 배치 모드/드래그 중이면 먼저 취소해서 PlaceableObject.OnPointerDown 등이 파괴된 오브젝트를 참조하지 않게 한다.
+    // 가구를 들고 있으면 먼저 취소해서 PlacementModel/입력이 파괴된 오브젝트를 참조하지 않게 한다.
     public void ResetAllPlacedFurniture()
     {
         if (mIsPlacing.Value)
@@ -481,13 +659,15 @@ public partial class PlacementModel
             if (placeable == null || placeable.PlacementId < 0)
                 continue;
 
-            Object.Destroy(placeable.gameObject);
+            // 철거와 같은 정리(진열 빵 → 창고, 풀 회수, 비활성화 후 파괴). 남은 칸 점유는 아래에서 영역별로 한 번에 비운다.
+            ReleasePlacedObject(placeable);
         }
 
         foreach (var area in Object.FindObjectsByType<TilePlacementArea>(FindObjectsSortMode.None))
             area.ClearAllOccupants();
 
         ClearAllPlacements();
+        mPlacedLayoutChanged.OnNext(Unit.Default);
     }
 
     // FloorModel.ViewingFloor(로비 카메라가 보고 있는 층)의 WaypointGroup(Order=층 번호) 첫 영역.
@@ -508,20 +688,55 @@ public partial class PlacementModel
         return null;
     }
 
-    private static string GetFurniturePrefabPath(int tid, bool isSub)
+    // 가구/소품의 아트 설정(프리팹, 방향별 스프라이트, 회전 방식). CSV의 VisualPath(Addressables 주소)로 로드한다.
+    // 표에 없거나 로드에 실패하면 null — 스폰 불가, 이미 있는 오브젝트는 프리팹 그림 그대로·회전 없음으로 취급한다.
+    public FurnitureVisualData GetFurnitureVisual(int tid, bool isSub)
+    {
+        if (mDicVisual.TryGetValue((isSub, tid), out var cached))
+            return cached;
+
+        string visualPath = GetVisualPath(tid, isSub);
+        var visual = string.IsNullOrEmpty(visualPath) ? null : GameInstance.Resource.LoadSync<FurnitureVisualData>(visualPath);
+        if (visual == null && !string.IsNullOrEmpty(visualPath))
+            Logger.Warning($"[PlacementModel] 가구 아트 설정을 찾을 수 없습니다. Tid={tid}, IsSub={isSub}, VisualPath={visualPath}");
+
+        mDicVisual[(isSub, tid)] = visual;
+        return visual;
+    }
+
+    // 아트 설정에 연결된 배치 프리팹(AssetReferenceGameObject → Addressables GUID 키로 로드).
+    private GameObject LoadFurniturePrefab(int tid, bool isSub)
+    {
+        var visual = GetFurnitureVisual(tid, isSub);
+        if (visual == null)
+            return null;
+
+        if (visual.Prefab == null || !visual.Prefab.RuntimeKeyIsValid())
+        {
+            Logger.Warning($"[PlacementModel] 아트 설정 '{visual.name}'에 프리팹이 지정되지 않았습니다. Tid={tid}, IsSub={isSub}");
+            return null;
+        }
+
+        var prefab = GameInstance.Resource.LoadSync<GameObject>(visual.Prefab.AssetGUID);
+        if (prefab == null)
+            Logger.Warning($"[PlacementModel] 가구 프리팹을 로드하지 못했습니다. Visual={visual.name}, GUID={visual.Prefab.AssetGUID}");
+        return prefab;
+    }
+
+    private static string GetVisualPath(int tid, bool isSub)
     {
         if (isSub)
         {
             var subRow = GameInstance.Table.Get<CTable.SubFurnitureRow>(tid);
             if (subRow == null)
-                Logger.Warning($"[PlacementModel] 저장된 sub가구 Tid를 찾을 수 없습니다. Tid={tid}");
-            return subRow?.PrefabPath;
+                Logger.Warning($"[PlacementModel] sub가구 Tid를 표에서 찾을 수 없습니다. Tid={tid}");
+            return subRow?.VisualPath;
         }
 
         var row = GameInstance.Table.Get<CTable.FurnitureRow>(tid);
         if (row == null)
-            Logger.Warning($"[PlacementModel] 저장된 가구 Tid를 찾을 수 없습니다. Tid={tid}");
-        return row?.PrefabPath;
+            Logger.Warning($"[PlacementModel] 가구 Tid를 표에서 찾을 수 없습니다. Tid={tid}");
+        return row?.VisualPath;
     }
 
     private static TilePlacementArea FindAreaByFloor(TilePlacementArea[] areas, int floor)

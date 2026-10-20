@@ -46,8 +46,10 @@ public class PlacedFurnitureSaveEntry
     public int AssignedBreadTid;
     // true면 CTable.SubFurnitureRow, false면 CTable.FurnitureRow 소속 Tid.
     public bool IsSub;
-    // 가구 방향(CTable.eFurnitureDirection). 구 세이브는 0(Down).
+    // 가구 방향(CTable.eFurnitureDirection, 바닥타일은 그림 회전 단계). 구 세이브는 0(Down).
     public int Direction;
+    // 좌우반전(벽가구, 반전 허용 바닥타일). 구 세이브는 false.
+    public bool FlipX;
 }
 
 // 보유 가구 수(구매한 총 개수, 배치된 것 포함). 보관 중 = Count − 배치 수.

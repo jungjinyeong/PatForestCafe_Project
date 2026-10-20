@@ -1,0 +1,36 @@
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+
+// 가구/소품 1개의 아트 설정. 아트 작업자가 Inspector에서 직접 고치는 값만 둔다
+// (가격/칸 수/그룹 같은 기획 값과 아이템 아이콘(Atlas/Icon)은 Furniture.csv / SubFurniture.csv).
+// 어떤 가구가 이 에셋을 쓰는지는 CSV의 VisualPath(이 에셋의 Addressables 주소)로만 정한다 — 에셋에는 Tid를 두지 않는다.
+// 에셋 위치: Datas/FurnitureVisual/{Tiles|Display|Dining}/, 주소: FurnitureVisual/{에셋명}
+// (Tools/Furniture/Register Visual Data Addressables로 일괄 등록).
+[CreateAssetMenu(fileName = "FV_", menuName = "Furniture/Visual Data")]
+public class FurnitureVisualData : ScriptableObject
+{
+    [Tooltip("배치할 가구 프리팹(Datas/FurniturePrefabs, Addressables 등록 필요).")]
+    [SerializeField] private AssetReferenceGameObject mPrefab;
+
+    [Tooltip("R키 회전 방식. None=회전 없음, DirectionalSprite=일반 가구(방향별 그림), FlipXOnly=벽가구(좌우반전), RotateTile=바닥타일(그림 90° 회전)")]
+    [SerializeField] private CTable.eFurnitureOrientMode mOrientMode = CTable.eFurnitureOrientMode.None;
+
+    [Header("Sprites")]
+    [Tooltip("정면(아래를 보는 방향) 그림. 비어 있으면 프리팹에 지정된 그림을 쓴다.")]
+    [SerializeField] private Sprite mFront;
+    [Tooltip("뒷면(위를 보는 방향) 그림. 비어 있으면 정면 그림을 쓴다. DirectionalSprite 전용.")]
+    [SerializeField] private Sprite mBack;
+    [Tooltip("옆면 그림(오른쪽을 보는 방향 기준, 왼쪽은 FlipX). 비어 있으면 정면 그림을 쓴다. DirectionalSprite 전용.")]
+    [SerializeField] private Sprite mSide;
+
+    [Header("Tile")]
+    [Tooltip("RotateTile 전용. 켜면 R 회전 순환에 좌우반전 상태를 포함한다(0°,90°,180°,270° 다음 반전된 4방향).")]
+    [SerializeField] private bool mTileIncludeFlipX;
+
+    public AssetReferenceGameObject Prefab => mPrefab;
+    public CTable.eFurnitureOrientMode OrientMode => mOrientMode;
+    public Sprite Front => mFront;
+    public Sprite Back => mBack;
+    public Sprite Side => mSide;
+    public bool TileIncludeFlipX => mTileIncludeFlipX;
+}

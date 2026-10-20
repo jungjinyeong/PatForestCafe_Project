@@ -122,7 +122,7 @@ public class SaveManager : MonoBehaviour
             data.OwnedFurniture.Add(new OwnedFurnitureSaveEntry { Tid = kvp.Key.tid, IsSub = kvp.Key.isSub, Count = kvp.Value });
 
         foreach (var kvp in GameInstance.Model.Placement.GetAllPlacements())
-            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, Floor = kvp.Value.Floor, Cell = kvp.Value.Cell, AssignedBreadTid = kvp.Value.AssignedBreadTid, IsSub = kvp.Value.IsSub, Direction = (int)kvp.Value.Direction });
+            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, Floor = kvp.Value.Floor, Cell = kvp.Value.Cell, AssignedBreadTid = kvp.Value.AssignedBreadTid, IsSub = kvp.Value.IsSub, Direction = (int)kvp.Value.Direction, FlipX = kvp.Value.FlipX });
 
         data.DiscoveredRecipeTids.AddRange(GameInstance.Model.RecipeBook.GetDiscoveredTids());
         data.GoldIncomeUpgradeLevel = GameInstance.Model.Upgrade.Level;
@@ -177,7 +177,7 @@ public class SaveManager : MonoBehaviour
 
         foreach (var entry in data.PlacedFurniture)
             GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position, entry.Floor, entry.Cell,
-                (CTable.eFurnitureDirection)entry.Direction, entry.AssignedBreadTid, entry.IsSub);
+                (CTable.eFurnitureDirection)entry.Direction, entry.FlipX, entry.AssignedBreadTid, entry.IsSub);
 
         if (data.OwnedFurniture != null)
         {

@@ -6,6 +6,8 @@ using UnityEngine.Serialization;
 public class UIHudController : MonoBehaviour
 {
     [SerializeField] private UITopbarInfo mTopbarInfo;
+    // 건축(배치) 모드 조작 안내. 배치 모드일 때만 스스로 켜진다.
+    [SerializeField] private UIPlacementControlGuide mPlacementControlGuide;
 
     //[Header("Only Lobby")]
     
@@ -25,6 +27,9 @@ public class UIHudController : MonoBehaviour
         mIsInitialized = true;
 
         mTopbarInfo.Init();
+
+        if (mPlacementControlGuide != null)
+            mPlacementControlGuide.Init();
 
         mBtnToggleIngredientIsland.OnSubscribeOnClick(OnClickToggleIngredientIsland).AddTo(this);
 

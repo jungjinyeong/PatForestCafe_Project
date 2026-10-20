@@ -79,7 +79,7 @@ public class UIPopupShopFurniture : UIWndBase, IUIParam<UIPopupShopFurniture.Par
     private void OnClickBuy(UIScrollFurnitureData data)
     {
         // 구매 성공 시 곧바로 드래그 배치 모드로 전환되므로, 모달을 닫아 로비 화면이 보이게 한다.
-        // 상점가 팝업이 남아 있으면 화면을 덮어 드래그 배치(PlaceableObject의 UI 레이캐스트 체크)가 막히므로 같이 닫는다.
+        // 상점가 팝업이 남아 있으면 화면을 덮어 배치 입력(PlacementInputController의 UI 레이캐스트 체크)이 막히므로 같이 닫는다.
         if (GameInstance.Model.Placement.TryPurchaseAndBeginPlacement(data))
         {
             SelfClose();

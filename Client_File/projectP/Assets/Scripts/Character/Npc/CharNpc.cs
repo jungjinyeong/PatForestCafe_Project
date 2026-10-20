@@ -71,6 +71,14 @@ public class CharNpc : CharBase, IBreadPickup
 
     private void MoveTowardsSubTarget()
     {
+        // 가구 철거/리셋으로 목표(또는 경유) 웨이포인트가 파괴됐으면 이번 이동을 포기하고 다음 행동으로 넘어간다.
+        if (mSubPath[mSubPathIndex] == null)
+        {
+            mSubPath = null;
+            AdvanceBehaviorQueue();
+            return;
+        }
+
         Transform target = mSubPath[mSubPathIndex].transform;
         Vector3 desiredDirection = (target.position - transform.position).normalized;
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
@@ -117,6 +125,14 @@ public class CharNpc : CharBase, IBreadPickup
 
     private void BeginSegmentTo(Waypoint target)
     {
+        // 서 있던 웨이포인트(철거된 가구의 손님 칸 등)가 파괴됐으면 경로 탐색 없이 목표로 곧장 간다(mSubPath[0]은 읽지 않음).
+        if (mCurrentWaypoint == null)
+        {
+            mSubPath = new List<Waypoint> { null, target };
+            mSubPathIndex = 1;
+            return;
+        }
+
         var path = WaypointPathfinder.FindPath(mCurrentWaypoint, target);
 
         mSubPath = (path == null || path.Count <= 1)

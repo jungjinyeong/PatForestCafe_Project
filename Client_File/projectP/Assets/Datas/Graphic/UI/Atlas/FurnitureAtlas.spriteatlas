@@ -50,6 +50,22 @@ SpriteAtlas:
     - 0cd097f515e5d1441a76513e75535ed3: -563552300
     - 0cd097f515e5d1441a76513e75535ed3: 1492681866
     - 0cd097f515e5d1441a76513e75535ed3: 1377592216
+    - 8750c30608c839d48b1e0422fe91fa99: -161697302
+    - 8750c30608c839d48b1e0422fe91fa99: 1946046823
+    - 8750c30608c839d48b1e0422fe91fa99: -1158699301
+    - 8750c30608c839d48b1e0422fe91fa99: -1558504908
+    - 8750c30608c839d48b1e0422fe91fa99: -779302210
+    - 8750c30608c839d48b1e0422fe91fa99: -505909033
+    - 8750c30608c839d48b1e0422fe91fa99: -1341887003
+    - 8750c30608c839d48b1e0422fe91fa99: -664065378
+    - 8750c30608c839d48b1e0422fe91fa99: -2082753864
+    - 8750c30608c839d48b1e0422fe91fa99: 371766051
+    - 8750c30608c839d48b1e0422fe91fa99: -1821847238
+    - 8750c30608c839d48b1e0422fe91fa99: 143807495
+    - 8750c30608c839d48b1e0422fe91fa99: -13689691
+    - 8750c30608c839d48b1e0422fe91fa99: 92560209
+    - 8750c30608c839d48b1e0422fe91fa99: -1096235061
+    - 8750c30608c839d48b1e0422fe91fa99: -903548160
     - 295184982f62fc0418e173026550f6a2: 321291503
     - 295184982f62fc0418e173026550f6a2: -1154975165
     - 295184982f62fc0418e173026550f6a2: 253644315
@@ -80,6 +96,22 @@ SpriteAtlas:
   - {fileID: -563552300, guid: 0cd097f515e5d1441a76513e75535ed3, type: 3}
   - {fileID: 1492681866, guid: 0cd097f515e5d1441a76513e75535ed3, type: 3}
   - {fileID: 1377592216, guid: 0cd097f515e5d1441a76513e75535ed3, type: 3}
+  - {fileID: -161697302, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: 1946046823, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -1158699301, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -1558504908, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -779302210, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -505909033, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -1341887003, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -664065378, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -2082753864, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: 371766051, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -1821847238, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: 143807495, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -13689691, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: 92560209, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -1096235061, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  - {fileID: -903548160, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
   - {fileID: 321291503, guid: 295184982f62fc0418e173026550f6a2, type: 3}
   - {fileID: -1154975165, guid: 295184982f62fc0418e173026550f6a2, type: 3}
   - {fileID: 253644315, guid: 295184982f62fc0418e173026550f6a2, type: 3}
@@ -109,6 +141,22 @@ SpriteAtlas:
   - flr_0114_ForestGardenStone_Moonlight_1
   - flr_0114_ForestGardenStone_Moonlight_0
   - flr_0114_ForestGardenStone_Moonlight_2
+  - flr_0120_forest_ground_tile_spring_9
+  - flr_0120_forest_ground_tile_spring_8
+  - flr_0120_forest_ground_tile_spring_5
+  - flr_0120_forest_ground_tile_spring_4
+  - flr_0120_forest_ground_tile_spring_7
+  - flr_0120_forest_ground_tile_spring_6
+  - flr_0120_forest_ground_tile_spring_1
+  - flr_0120_forest_ground_tile_spring_0
+  - flr_0120_forest_ground_tile_spring_3
+  - flr_0120_forest_ground_tile_spring_2
+  - flr_0120_forest_ground_tile_spring_14
+  - flr_0120_forest_ground_tile_spring_15
+  - flr_0120_forest_ground_tile_spring_10
+  - flr_0120_forest_ground_tile_spring_11
+  - flr_0120_forest_ground_tile_spring_12
+  - flr_0120_forest_ground_tile_spring_13
   - flr_0100_forest_path_stone_tile_5
   - flr_0100_forest_path_stone_tile_4
   - flr_0100_forest_path_stone_tile_1

@@ -52,7 +52,7 @@ SpriteAtlas:
   - dst_0121_strawberry_donut
   - dst_0100_milk_bread
   - dst_0130_vegetable_bread
-  - dst_0120_strawberry_donut
+  - dst_0120_glazed_donut
   m_RenderDataMap: {}
   m_Tag: BreadAtlas
   m_IsVariant: 0

@@ -11,7 +11,7 @@ namespace CTable
         public string Name;
         public string Atlas;
         public string Icon;
-        public string PrefabPath;
+        public string VisualPath;
         public long Price;
         public int Width;
         public int Height;

@@ -15,8 +15,38 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: f579d8088ccfb534ea802bd1b871588b
   m_SerializeEntries:
+  - m_GUID: 0f1450c06b77bc2448c14cce8f61a428
+    m_Address: FurnitureVisual/FV_Sub_Table
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 51862154d365eaa49841e0af8a8b0957
+    m_Address: Input/PlacementInput
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6851f3cc6ac03c143a9e4e90a0549135
     m_Address: FurnitureAtlas
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 69f7be34e3a093f448419c473eced897
+    m_Address: FurnitureVisual/FV_CarpetRug
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 72e732723e359ff4dbd5b9a93ada514c
+    m_Address: FurnitureVisual/FV_WallpaperPanel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 98a41e60b45d5b44aa3a9a2bef6858f0
+    m_Address: FurnitureVisual/FV_FloorTilePanel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cf94a882517bbca48ae3be2e68dc95b5
+    m_Address: FurnitureVisual/FV_Table
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

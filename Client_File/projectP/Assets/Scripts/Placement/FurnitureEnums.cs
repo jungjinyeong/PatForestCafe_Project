@@ -25,14 +25,24 @@ namespace CTable
         Carpet,     // 카펫
     }
 
-    // 배치된 가구가 바라보는 방향. 프리팹은 Down(정면이 아래) 기준으로 만들고, 회전할 때마다 Down→Right→Up→Left 순서로
-    // 칸/손님 위치를 반시계 90°씩 돌린다(정면이 아래→오른쪽을 보게 됨). 그림은 Down/Up=앞면, Right=옆면, Left=옆면 좌우반전.
+    // 배치된 가구가 바라보는 방향. 값 = Down(정면이 아래) 기준 반시계 90° 회전 횟수(칸/손님 위치 계산에 그대로 쓴다).
+    // 프리팹은 Down 기준으로 만들고, R키는 시계 방향(Down→Left→Up→Right)으로 돈다.
+    // 그림(DirectionalSprite)은 Down=Front, Up=Back, Right=Side, Left=Side 좌우반전. 바닥타일(RotateTile)은 그림 회전 단계로 쓴다.
     public enum eFurnitureDirection
     {
         Down,
         Right,
         Up,
         Left,
+    }
+
+    // 가구의 회전(R) 방식. 아트 데이터(FurnitureVisualData)에서 가구마다 지정한다.
+    public enum eFurnitureOrientMode
+    {
+        None,               // 회전 없음
+        DirectionalSprite,  // 일반 가구 — 방향별 스프라이트(앞/뒤/옆) + 한쪽 옆면은 FlipX, footprint도 같이 돈다
+        FlipXOnly,          // 벽가구 — 좌우반전만
+        RotateTile,         // 바닥타일 — 그림 자체를 90°씩 회전(+선택적으로 FlipX)
     }
 
     // FurnitureRow.Category / SubFurnitureRow.Category(int)를 코드에서 읽을 때 쓰는 타입. 가구 구입 목록의 탭 분류.

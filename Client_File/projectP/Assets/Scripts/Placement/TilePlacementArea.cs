@@ -21,6 +21,11 @@ public class TilePlacementArea : MonoBehaviour
     // 같은 면(바닥/벽)인데 놓을 수 없는 칸(다른 가구가 차지, 손님 접근 칸, 테이블 앞 칸이 막힘 등)은 붉게 표시한다.
     private static readonly Color HIGHLIGHT_BLOCKED_FILL = new Color(1f, 0.25f, 0.25f, 0.28f);
     private static readonly Color HIGHLIGHT_BLOCKED_BORDER = new Color(1f, 0.35f, 0.35f, 0.85f);
+    // G키 그리드 오버레이: 배치 칸마다 옅은 테두리만 그린다(채움 없음).
+    private static readonly Color GRID_OVERLAY_BORDER = new Color(1f, 1f, 1f, 0.28f);
+    // 바닥타일 사각형 채우기(Shift+드래그) 범위 미리보기.
+    private static readonly Color HIGHLIGHT_FILL_PREVIEW_FILL = new Color(0.35f, 0.85f, 1f, 0.35f);
+    private static readonly Color HIGHLIGHT_FILL_PREVIEW_BORDER = new Color(0.45f, 0.9f, 1f, 0.9f);
     // 이 레이어 이상(일반 가구)만 손님 접근 칸을 막는다. 바닥타일(0)/카펫(1)은 위에 서도 되므로 깔 수 있다.
     private const int ACCESS_BLOCKING_LAYER = PlaceableObject.LAYER_FURNITURE_MIN;
 
@@ -55,6 +60,9 @@ public class TilePlacementArea : MonoBehaviour
     private Tilemap mHighlightTilemap;
     private Tile mHighlightTile;
     private Tile mBlockedTile;
+    private Tile mFillPreviewTile;
+    // G키 그리드 오버레이 전용 런타임 타일맵. 처음 켤 때 배치 칸 전체를 한 번 칠해 두고 이후엔 켜고 끄기만 한다.
+    private Tilemap mGridOverlayTilemap;
     // 드래그 중인 가구 자신의 칸/손님 접근 칸을 붉게 덮어 칠한 칸 -> 덮기 전 강조 타일(되돌리기용).
     private readonly Dictionary<Vector3Int, TileBase> mPreviewOverwritten = new Dictionary<Vector3Int, TileBase>();
 
@@ -220,6 +228,30 @@ public class TilePlacementArea : MonoBehaviour
         mCellsByPlacementId.Remove(placementId);
     }
 
+    // basePlacementId가 차지한 셀 위에 올라가 있는 sub가구들의 placementId(중복 없음). 베이스 철거 시 함께 회수하는 데 쓴다.
+    public List<int> GetSubPlacementIdsOnBase(int basePlacementId)
+    {
+        var result = new List<int>();
+        if (!mCellsByPlacementId.TryGetValue(basePlacementId, out List<Vector3Int> cells))
+            return result;
+
+        foreach (var cell in cells)
+        {
+            if (!mOccupants.TryGetValue(cell, out CellOccupant occupant) || occupant.SubPlacementId < 0 || result.Contains(occupant.SubPlacementId))
+                continue;
+
+            foreach (var slot in occupant.Bases.Values)
+            {
+                if (slot.PlacementId == basePlacementId && slot.GroupId > 0)
+                {
+                    result.Add(occupant.SubPlacementId);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
     // basePlacementId가 차지한 셀 중 sub가 하나라도 올라가 있으면 true. 베이스 재드래그(이동) 차단용.
     // sub는 그룹이 지정된 베이스(GroupId>0) 위에만 올라가므로, 그룹 없는 베이스(바닥타일/카펫)는 sub와 무관하게 옮길 수 있다.
     public bool HasAnySubOccupant(int basePlacementId)
@@ -334,13 +366,32 @@ public class TilePlacementArea : MonoBehaviour
         mPreviewOverwritten.Clear();
     }
 
+    // 사각형 채우기 범위(각 칸 = footprint 기준 셀)를 칠한다. 이전 미리보기를 지우지 않고 덧칠하므로
+    // 매 프레임 PlacementModel.UpdatePreview(→ ClearPlacementPreview) 다음에 호출한다. 지울 때는 ClearPlacementPreview.
+    public void ShowFillPreview(IEnumerable<Vector3Int> origins, Vector2Int footprintCells)
+    {
+        if (mHighlightTilemap == null)
+            return;
+
+        foreach (var origin in origins)
+        {
+            foreach (var cell in IterateFootprintCells(origin, footprintCells))
+                PaintPreviewCell(cell, mFillPreviewTile);
+        }
+    }
+
     private void PaintPreviewCell(Vector3Int cell)
+    {
+        PaintPreviewCell(cell, mBlockedTile);
+    }
+
+    private void PaintPreviewCell(Vector3Int cell, TileBase tile)
     {
         if (!mTilemap.HasTile(cell) || mPreviewOverwritten.ContainsKey(cell))
             return;
 
         mPreviewOverwritten[cell] = mHighlightTilemap.GetTile(cell);
-        mHighlightTilemap.SetTile(cell, mBlockedTile);
+        mHighlightTilemap.SetTile(cell, tile);
     }
 
     // isAvailable 칸은 밝게, 그렇지 않은데 isBlockedCandidate(같은 면 등)인 칸은 붉게 칠한다. isBlockedCandidate가 null이면 붉은 칸은 없다.
@@ -366,6 +417,47 @@ public class TilePlacementArea : MonoBehaviour
         }
     }
 
+    // G키 그리드 오버레이를 켜고 끈다(PlacementGridOverlay가 지금 보고 있는 층 영역만 켠다).
+    public void SetGridOverlayVisible(bool isVisible)
+    {
+        if (!isVisible)
+        {
+            if (mGridOverlayTilemap != null)
+                mGridOverlayTilemap.gameObject.SetActive(false);
+            return;
+        }
+
+        if (EnsureGridOverlayTilemap())
+            mGridOverlayTilemap.gameObject.SetActive(true);
+    }
+
+    // 강조 타일맵과 같은 방식으로 런타임 전용 그리드 타일맵을 만들고 배치 칸 전체에 테두리 타일을 깐다.
+    private bool EnsureGridOverlayTilemap()
+    {
+        if (mGridOverlayTilemap != null)
+            return true;
+
+        if (mTilemap == null || mTilemap.layoutGrid == null)
+            return false;
+
+        var go = new GameObject("PlacementGridOverlay") { hideFlags = HideFlags.DontSave };
+        go.transform.SetParent(mTilemap.layoutGrid.transform, false);
+
+        mGridOverlayTilemap = go.AddComponent<Tilemap>();
+        mGridOverlayTilemap.tileAnchor = mTilemap.tileAnchor;
+
+        var renderer = go.AddComponent<TilemapRenderer>();
+        renderer.sortingOrder = HIGHLIGHT_SORTING_ORDER;
+
+        var tile = CreateHighlightTile(Color.clear, GRID_OVERLAY_BORDER);
+        foreach (var cell in mTilemap.cellBounds.allPositionsWithin)
+        {
+            if (mTilemap.HasTile(cell))
+                mGridOverlayTilemap.SetTile(cell, tile);
+        }
+        return true;
+    }
+
     // 배치 타일맵과 같은 Grid 아래에 런타임 전용 강조 타일맵을 만든다(씬/프리팹에 저장되지 않음).
     private bool EnsureHighlightTilemap()
     {
@@ -387,6 +479,7 @@ public class TilePlacementArea : MonoBehaviour
 
         mHighlightTile = CreateHighlightTile(HIGHLIGHT_FILL, HIGHLIGHT_BORDER);
         mBlockedTile = CreateHighlightTile(HIGHLIGHT_BLOCKED_FILL, HIGHLIGHT_BLOCKED_BORDER);
+        mFillPreviewTile = CreateHighlightTile(HIGHLIGHT_FILL_PREVIEW_FILL, HIGHLIGHT_FILL_PREVIEW_BORDER);
         return true;
     }
 

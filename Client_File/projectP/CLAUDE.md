@@ -22,7 +22,10 @@ Assets/
 │   └── Dining/                       # 손님이 사용하는 테이블·의자 = 테라스용
 ├── Datas/FurniturePrefabs/           # 배치용 가구 프리팹만 (FurnitureArt와 같은 하위 분류)
 │                                     #  Addressables 그룹 FurniturePrefabs, 주소 FurniturePrefabs/{프리팹명}
-│                                     #  = Furniture.csv / SubFurniture.csv의 PrefabPath
+│                                     #  (FurnitureVisualData의 Prefab 참조로 연결)
+├── Datas/FurnitureVisual/            # 가구 아트 설정 SO(FurnitureVisualData: 프리팹·방향별 그림·회전 방식)
+│                                     #  주소 FurnitureVisual/{에셋명}(생성/이름 변경 시 자동 등록)
+│                                     #  = Furniture.csv / SubFurniture.csv의 VisualPath
 └── Datas/UI/                         # UI 관련 에셋
 ```
 

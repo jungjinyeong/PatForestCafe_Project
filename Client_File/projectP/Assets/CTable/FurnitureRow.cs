@@ -11,16 +11,13 @@ namespace CTable
         public string Name;
         public string Atlas;
         public string Icon;
-        public string PrefabPath;
+        public string VisualPath;
         public long Price;
         public int Width;
         public int Height;
         public int GroupId;
         public int FixedType;
         public int LayoutOrder;
-        public bool CanRotate;
-        public string FrontResourceName;
-        public string SideResourceName;
         public int FurnitureType;
         public int Category;
     }

@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UniRx;
 
 [RequireComponent(typeof(BoxCollider2D))]
@@ -38,11 +36,14 @@ public class PlaceableObject : MonoBehaviour
              "벽/배치 영역 밖에 걸려도 배치는 되고, 바닥타일·카펫은 이 칸에 깔 수 있다. 회전하면 같이 돈다. 선택하면 Scene 뷰에 빨간 칸으로 보인다.")]
     [SerializeField] private List<Vector2Int> mClearanceOffsets = new List<Vector2Int>();
 
-    private static readonly List<RaycastResult> mUIRaycastResults = new List<RaycastResult>();
+    // 콜라이더 → 가구. 클릭/철거 대상 판정(FindTopmostAt)이 매 프레임 GetComponent를 부르지 않도록 Awake/OnDestroy에서 등록·해제한다.
+    private static readonly Dictionary<Collider2D, PlaceableObject> mPlaceablesByCollider = new Dictionary<Collider2D, PlaceableObject>();
 
     private BoxCollider2D mCollider;
-    private CompositeDisposable mDragDisposables;
-    private bool mIsDragging;
+    // 같은 오브젝트의 빵 진열대(Table.prefab만). 철거/리셋 시 진열 빵 정리에 쓴다. 없으면 null.
+    private Intaraction_BreadStand mBreadStand;
+    // 들고 있는 동안(IsPlacing)의 색 표시 구독. 내려놓으면 해제한다.
+    private CompositeDisposable mHoldDisposables;
 
     // 구매로 스폰된 가구인지 식별하는 값. 0이면 배치 영속화 대상이 아닌(세이브/로드 대상 아닌) 오브젝트로 취급한다.
     // mIsSubFurniture에 따라 CTable.FurnitureRow 또는 CTable.SubFurnitureRow 중 어느 테이블의 Tid인지 결정된다.
@@ -71,14 +72,20 @@ public class PlaceableObject : MonoBehaviour
     private Vector2 mBaseColliderOffset;
     private Vector2 mBaseColliderSize;
     private Sprite mBaseSprite;
+    // 그림 오브젝트(mSpriteRenderer)의 원래 회전. 바닥타일(RotateTile)은 여기에 90°씩 더해 그림을 돌린다.
+    private Quaternion mBaseSpriteLocalRotation = Quaternion.identity;
 
+    // 방향 = Down 기준 반시계 90° 회전 횟수(eFurnitureDirection 값). R은 시계 방향(Down→Left→Up→Right)으로 돈다.
     private CTable.eFurnitureDirection mDirection = CTable.eFurnitureDirection.Down;
-    private bool mCanRotate;
-    private string mAtlas;
-    private string mFrontResourceName;
-    private string mSideResourceName;
+    // 좌우반전. 벽가구(FlipXOnly)와 바닥타일(RotateTile + TileIncludeFlipX)만 쓴다 — 일반 가구의 Left 반전은 방향에서 계산한다.
+    // 기하(칸/손님 칸/콜라이더)와 그림 모두 "좌우반전 후 회전" 순서로 적용한다.
+    private bool mFlipX;
+    // 아트 설정(방향별 스프라이트, 회전 방식). 등록되지 않은 가구면 null — 프리팹 그림 그대로, 회전 없음.
+    private FurnitureVisualData mVisual;
 
     public int FurnitureTid => mFurnitureTid;
+    public TilePlacementArea Area => mArea;
+    public Intaraction_BreadStand BreadStand => mBreadStand;
     public int PlacementId => mPlacementId;
     public bool IsSubFurniture => mIsSubFurniture;
     public int GroupId => mGroupId;
@@ -87,13 +94,18 @@ public class PlaceableObject : MonoBehaviour
     public IReadOnlyList<Vector2Int> AccessOffsets => mAccessOffsets;
     public IReadOnlyList<Vector2Int> ClearanceOffsets => mRotatedClearanceOffsets;
     public CTable.eFurnitureDirection Direction => mDirection;
-    // 표의 CanRotate. sub가구는 회전하지 않는다.
-    public bool CanRotate => mCanRotate && !mIsSubFurniture;
+    public bool FlipX => mFlipX;
+    // 아트 설정의 회전 방식. 아트 설정이 없거나 sub가구면 None(회전 없음).
+    public CTable.eFurnitureOrientMode OrientMode => mVisual != null && !mIsSubFurniture ? mVisual.OrientMode : CTable.eFurnitureOrientMode.None;
+    // R(회전 버튼)이 동작하는지. 회전 방식에 따라 회전/좌우반전 중 하나가 된다(RotateNext).
+    public bool CanRotate => OrientMode != CTable.eFurnitureOrientMode.None;
 
     // 벽 가구(FurnitureType=벽 또는 FixedType=벽고정)는 벽 셀에만, 나머지 베이스 가구는 바닥 셀에만 배치된다.
     public ePlacementSurface Surface { get; private set; } = ePlacementSurface.Floor;
     // 같은 레이어끼리만 칸을 두고 겹칠 수 없다(TilePlacementArea). sub가구에는 의미 없음.
     public int LayoutOrder { get; private set; } = LAYER_FURNITURE_MIN;
+    // 드래그 연속 설치 / Shift+드래그 사각형 채우기 대상인지. 지금은 바닥타일(FurnitureType=타일)만 — 대상은 추후 바뀔 수 있다.
+    public bool IsBulkPlaceable { get; private set; }
 
     private int PickRank => mIsSubFurniture ? SUB_PICK_RANK : LayoutOrder;
 
@@ -111,57 +123,94 @@ public class PlaceableObject : MonoBehaviour
             ? ePlacementSurface.Wall
             : ePlacementSurface.Floor;
         LayoutOrder = row != null ? Mathf.Max(0, row.LayoutOrder) : LAYER_FURNITURE_MIN;
-        mCanRotate = row != null && row.CanRotate;
-        mAtlas = row?.Atlas;
-        mFrontResourceName = row?.FrontResourceName;
-        mSideResourceName = row?.SideResourceName;
+        IsBulkPlaceable = row != null && row.FurnitureType == (int)CTable.eFurnitureType.Tile;
+        mVisual = GameInstance.Model.Placement.GetFurnitureVisual(tid, false);
 
         CacheBaseLayout();
-        SetDirection(CTable.eFurnitureDirection.Down);
+        SetOrientation(CTable.eFurnitureDirection.Down, false);
         ApplySortingOrder();
     }
 
-    // 방향을 바꾼다: footprint 가로/세로, 손님 칸(자식 Waypoint 위치), 비워둘 칸, 콜라이더, 그림(앞면/옆면/좌우반전)을 함께 돌린다.
-    // 픽셀아트라 스프라이트 자체는 돌리지 않는다.
-    public void SetDirection(CTable.eFurnitureDirection direction)
+    // R 한 번: 회전 방식(아트 설정)에 따라 다음 상태로 바꾼다.
+    // - DirectionalSprite(일반 가구): 시계 방향 90°(Down→Left→Up→Right)
+    // - FlipXOnly(벽가구): 좌우반전 토글
+    // - RotateTile(바닥타일): 그림 시계 방향 90°. TileIncludeFlipX면 한 바퀴 돌 때마다 좌우반전도 토글(8가지 상태)
+    public void RotateNext()
+    {
+        var nextDirection = (CTable.eFurnitureDirection)(((int)mDirection + 3) % 4);
+
+        switch (OrientMode)
+        {
+            case CTable.eFurnitureOrientMode.DirectionalSprite:
+                SetOrientation(nextDirection, false);
+                break;
+            case CTable.eFurnitureOrientMode.FlipXOnly:
+                SetOrientation(CTable.eFurnitureDirection.Down, !mFlipX);
+                break;
+            case CTable.eFurnitureOrientMode.RotateTile:
+                bool wrapped = nextDirection == CTable.eFurnitureDirection.Down;
+                SetOrientation(nextDirection, wrapped && mVisual.TileIncludeFlipX ? !mFlipX : mFlipX);
+                break;
+        }
+    }
+
+    // 방향/좌우반전을 지정한다(세이브 복원, 취소 시 되돌리기도 이 경로). 회전 방식에서 쓸 수 없는 값은 기본값으로 정리한다.
+    // footprint 가로/세로, 손님 칸(자식 Waypoint 위치), 비워둘 칸, 콜라이더를 "좌우반전 후 회전"으로 함께 바꾸고 그림을 갱신한다.
+    public void SetOrientation(CTable.eFurnitureDirection direction, bool flipX)
     {
         if (mIsSubFurniture)
             return;
 
         CacheBaseLayout();
 
+        switch (OrientMode)
+        {
+            case CTable.eFurnitureOrientMode.None:
+                direction = CTable.eFurnitureDirection.Down;
+                flipX = false;
+                break;
+            case CTable.eFurnitureOrientMode.DirectionalSprite:
+                flipX = false;
+                break;
+            case CTable.eFurnitureOrientMode.FlipXOnly:
+                direction = CTable.eFurnitureDirection.Down;
+                break;
+            case CTable.eFurnitureOrientMode.RotateTile:
+                if (!mVisual.TileIncludeFlipX)
+                    flipX = false;
+                break;
+        }
+
         mDirection = direction;
+        mFlipX = flipX;
         int steps = (int)direction;
         mFootprint = steps % 2 == 0 ? mBaseFootprint : new Vector2Int(mBaseFootprint.y, mBaseFootprint.x);
 
-        // 가구 루트 = footprint 중심이라, 자식 로컬 위치는 원점 기준으로 돌리면 된다.
+        // 가구 루트 = footprint 중심이라, 자식 로컬 위치는 원점 기준으로 반전/회전하면 된다.
         for (int i = 0; i < mWaypoints.Length; i++)
         {
             if (mWaypoints[i] == null)
                 continue;
 
-            Vector2 rotated = RotateCounterClockwise(mWaypointBaseDeltas[i], steps);
+            Vector2 rotated = RotateCounterClockwise(MirrorX(mWaypointBaseDeltas[i], flipX), steps);
             mWaypoints[i].transform.position = transform.position + new Vector3(rotated.x, rotated.y, mWaypointBaseDeltas[i].z);
         }
 
         if (mCollider != null)
         {
-            mCollider.offset = RotateCounterClockwise(mBaseColliderOffset, steps);
+            mCollider.offset = RotateCounterClockwise(MirrorX(mBaseColliderOffset, flipX), steps);
             mCollider.size = steps % 2 == 0 ? mBaseColliderSize : new Vector2(mBaseColliderSize.y, mBaseColliderSize.x);
         }
 
         mRotatedClearanceOffsets.Clear();
         foreach (var offset in mClearanceOffsets)
-            mRotatedClearanceOffsets.Add(RotateCellOffset(offset, mBaseFootprint, steps));
+        {
+            var mirrored = flipX ? new Vector2Int(mBaseFootprint.x - 1 - offset.x, offset.y) : offset;
+            mRotatedClearanceOffsets.Add(RotateCellOffset(mirrored, mBaseFootprint, steps));
+        }
 
         RefreshAccessOffsets();
-        ApplyDirectionSprite();
-    }
-
-    // 다음 방향(Down→Right→Up→Left→Down).
-    public CTable.eFurnitureDirection GetNextDirection()
-    {
-        return (CTable.eFurnitureDirection)(((int)mDirection + 1) % 4);
+        ApplyOrientationSprite();
     }
 
     // 회전 기준값은 프리팹 원래 상태(Down)에서 한 번만 잡는다(Awake). 이후 회전은 항상 이 값에서 다시 계산한다.
@@ -179,6 +228,12 @@ public class PlaceableObject : MonoBehaviour
         mBaseColliderOffset = mCollider != null ? mCollider.offset : Vector2.zero;
         mBaseColliderSize = mCollider != null ? mCollider.size : Vector2.one;
         mBaseSprite = mSpriteRenderer != null ? mSpriteRenderer.sprite : null;
+        mBaseSpriteLocalRotation = mSpriteRenderer != null ? mSpriteRenderer.transform.localRotation : Quaternion.identity;
+    }
+
+    private static Vector2 MirrorX(Vector2 v, bool flipX)
+    {
+        return flipX ? new Vector2(-v.x, v.y) : v;
     }
 
     private static Vector2 RotateCounterClockwise(Vector2 v, int steps)
@@ -229,21 +284,49 @@ public class PlaceableObject : MonoBehaviour
         return offset.x >= 0 && offset.x < footprint.x && offset.y >= 0 && offset.y < footprint.y;
     }
 
-    // 방향별 그림: Down/Up = 표의 FrontResourceName, Right = SideResourceName, Left = SideResourceName 좌우반전.
-    // 벽지처럼 여러 가구가 프리팹 하나를 같이 쓰는 경우에도 이 경로로 그림만 바꿔 끼운다.
-    // 아틀라스에 해당 스프라이트가 없으면 프리팹에 지정된 그림을 그대로 쓴다(옆면 그림이 없으면 앞면 그림 + 좌우반전만).
-    private void ApplyDirectionSprite()
+    // 회전 방식별 그림(아트 설정 FurnitureVisualData). 벽지처럼 여러 가구가 프리팹 하나를 같이 쓰는 경우에도 이 경로로 그림만 바꿔 끼운다.
+    // - DirectionalSprite: Down = Front, Up = Back, Right = Side, Left = Side 좌우반전. 픽셀아트라 그림 자체는 돌리지 않는다.
+    // - FlipXOnly: Front + 좌우반전
+    // - RotateTile: Front + 좌우반전 후 그림 오브젝트를 반시계 (방향 값 × 90°) 회전(= 시계 방향 R 횟수 × 90°)
+    // 그림이 비어 있으면 Front, Front도 없으면 프리팹에 지정된 그림을 쓴다.
+    private void ApplyOrientationSprite()
     {
         if (mSpriteRenderer == null)
             return;
 
-        bool isSide = mDirection == CTable.eFurnitureDirection.Right || mDirection == CTable.eFurnitureDirection.Left;
-        var sprite = isSide ? Extension.ExtensionUI.GetAtlasSprite(mAtlas, mSideResourceName) : null;
-        if (sprite == null)
-            sprite = Extension.ExtensionUI.GetAtlasSprite(mAtlas, mFrontResourceName);
+        var mode = OrientMode;
+        Sprite sprite = null;
+        bool flipX = mFlipX;
+
+        if (mode == CTable.eFurnitureOrientMode.DirectionalSprite)
+        {
+            if (mDirection == CTable.eFurnitureDirection.Up)
+                sprite = mVisual.Back;
+            else if (mDirection == CTable.eFurnitureDirection.Right || mDirection == CTable.eFurnitureDirection.Left)
+                sprite = mVisual.Side;
+            flipX = mDirection == CTable.eFurnitureDirection.Left;
+        }
+
+        if (sprite == null && mVisual != null)
+            sprite = mVisual.Front;
 
         mSpriteRenderer.sprite = sprite != null ? sprite : mBaseSprite;
-        mSpriteRenderer.flipX = mDirection == CTable.eFurnitureDirection.Left;
+        mSpriteRenderer.flipX = flipX;
+        ApplySpriteRotation(mode == CTable.eFurnitureOrientMode.RotateTile ? (int)mDirection * 90f : 0f);
+    }
+
+    // 그림 오브젝트만 돌린다(루트를 돌리면 콜라이더/Waypoint까지 돌아 칸 계산이 틀어짐). 그림이 루트에 붙은 프리팹은 돌리지 않는다.
+    private void ApplySpriteRotation(float counterClockwiseDegrees)
+    {
+        var spriteTransform = mSpriteRenderer.transform;
+        if (spriteTransform == transform)
+        {
+            if (counterClockwiseDegrees != 0f)
+                Logger.Warning($"[PlaceableObject] '{name}'은 SpriteRenderer가 루트에 있어 그림을 회전할 수 없습니다. 그림을 자식 오브젝트로 옮겨 주세요.");
+            return;
+        }
+
+        spriteTransform.localRotation = mBaseSpriteLocalRotation * Quaternion.Euler(0f, 0f, counterClockwiseDegrees);
     }
 
     // 벽지/바닥타일/카펫처럼 면에 깔리는 가구만 정렬 순서를 레이어에 맞춰 덮어쓴다.
@@ -290,49 +373,35 @@ public class PlaceableObject : MonoBehaviour
     private void Awake()
     {
         mCollider = GetComponent<BoxCollider2D>();
+        mBreadStand = TryGetComponent(out Intaraction_BreadStand breadStand) ? breadStand : null;
+        if (mCollider != null)
+            mPlaceablesByCollider[mCollider] = this;
         CacheBaseLayout();
-    }
-
-    private void Start()
-    {
-        Observable.EveryUpdate()
-            .Where(_ => Pointer.current != null && Pointer.current.press.wasPressedThisFrame)
-            .Subscribe(_ => OnPointerDown())
-            .AddTo(this);
     }
 
     private void OnDestroy()
     {
-        mDragDisposables?.Dispose();
+        mHoldDisposables?.Dispose();
+        if (mCollider != null && mPlaceablesByCollider.TryGetValue(mCollider, out var registered) && registered == this)
+            mPlaceablesByCollider.Remove(mCollider);
     }
 
-    private void OnPointerDown()
+    // 배치 모드에서 이 가구를 집는다(들고 있기 시작). PlacementInputController가 LMB/탭 위치의 가장 위 가구(FindTopmostAt)를 골라 호출한다.
+    // 이후 커서를 따라다니고, LMB(또는 확정 버튼)로 놓거나 RMB(또는 취소 버튼)로 원위치/보관함으로 돌린다.
+    public void BeginPickUp()
     {
-        if (mArea == null || Camera.main == null)
-            return;
-
-        if (!GameInstance.Model.Placement.IsEditMode.Value)
-            return;
-
-        if (GameInstance.Model.Placement.IsPlacing.Value)
-            return;
-
-        if (IsPointerOverUI())
-            return;
-
-        Vector2 worldPos = Camera.main.ScreenToWorldPoint(Pointer.current.position.ReadValue());
-
-        // 바닥타일 위 카펫 위 테이블처럼 겹쳐 있으면 가장 위 레이어 가구만 집는다.
-        if (FindTopmostAt(worldPos) != this)
+        if (mArea == null)
             return;
 
         GameInstance.Model.Placement.BeginPlacement(transform, mArea, mFootprint);
-        StartDragTracking();
+
+        // 위에 sub가구가 있는 베이스처럼 BeginPlacement가 거절하면 들고 있지 않은 상태 그대로다.
+        if (GameInstance.Model.Placement.IsPlacing.Value)
+            BeginHoldVisual();
     }
 
     /// <summary>
-    /// 가구 목록의 + 버튼으로 새로 생성된 인스턴스를 곧바로 배치 모드로 전환한다.
-    /// 포인터 클릭으로 시작되는 OnPointerDown과 달리 클릭 판정 없이 바로 드래그 추적을 건다.
+    /// 가구 목록의 + 버튼으로 새로 생성된 인스턴스를 곧바로 들고 있는 상태로 만든다.
     /// </summary>
     public void BeginPlacementFromSpawn(TilePlacementArea area)
     {
@@ -340,57 +409,17 @@ public class PlaceableObject : MonoBehaviour
             return;
 
         mArea = area;
-        GameInstance.Model.Placement.BeginPlacement(transform, mArea, mFootprint);
-        StartDragTracking();
+        BeginPickUp();
     }
 
-    private void StartDragTracking()
-    {
-        mDragDisposables = new CompositeDisposable();
-        mIsDragging = true;
-
-        GameInstance.Model.Placement.IsValidPosition
-            .Subscribe(UpdateVisual)
-            .AddTo(mDragDisposables);
-
-        GameInstance.Model.Placement.IsPlacing
-            .Where(isPlacing => !isPlacing)
-            .Take(1)
-            .Subscribe(_ => EndPlacement())
-            .AddTo(mDragDisposables);
-
-        Observable.EveryUpdate()
-            .Where(_ => mIsDragging)
-            .Subscribe(_ => OnDragUpdate())
-            .AddTo(mDragDisposables);
-
-        Observable.EveryUpdate()
-            .Where(_ => mIsDragging && Pointer.current != null && Pointer.current.press.wasReleasedThisFrame)
-            .Subscribe(_ => OnPointerUp())
-            .AddTo(mDragDisposables);
-
-        // PC: 배치 중 R키로 회전(모바일은 확정/취소 옆 회전 버튼).
-        Observable.EveryUpdate()
-            .Where(_ => mIsDragging && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
-            .Subscribe(_ => GameInstance.Model.Placement.RotatePlacing())
-            .AddTo(mDragDisposables);
-    }
-
-    private void OnPointerUp()
-    {
-        if (GameInstance.Model.Placement.IsValidPosition.Value)
-            GameInstance.Model.Placement.Confirm();
-        else
-            GameInstance.Model.Placement.Cancel();
-    }
-
-    private static PlaceableObject FindTopmostAt(Vector2 worldPos)
+    // 월드 좌표에서 집을 수 있는 가장 위 가구. 바닥타일 위 카펫 위 테이블처럼 겹쳐 있으면 레이어가 가장 높은 것(sub가구 최우선).
+    // 영역(mArea)이 정해지지 않은 오브젝트는 배치 대상이 아니므로 제외한다.
+    public static PlaceableObject FindTopmostAt(Vector2 worldPos)
     {
         PlaceableObject topmost = null;
         foreach (var hit in Physics2D.OverlapPointAll(worldPos))
         {
-            var placeable = hit.GetComponent<PlaceableObject>();
-            if (placeable == null || placeable.mCollider != hit || placeable.mArea == null)
+            if (!mPlaceablesByCollider.TryGetValue(hit, out var placeable) || placeable == null || placeable.mArea == null)
                 continue;
 
             if (topmost == null || placeable.PickRank > topmost.PickRank)
@@ -399,32 +428,32 @@ public class PlaceableObject : MonoBehaviour
         return topmost;
     }
 
-    private bool IsPointerOverUI()
+    // area에 배치된(확정된) 가구 중 placementId가 일치하는 것. 없으면 null.
+    public static PlaceableObject FindByPlacementId(TilePlacementArea area, int placementId)
     {
-        if (EventSystem.current == null || Pointer.current == null)
-            return false;
-
-        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        foreach (var placeable in mPlaceablesByCollider.Values)
         {
-            position = Pointer.current.position.ReadValue()
-        };
-
-        mUIRaycastResults.Clear();
-        EventSystem.current.RaycastAll(eventData, mUIRaycastResults);
-
-        return mUIRaycastResults.Count > 0;
+            if (placeable != null && placeable.mArea == area && placeable.mPlacementId == placementId)
+                return placeable;
+        }
+        return null;
     }
 
-    private void OnDragUpdate()
+    // 들고 있는 동안 놓을 수 있는지에 따라 색을 바꾸고, 내려놓으면(확정/취소) 원래 색으로 돌린다.
+    private void BeginHoldVisual()
     {
-        if (Pointer.current == null || Camera.main == null)
-            return;
+        mHoldDisposables?.Dispose();
+        mHoldDisposables = new CompositeDisposable();
 
-        Vector3 screenPos = Pointer.current.position.ReadValue();
-        Vector3 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
-        worldPos.z = transform.position.z;
+        GameInstance.Model.Placement.IsValidPosition
+            .Subscribe(UpdateVisual)
+            .AddTo(mHoldDisposables);
 
-        GameInstance.Model.Placement.UpdatePreview(worldPos);
+        GameInstance.Model.Placement.IsPlacing
+            .Where(isPlacing => !isPlacing)
+            .Take(1)
+            .Subscribe(_ => EndHoldVisual())
+            .AddTo(mHoldDisposables);
     }
 
     private void UpdateVisual(bool isValid)
@@ -435,10 +464,16 @@ public class PlaceableObject : MonoBehaviour
         mSpriteRenderer.color = isValid ? mValidColor : mInvalidColor;
     }
 
-    private void EndPlacement()
+    // 철거 모드에서 커서가 올라간 대상을 붉게 표시한다(PlacementInputController가 켜고 끈다).
+    public void SetDemolishHighlight(bool isHighlighted)
     {
-        mIsDragging = false;
-        mDragDisposables?.Dispose();
+        UpdateVisual(!isHighlighted);
+    }
+
+    private void EndHoldVisual()
+    {
+        mHoldDisposables?.Dispose();
+        mHoldDisposables = null;
 
         UpdateVisual(true);
     }

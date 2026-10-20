@@ -20,7 +20,7 @@ namespace CTable
                 row.Name = values[1].Trim();
                 row.Atlas = values[2].Trim();
                 row.Icon = values[3].Trim();
-                row.PrefabPath = values[4].Trim();
+                row.VisualPath = values[4].Trim();
                 row.Price = long.TryParse(values[5].Trim(), out long _Price) ? _Price : 0;
                 row.Width = int.TryParse(values[6].Trim(), out int _Width) ? _Width : 0;
                 row.Height = int.TryParse(values[7].Trim(), out int _Height) ? _Height : 0;

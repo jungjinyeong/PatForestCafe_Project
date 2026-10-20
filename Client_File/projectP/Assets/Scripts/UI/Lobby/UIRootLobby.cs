@@ -45,6 +45,12 @@ public class UIRootLobby : UIWndBase
 
         GameInstance.Model.Placement.RespawnSavedFurniture();
         SubscribePlacementPopups();
+        // 배치 모드 키 입력(R 회전, RMB 취소 등). 프리팹 편집 없이 런타임에 붙인다.
+        if (GetComponent<PlacementInputController>() == null)
+            gameObject.AddComponent<PlacementInputController>().Init();
+        // G키 그리드 오버레이 표시(지금 보고 있는 층 영역에만). 층 영역이 모두 등록된 뒤라 여기서 초기화한다.
+        if (GetComponent<PlacementGridOverlay>() == null)
+            gameObject.AddComponent<PlacementGridOverlay>().Init();
 
         mBtnTogglePlacementMode.OnSubscribeOnClick(OnClickTogglePlacementMode).AddTo(this);
 
@@ -73,7 +79,7 @@ public class UIRootLobby : UIWndBase
         GameInstance.Model.Placement.ToggleEditMode();
     }
 
-    // 배치 모드 → 가구배치 목록 팝업, 드래그 배치 중 → 확정/취소 팝업. 둘 다 PlacementModel 상태에 맞춰 열고 닫는다.
+    // 배치 모드 → 가구배치 목록 팝업, 가구를 들고 있는 동안 → 확정/취소 팝업. 둘 다 PlacementModel 상태에 맞춰 열고 닫는다.
     private void SubscribePlacementPopups()
     {
         var placement = GameInstance.Model.Placement;

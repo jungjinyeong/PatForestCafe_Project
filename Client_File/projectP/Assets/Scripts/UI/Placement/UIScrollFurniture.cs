@@ -8,7 +8,6 @@ public class UIScrollFurnitureData
     public int Tid;
     public string Name;
     public long Price;
-    public string PrefabPath;
     // true면 CTable.SubFurnitureRow, false면 CTable.FurnitureRow 소속 Tid.
     public bool IsSub;
     // 구입 목록 탭 분류(표의 Category).

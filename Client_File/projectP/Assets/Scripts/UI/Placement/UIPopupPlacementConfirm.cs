@@ -2,7 +2,7 @@ using UnityEngine;
 using UniRx;
 using Extension;
 
-// 가구 드래그 배치 중(PlacementModel.IsPlacing)에 뜨는 확정/취소 팝업(프리팹 UI_Popup_PlacementConfirm).
+// 가구를 들고 있는 동안(PlacementModel.IsPlacing) 뜨는 확정/취소/회전 팝업(프리팹 UI_Popup_PlacementConfirm). LMB/RMB/R 키와 같은 동작을 버튼으로도 제공한다.
 // UIRootLobby가 IsPlacing 변화에 맞춰 열고 닫는다.
 // 2026-09: UI_Root_Lobby에 붙어 있던 UIPlacementConfirm을 팝업으로 분리(.cs.meta guid 유지).
 public class UIPopupPlacementConfirm : UIWndBase, IUIParam<UIPopupPlacementConfirm.Param>
@@ -13,7 +13,7 @@ public class UIPopupPlacementConfirm : UIWndBase, IUIParam<UIPopupPlacementConfi
 
     [SerializeField] private UIButtonEx mBtnConfirm;
     [SerializeField] private UIButtonEx mBtnCancel;
-    // 회전 가능한 가구(표의 CanRotate)를 배치 중일 때만 보인다. PC는 R키로도 돌릴 수 있다.
+    // 회전 가능한 가구(아트 설정 FurnitureVisualData의 회전 방식)를 배치 중일 때만 보인다. PC는 R키로도 돌릴 수 있다.
     [SerializeField] private UIButtonEx mBtnRotate;
 
     public override eUIType GetUIType() => eUIType.PopupPlacementConfirm;
