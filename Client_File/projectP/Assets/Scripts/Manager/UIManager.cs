@@ -125,6 +125,10 @@ public class UIManager : MonoBehaviour
     UIHudController mHudController;
     public UIHudController HudController => mHudController;
 
+    [SerializeField]
+    UIIndicator mIndicator;
+    public UIIndicator Indicator => mIndicator;
+
     public Canvas GetTargetCanvas(eUILayerType type)
     {
         if (mTargetCanvasDic.TryGetValue(type, out var canvas))

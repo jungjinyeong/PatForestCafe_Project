@@ -222,6 +222,7 @@ public partial class PlacementModel
         mOriginPosition = target.position;
         mOriginDirection = placeable != null ? placeable.Direction : CTable.eFurnitureDirection.Down;
         mOriginFlipX = placeable != null && placeable.FlipX;
+        mIsHeldUnitSpent = false;
 
         mIsValidPosition.Value = false;
         mIsPlacing.Value = true;
@@ -255,7 +256,8 @@ public partial class PlacementModel
     }
 
     // 들고 있는 바닥타일과 같은 타일(같은 방향/좌우반전)을 cells(footprint 기준 셀)마다 깐다. 놓을 수 없는 칸은 건너뛴다.
-    // 비용: 들고 있는 타일 몫 1개를 뺀 보관 수량을 먼저 쓰고, 모자라면 칸마다 골드로 산다. 골드가 떨어지면 거기서 멈추고 outOfGold=true.
+    // 비용: 들고 있는 타일을 꺼낼 때 확보한 몫 1개를 첫 복사본에 쓰고, 그다음 보관 수량, 모자라면 칸마다 골드로 산다.
+    // 골드가 떨어지면 거기서 멈추고 outOfGold=true.
     // 목록 UI 갱신(InventoryVersion)은 끝에 한 번만 한다. 반환값 = 실제로 깐 수.
     public int PlaceBulkCopies(IReadOnlyList<Vector3Int> cells, out bool outOfGold)
     {
@@ -277,12 +279,14 @@ public partial class PlacementModel
                     ghost.AccessOffsets, ghost.ClearanceOffsets, out var snappedPos))
                 continue;
 
-            // 들고 있는 타일도 보관 수량에 포함돼 있으므로 1개는 남겨 둔다(취소하면 보관함으로 돌아가는 몫).
-            if (!TryConsumeForPlacement(ghost.FurnitureTid, false, row.Price, reservedStoredCount: 1, notify: false))
+            // 들고 있는 타일 몫도 보관 수량(보유 − 배치)에 포함돼 있으므로 남겨 두지 않고 그대로 쓴다.
+            // 남겨 두면 꺼낼 때 산 1개가 끝까지 놓이지 않은 채 보유 수에만 더해져, 리셋하면 깐 수보다 1개 많아진다.
+            if (!TryConsumeForPlacement(ghost.FurnitureTid, false, row.Price, reservedStoredCount: 0, notify: false))
             {
                 outOfGold = true;
                 break;
             }
+            mIsHeldUnitSpent = true;
 
             var instance = Object.Instantiate(prefab, snappedPos, Quaternion.identity, mArea.transform);
             var placeable = instance.GetComponent<PlaceableObject>();
@@ -393,6 +397,18 @@ public partial class PlacementModel
         {
             var origin = mArea.GetFootprintOrigin(mTarget.position, mFootprint);
             var cell = new Vector2Int(origin.x, origin.y);
+
+            // 대량 설치로 몫을 이미 복사본에 쓴 타일을 확정 버튼으로 놓는 경우 — 1개 몫을 다시 확보한다.
+            if (placeable.PlacementId < 0 && mIsHeldUnitSpent)
+            {
+                var row = GameInstance.Table.Get<CTable.FurnitureRow>(placeable.FurnitureTid);
+                if (row == null || !TryConsumeForPlacement(placeable.FurnitureTid, false, row.Price, reservedStoredCount: 0))
+                {
+                    Logger.Log("[PlacementModel] 골드가 부족합니다.");
+                    return;
+                }
+                mIsHeldUnitSpent = false;
+            }
 
             if (placeable.PlacementId < 0)
                 placeable.SetPlacementId(RegisterPlacement(placeable.FurnitureTid, mTarget.position, mArea.Floor, cell, placeable.Direction, placeable.FlipX, placeable.IsSubFurniture));
@@ -711,9 +727,18 @@ public partial class PlacementModel
         if (visual == null)
             return null;
 
+        return LoadVisualPrefab(visual);
+    }
+
+    // 아트 설정에 지정된 프리팹을 직접 로드한다. CSV에 연결되지 않은 아트 설정도 로드할 수 있다(가구 테스트 씬).
+    public GameObject LoadVisualPrefab(FurnitureVisualData visual)
+    {
+        if (visual == null)
+            return null;
+
         if (visual.Prefab == null || !visual.Prefab.RuntimeKeyIsValid())
         {
-            Logger.Warning($"[PlacementModel] 아트 설정 '{visual.name}'에 프리팹이 지정되지 않았습니다. Tid={tid}, IsSub={isSub}");
+            Logger.Warning($"[PlacementModel] 아트 설정 '{visual.name}'에 프리팹이 지정되지 않았습니다.");
             return null;
         }
 

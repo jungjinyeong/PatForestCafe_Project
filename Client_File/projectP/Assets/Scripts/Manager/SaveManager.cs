@@ -29,6 +29,9 @@ public class SaveManager : MonoBehaviour
     // 로드 시점엔 바로 적용하지 못하고 캐싱해뒀다가 InitBreadStands() 이후 ApplyPendingBreadData()로 적용한다.
     private List<BreadSaveEntry> mPendingBreadSaveEntries;
 
+    // false면 Save()가 아무것도 쓰지 않는다. 가구 테스트 씬(GameModeFurnitureTest)처럼 실제 세이브를 덮어쓰면 안 되는 곳에서 끈다.
+    private bool mIsSaveEnabled = true;
+
     public void Init()
     {
         Load();
@@ -59,6 +62,14 @@ public class SaveManager : MonoBehaviour
         mAutoSaveDisposable = null;
     }
 
+    // 끄면 자동 저장도 멈춘다(로드한 데이터는 그대로 쓴다). 다시 켜도 자동 저장은 StartAutoSave()로 따로 시작해야 한다.
+    public void SetSaveEnabled(bool isEnabled)
+    {
+        mIsSaveEnabled = isEnabled;
+        if (!isEnabled)
+            StopAutoSave();
+    }
+
     private void OnApplicationPause(bool pauseStatus)
     {
         if (pauseStatus)
@@ -72,6 +83,9 @@ public class SaveManager : MonoBehaviour
 
     public void Save()
     {
+        if (!mIsSaveEnabled)
+            return;
+
         var data = new SaveData();
 
         foreach (var item in GameInstance.Model.Item.GetAll())

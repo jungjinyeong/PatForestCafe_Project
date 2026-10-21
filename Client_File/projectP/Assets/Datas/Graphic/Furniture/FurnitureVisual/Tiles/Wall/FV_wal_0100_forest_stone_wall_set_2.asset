@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a68d77fdd620a74aaa3ef9b8f54637f, type: 3}
+  m_Name: FV_wal_0100_forest_stone_wall_set_2
+  m_EditorClassIdentifier: Assembly-CSharp::FurnitureVisualData
+  mPrefab:
+    m_AssetGUID: 773b7b78a54af324fac9912845b0b2b2
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  mOrientMode: 2
+  mFront: {fileID: 1219819989, guid: 7f1ad924060479a428ac23445350d4a2, type: 3}
+  mBack: {fileID: 0}
+  mSide: {fileID: 0}
+  mTileIncludeFlipX: 0

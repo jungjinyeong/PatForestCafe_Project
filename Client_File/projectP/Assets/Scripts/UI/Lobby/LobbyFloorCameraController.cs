@@ -14,7 +14,6 @@ using Extension;
 public class LobbyFloorCameraController : MonoBehaviour
 {
     [SerializeField] private Camera mCamera;
-    [SerializeField] private float mMoveSpeed = 5f;
     [SerializeField] private UIButtonEx[] mFloorButtons; // 아래→위 순서. index i = Floor.csv 층 ID 순 i번째 층(0=B3 … 6=T3)
     [SerializeField] private float mScrollThrottleSeconds = 0.2f; // 휠 한 번(노치)당 줌 한 단계만 바뀌도록 하는 디바운스 간격
 
@@ -28,8 +27,6 @@ public class LobbyFloorCameraController : MonoBehaviour
     [SerializeField] private float mFallbackMinZoom = 0.5f;
     [SerializeField] private float mFallbackMaxZoom = 2f;
     [SerializeField] private float mFallbackZoomStep = 1.25f;
-
-    private IDisposable mMoveDisposable;
 
     private PixelPerfectCamera mPixelPerfect;
     private float mBaseOrthographicSize;
@@ -65,20 +62,12 @@ public class LobbyFloorCameraController : MonoBehaviour
         var group = FindGroupByFloor(floor);
         if (group == null) return;
 
-        // 가구 구매 시 "지금 보고 있는 층"에 스폰하도록 FloorModel에 알린다(PlacementModel.GetViewingFloorArea).
-        GameInstance.Model.Floor.SetViewingFloor(floor);
-
-        // 층 이동마다 새로 구독하는 자리라 AddTo(this)를 쓰면 매번 CompositeDisposable에 쌓이기만 하고
-        // 절대 제거되지 않는다(직접 Dispose해도 컨테이너에서 안 빠짐) — OnDestroy에서 수동으로 정리한다.
-        mMoveDisposable?.Dispose();
-        mMoveDisposable = Observable.EveryUpdate()
-            .Subscribe(_ => TickMove(group.transform.position.y));
-    }
-
-    private void OnDestroy()
-    {
-        mMoveDisposable?.Dispose();
-        mMoveDisposable = null;
+        // 검은 화면(UI_Indicator)을 먼저 띄우고, 가려진 동안 카메라 좌표만 즉시 옮긴 뒤 오른쪽→왼쪽으로 걷어낸다.
+        var indicator = GameInstance.UI != null ? GameInstance.UI.Indicator : null;
+        if (indicator != null)
+            indicator.Play(() => SnapToFloor(group));
+        else
+            SnapToFloor(group);
     }
 
     private void SubscribeFloorButtons()
@@ -164,21 +153,6 @@ public class LobbyFloorCameraController : MonoBehaviour
 
         var pos = mCamera.transform.position;
         mCamera.transform.position = new Vector3(pos.x, group.transform.position.y, pos.z);
-    }
-
-    private void TickMove(float targetY)
-    {
-        if (mCamera == null) return;
-
-        var pos = mCamera.transform.position;
-        float newY = Mathf.MoveTowards(pos.y, targetY, mMoveSpeed * Time.deltaTime);
-        mCamera.transform.position = new Vector3(pos.x, newY, pos.z);
-
-        if (Mathf.Approximately(newY, targetY))
-        {
-            mMoveDisposable?.Dispose();
-            mMoveDisposable = null;
-        }
     }
 
     private WaypointGroup FindGroupByFloor(int floor)

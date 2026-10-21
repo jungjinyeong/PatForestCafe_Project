@@ -1,3 +1,5 @@
+using Sirenix.OdinInspector;
+
 namespace CTable
 {
     // FurnitureRow.FixedType(int)를 코드에서 읽을 때 쓰는 타입. CsvToCsTool이 재생성하는 CTable 파일과
@@ -39,9 +41,13 @@ namespace CTable
     // 가구의 회전(R) 방식. 아트 데이터(FurnitureVisualData)에서 가구마다 지정한다.
     public enum eFurnitureOrientMode
     {
-        None,               // 회전 없음
+        [LabelText("회전 없음")]
+        None,
+        [LabelText("일반 가구 (방향별 그림)")]
         DirectionalSprite,  // 일반 가구 — 방향별 스프라이트(앞/뒤/옆) + 한쪽 옆면은 FlipX, footprint도 같이 돈다
+        [LabelText("벽가구 (좌우반전)")]
         FlipXOnly,          // 벽가구 — 좌우반전만
+        [LabelText("바닥타일 (그림 회전)")]
         RotateTile,         // 바닥타일 — 그림 자체를 90°씩 회전(+선택적으로 FlipX)
     }
 

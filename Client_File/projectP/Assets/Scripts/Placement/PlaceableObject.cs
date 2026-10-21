@@ -109,7 +109,8 @@ public class PlaceableObject : MonoBehaviour
 
     private int PickRank => mIsSubFurniture ? SUB_PICK_RANK : LayoutOrder;
 
-    public void SetFurnitureTid(int tid)
+    // visualOverride: 표의 VisualPath 대신 쓸 아트 설정. 가구 테스트 씬이 에디터에서 편집 중인 에셋을 그대로 쓰게 할 때만 넘긴다.
+    public void SetFurnitureTid(int tid, FurnitureVisualData visualOverride = null)
     {
         mFurnitureTid = tid;
         mIsSubFurniture = false;
@@ -124,11 +125,39 @@ public class PlaceableObject : MonoBehaviour
             : ePlacementSurface.Floor;
         LayoutOrder = row != null ? Mathf.Max(0, row.LayoutOrder) : LAYER_FURNITURE_MIN;
         IsBulkPlaceable = row != null && row.FurnitureType == (int)CTable.eFurnitureType.Tile;
-        mVisual = GameInstance.Model.Placement.GetFurnitureVisual(tid, false);
+        mVisual = visualOverride != null ? visualOverride : GameInstance.Model.Placement.GetFurnitureVisual(tid, false);
 
         CacheBaseLayout();
         SetOrientation(CTable.eFurnitureDirection.Down, false);
         ApplySortingOrder();
+    }
+
+    // CSV에 아직 연결되지 않은 아트 설정을 가구 테스트 씬(GameModeFurnitureTest)에서 그림/회전만 확인할 때 쓴다.
+    // Tid가 없어(0) 배치 확정해도 칸 점유·세이브 대상이 아니다. 칸 수는 콜라이더의 월드 크기로 어림하고 바닥 일반 가구로 취급한다.
+    public void SetPreviewVisual(FurnitureVisualData visual)
+    {
+        mFurnitureTid = 0;
+        mIsSubFurniture = false;
+        mGroupId = 0;
+        Surface = ePlacementSurface.Floor;
+        LayoutOrder = LAYER_FURNITURE_MIN;
+        IsBulkPlaceable = false;
+        mVisual = visual;
+
+        CacheBaseLayout();
+        Vector3 scale = transform.lossyScale;
+        mBaseFootprint = new Vector2Int(
+            Mathf.Max(1, Mathf.RoundToInt(mBaseColliderSize.x * scale.x / CELL_WORLD_SIZE)),
+            Mathf.Max(1, Mathf.RoundToInt(mBaseColliderSize.y * scale.y / CELL_WORLD_SIZE)));
+        SetOrientation(CTable.eFurnitureDirection.Down, false);
+        ApplySortingOrder();
+    }
+
+    // 아트 설정의 그림만 다시 읽어 적용한다(방향/칸/콜라이더는 그대로). 가구 테스트 씬에서 Inspector 편집을 반영할 때 쓴다.
+    public void RefreshOrientationSprite()
+    {
+        if (!mIsSubFurniture)
+            ApplyOrientationSprite();
     }
 
     // R 한 번: 회전 방식(아트 설정)에 따라 다음 상태로 바꾼다.
@@ -479,24 +508,40 @@ public class PlaceableObject : MonoBehaviour
     }
 
 #if UNITY_EDITOR
+    // 켜면 선택하지 않은 가구도 전부 칸을 그린다(가구 테스트 창의 "칸 표시" 토글).
+    public static bool AlwaysDrawCellGizmos;
+
+    private void OnDrawGizmos()
+    {
+        if (AlwaysDrawCellGizmos)
+            DrawCellGizmos();
+    }
+
     // 작업자 확인용: 선택하면 Scene 뷰에 칸을 그린다 — 가구 칸 흰색, 손님 칸(자식 Waypoint) 파란색, 비워둘 칸 빨간색.
-    // 에디터에서는 표의 가로/세로를 모르므로 콜라이더의 월드 크기로 칸 수를 어림한다.
     private void OnDrawGizmosSelected()
+    {
+        if (!AlwaysDrawCellGizmos)
+            DrawCellGizmos();
+    }
+
+    // 에디터에서는 표의 가로/세로를 모르므로 콜라이더의 월드 크기로 칸 수를 어림한다.
+    private void DrawCellGizmos()
     {
         Vector2Int footprint = mFootprint;
         IEnumerable<Vector2Int> access = mAccessOffsets;
         IEnumerable<Vector2Int> clearance = mRotatedClearanceOffsets;
 
-        if (!Application.isPlaying || mFurnitureTid <= 0)
+        // 런타임 칸 정보는 Tid(또는 미리보기 아트 설정)를 지정한 뒤에만 있다. 그 전에는 콜라이더/Waypoint로 어림한다.
+        if (!Application.isPlaying || (mFurnitureTid <= 0 && mVisual == null))
         {
-            var box = GetComponent<BoxCollider2D>();
+            var box = mCollider != null ? mCollider : GetComponent<BoxCollider2D>();
             Vector3 scale = transform.lossyScale;
             footprint = box != null
                 ? new Vector2Int(Mathf.Max(1, Mathf.RoundToInt(box.size.x * scale.x / CELL_WORLD_SIZE)), Mathf.Max(1, Mathf.RoundToInt(box.size.y * scale.y / CELL_WORLD_SIZE)))
                 : Vector2Int.one;
 
             var editAccess = new List<Vector2Int>();
-            foreach (var waypoint in GetComponentsInChildren<Waypoint>(true))
+            foreach (var waypoint in mWaypoints ?? GetComponentsInChildren<Waypoint>(true))
             {
                 var offset = ToCellOffset(waypoint.transform.position - transform.position, footprint);
                 if (!IsInsideFootprint(offset, footprint))

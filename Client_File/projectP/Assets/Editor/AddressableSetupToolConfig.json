@@ -1,0 +1,15 @@
+{
+    "FolderRules": [
+        {
+            "FolderPath": "Assets/Datas/Graphic/UI/Prefabs",
+            "Extensions": ".prefab",
+            "GroupName": "UIPrefabs",
+            "AddressMode": 2,
+            "CustomPrefix": "UIPrefabs",
+            "LabelsInput": "",
+            "MoveOutOfResources": false,
+            "MoveTargetRoot": "Assets/AddressableAssets"
+        }
+    ],
+    "FileEntries": []
+}

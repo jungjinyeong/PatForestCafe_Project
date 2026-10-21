@@ -50,6 +50,8 @@ public partial class PlacementModel : IModelBase
     private CTable.eFurnitureDirection mOriginDirection;
     private bool mOriginFlipX;
     private Vector2Int mFootprint = Vector2Int.one;
+    // 대량 설치로 들고 있는 타일 몫 1개를 첫 복사본에 이미 써 버렸는지. true인 채로 들고 있는 타일을 확정하면 몫을 새로 확보해야 한다.
+    private bool mIsHeldUnitSpent;
 
     // 배치 확정된 가구(Tid+위치) 레지스트리. placementId는 최초 배치 시 발급되고,
     // 이후 같은 가구를 다시 옮겨도 같은 id의 위치(Position/Floor/Cell)만 갱신된다(세이브 시 이 딕셔너리를 그대로 직렬화).
