@@ -171,23 +171,14 @@ public class UIBreadDoughPanel : UIBase
             if (current == null)
                 return;
 
-            var rows = table.All.Values.Where(r => r.Category == current.Category).OrderBy(r => r.Grade);
-            mPicker.Open("재료 선택", $"{current.Category}류만 교체할 수 있어요.", ToPickerData(rows), false);
+            var tids = table.All.Values.Where(r => r.Category == current.Category).OrderBy(r => r.Grade).Select(r => r.Tid);
+            mPicker.Open("재료 선택", $"{current.Category}류만 교체할 수 있어요.", tids, slot.IngredientTid, false);
         }
         else
         {
-            var rows = table.All.Values.OrderBy(r => r.Category).ThenBy(r => r.Grade);
-            mPicker.Open("재료 선택", "추가 재료를 골라 주세요. 속성이 더해져요.", ToPickerData(rows), slot.IsFilled);
+            var tids = table.All.Values.OrderBy(r => r.Category).ThenBy(r => r.Grade).Select(r => r.Tid);
+            mPicker.Open("재료 선택", "추가 재료를 골라 주세요. 속성이 더해져요.", tids, slot.IngredientTid, slot.IsFilled);
         }
-    }
-
-    private static List<UIScrollBreadIngredientData> ToPickerData(IEnumerable<CTable.BreadIngredientRow> rows)
-    {
-        return rows.Select(r => new UIScrollBreadIngredientData
-        {
-            Tid = r.Tid,
-            OwnedCount = GameInstance.Model.Ingredient.Get(r.Tid)?.Count.Value ?? 0,
-        }).ToList();
     }
 
     private void OnPickIngredient(int ingredientTid)

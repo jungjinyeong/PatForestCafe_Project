@@ -18,7 +18,6 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
 
     private const float NOTICE_SECONDS = 2.5f;
     private const float BAKE_REFRESH_SECONDS = 0.5f;
-    private const int STOCK_PAGE_SIZE = 6;
 
     [Header("Header")]
     [SerializeField] private TextMeshProUGUI mTextStatus;
@@ -30,10 +29,9 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
     [SerializeField] private UIBreadDoughPanel mDoughPanel;
 
     [Header("Stock")]
-    [SerializeField] private UIScrollEx mStockScrollEx;
-    [SerializeField] private GameObject mStockRowPrefab;
-    [SerializeField] private UIButtonEx[] mStockTabs;
-    [SerializeField] private GameObject[] mStockTabSelectedMarks;
+    [SerializeField] private Transform mStockGridContent;
+    [SerializeField] private UIWarehouseCell mStockCellTemplate;
+    [SerializeField] private TextMeshProUGUI mTextStockEmpty;
     [SerializeField] private GameObject mStockDetailRoot;
     [SerializeField] private TextMeshProUGUI mTextStockDetailName;
     [SerializeField] private TextMeshProUGUI mTextStockDetailDesc;
@@ -53,7 +51,8 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
     [Header("Notice")]
     [SerializeField] private TextMeshProUGUI mTextNotice;
 
-    private int mStockPage;
+    private readonly List<UIWarehouseCell> mStockCells = new List<UIWarehouseCell>();
+    private int mSelectedStockTid;
     private int mHelpPageIndex;
     private bool mIsModelSubscribed;
     private readonly SerialDisposable mNoticeDisposable = new SerialDisposable();
@@ -75,14 +74,9 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
         mDoughPanel.Init(RefreshAll);
         mBtnBake.OnSubscribeOnClick(OnClickBake).AddTo(this);
 
-        mStockScrollEx.Init(mStockRowPrefab);
-        mStockScrollEx.SetOnSelect(OnSelectStock);
-        for (int i = 0; i < mStockTabs.Length; i++)
-        {
-            int page = i;
-            mStockTabs[i].OnSubscribeOnClick(() => SetStockPage(page)).AddTo(this);
-        }
-        mBtnStockDetailClose.OnSubscribeOnClick(() => mStockDetailRoot.SetActive(false)).AddTo(this);
+        if (mStockCellTemplate != null)
+            mStockCellTemplate.gameObject.SetActive(false);
+        mBtnStockDetailClose.OnSubscribeOnClick(CloseStockDetail).AddTo(this);
 
         mBtnHelp.OnSubscribeOnClick(OpenHelp).AddTo(this);
         mBtnHelpPrev.OnSubscribeOnClick(() => ShowHelpPage(mHelpPageIndex - 1)).AddTo(this);
@@ -101,9 +95,9 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
         mDoughPanel.Close();
         mHelpRoot.SetActive(false);
         mStockDetailRoot.SetActive(false);
+        mSelectedStockTid = 0;
         mTextNotice.SetTextEx(string.Empty);
 
-        SetStockPage(0);
         RefreshAll();
     }
 
@@ -188,36 +182,40 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
 
     #region Stock
 
-    // 발견한 레시피이거나 재고가 있는 빵을 Tid 순으로 페이지(창고 1/2)마다 STOCK_PAGE_SIZE개씩 보여준다.
+    // 창고처럼 발견한 레시피이거나 재고가 있는 빵을 Tid 순으로 그리드에 보여준다(스크롤).
     private void RefreshStock()
     {
-        var breads = GameInstance.Model.Bread.GetAll()
+        var list = GameInstance.Model.Bread.GetAll()
             .Where(b => b.ProducedCount.Value > 0 || GameInstance.Model.RecipeBook.IsDiscovered(b.TId))
             .OrderBy(b => b.TId)
-            .Skip(mStockPage * STOCK_PAGE_SIZE)
-            .Take(STOCK_PAGE_SIZE)
-            .Select(b => new UIScrollBreadStockData { BreadTid = b.TId })
+            .Select(b => new UIWarehouseCellData { Tid = b.TId, IsDessert = true, Name = b.MenuItemRow?.Name ?? b.TId.ToString(), Count = b.ProducedCount.Value })
             .ToList();
 
-        mStockScrollEx.SetData(breads);
+        while (mStockCells.Count < list.Count)
+        {
+            var cell = Instantiate(mStockCellTemplate, mStockGridContent);
+            cell.Bind(OnSelectStock);
+            mStockCells.Add(cell);
+        }
 
-        for (int i = 0; i < mStockTabSelectedMarks.Length; i++)
-            mStockTabSelectedMarks[i].SetActive(i == mStockPage);
+        for (int i = 0; i < mStockCells.Count; i++)
+        {
+            bool active = i < list.Count;
+            mStockCells[i].gameObject.SetActive(active);
+            if (active)
+            {
+                mStockCells[i].SetData(list[i]);
+                mStockCells[i].SetSelected(list[i].Tid == mSelectedStockTid);
+            }
+        }
+
+        if (mTextStockEmpty != null)
+            mTextStockEmpty.gameObject.SetActive(list.Count == 0);
     }
 
-    private void SetStockPage(int page)
+    private void OnSelectStock(UIWarehouseCell cell)
     {
-        mStockPage = Mathf.Clamp(page, 0, Mathf.Max(0, mStockTabs.Length - 1));
-        mStockDetailRoot.SetActive(false);
-        RefreshStock();
-    }
-
-    private void OnSelectStock(UIScrollRow row)
-    {
-        if (row is not UIScrollBreadStock stockRow || stockRow.CurrentData == null)
-            return;
-
-        var bread = GameInstance.Model.Bread.Get(stockRow.CurrentData.BreadTid);
+        var bread = cell.Data != null ? GameInstance.Model.Bread.Get(cell.Data.Tid) : null;
         if (bread == null)
             return;
 
@@ -225,9 +223,23 @@ public class UIPopupBreadProduction : UIWndBase, IUIParam<UIPopupBreadProduction
         mTextStockDetailDesc.SetTextEx(bread.Row?.Desc ?? "정성껏 구운 빵이에요.");
         mTextStockDetailTags.SetTextEx(bread.Row != null ? string.Join(", ", bread.Row.GetTags()) : string.Empty);
 
-        string quality = UIScrollBreadStock.BuildQualityText(bread);
+        string quality = BreadQuality.BuildProducedText(bread);
         mTextStockDetailQuality.SetTextEx(string.IsNullOrEmpty(quality) ? "보관 중인 빵이 없어요." : quality);
         mStockDetailRoot.SetActive(true);
+        SetStockSelection(bread.TId);
+    }
+
+    private void CloseStockDetail()
+    {
+        mStockDetailRoot.SetActive(false);
+        SetStockSelection(0);
+    }
+
+    private void SetStockSelection(int breadTid)
+    {
+        mSelectedStockTid = breadTid;
+        foreach (var cell in mStockCells)
+            cell.SetSelected(cell.gameObject.activeSelf && cell.Data != null && cell.Data.Tid == mSelectedStockTid);
     }
 
     #endregion

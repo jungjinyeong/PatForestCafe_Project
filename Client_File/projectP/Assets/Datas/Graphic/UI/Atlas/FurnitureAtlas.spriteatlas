@@ -76,9 +76,18 @@ SpriteAtlas:
     - 49c14ed931e7a704fa835c6926d5425f: -1379338596
     - 49c14ed931e7a704fa835c6926d5425f: 1821350149
     - 49c14ed931e7a704fa835c6926d5425f: -1615792788
+    - e3ef061ad06275c4c87b609273c21624: 21300000
     - f798dbeb53727d643ad723b31d5269a5: 1988095989
     - f798dbeb53727d643ad723b31d5269a5: 1615864167
     - f798dbeb53727d643ad723b31d5269a5: 949048528
+    - 3df0dc8daf2a3c84886099343191fdc5: 822048841
+    - 3df0dc8daf2a3c84886099343191fdc5: -1552721216
+    - 3df0dc8daf2a3c84886099343191fdc5: -468272934
+    - 3df0dc8daf2a3c84886099343191fdc5: -1034860005
+    - 3df0dc8daf2a3c84886099343191fdc5: -1133745049
+    - 3df0dc8daf2a3c84886099343191fdc5: -1708449912
+    - 3df0dc8daf2a3c84886099343191fdc5: -1148629447
+    - c9c8f2ee72cd867488bf03d6181466ab: 21300000
     - 9abd17ee35bc03845908e815d40c48c6: -1895748916
     - 9abd17ee35bc03845908e815d40c48c6: 2232369
     - 9abd17ee35bc03845908e815d40c48c6: 2120080677
@@ -122,9 +131,18 @@ SpriteAtlas:
   - {fileID: -1379338596, guid: 49c14ed931e7a704fa835c6926d5425f, type: 3}
   - {fileID: 1821350149, guid: 49c14ed931e7a704fa835c6926d5425f, type: 3}
   - {fileID: -1615792788, guid: 49c14ed931e7a704fa835c6926d5425f, type: 3}
+  - {fileID: 21300000, guid: e3ef061ad06275c4c87b609273c21624, type: 3}
   - {fileID: 1988095989, guid: f798dbeb53727d643ad723b31d5269a5, type: 3}
   - {fileID: 1615864167, guid: f798dbeb53727d643ad723b31d5269a5, type: 3}
   - {fileID: 949048528, guid: f798dbeb53727d643ad723b31d5269a5, type: 3}
+  - {fileID: 822048841, guid: 3df0dc8daf2a3c84886099343191fdc5, type: 3}
+  - {fileID: -1552721216, guid: 3df0dc8daf2a3c84886099343191fdc5, type: 3}
+  - {fileID: -468272934, guid: 3df0dc8daf2a3c84886099343191fdc5, type: 3}
+  - {fileID: -1034860005, guid: 3df0dc8daf2a3c84886099343191fdc5, type: 3}
+  - {fileID: -1133745049, guid: 3df0dc8daf2a3c84886099343191fdc5, type: 3}
+  - {fileID: -1708449912, guid: 3df0dc8daf2a3c84886099343191fdc5, type: 3}
+  - {fileID: -1148629447, guid: 3df0dc8daf2a3c84886099343191fdc5, type: 3}
+  - {fileID: 21300000, guid: c9c8f2ee72cd867488bf03d6181466ab, type: 3}
   - {fileID: -1895748916, guid: 9abd17ee35bc03845908e815d40c48c6, type: 3}
   - {fileID: 2232369, guid: 9abd17ee35bc03845908e815d40c48c6, type: 3}
   - {fileID: 2120080677, guid: 9abd17ee35bc03845908e815d40c48c6, type: 3}
@@ -167,9 +185,18 @@ SpriteAtlas:
   - flr_0112_ForestGardenStone_Autumn_2
   - flr_0112_ForestGardenStone_Autumn_0
   - flr_0112_ForestGardenStone_Autumn_1
+  - wol_0100_wood_wall_outline_corner
   - flr_0111_ForestGardenStone_Blossom_2
   - flr_0111_ForestGardenStone_Blossom_0
   - flr_0111_ForestGardenStone_Blossom_1
+  - flr_0130_Wood_Floor_Tile_6
+  - flr_0130_Wood_Floor_Tile_5
+  - flr_0130_Wood_Floor_Tile_4
+  - flr_0130_Wood_Floor_Tile_3
+  - flr_0130_Wood_Floor_Tile_2
+  - flr_0130_Wood_Floor_Tile_1
+  - flr_0130_Wood_Floor_Tile_0
+  - wol_0101_wood_wall_outline_corner
   - wal_0110_forest_vine_wall_set_0
   - wal_0110_forest_vine_wall_set_1
   - wal_0110_forest_vine_wall_set_2
