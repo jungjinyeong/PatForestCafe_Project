@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5870453547503502445}
   - component: {fileID: 1722482277860144916}
   m_Layer: 0
-  m_Name: flr_0120_forest_ground_tile_spring_8
+  m_Name: flr_0130_Wood_Floor_Tile_6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -178,7 +178,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1946046823, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+  m_Sprite: {fileID: 822048841, guid: 3df0dc8daf2a3c84886099343191fdc5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

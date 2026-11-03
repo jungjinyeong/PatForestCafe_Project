@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5870453547503502445}
   - component: {fileID: 1722482277860144916}
   m_Layer: 0
-  m_Name: flr_0111_ForestGardenStone_Blossom_0
+  m_Name: flr_0130_Wood_Floor_Tile_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -178,7 +178,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1615864167, guid: f798dbeb53727d643ad723b31d5269a5, type: 3}
+  m_Sprite: {fileID: -1708449912, guid: 3df0dc8daf2a3c84886099343191fdc5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

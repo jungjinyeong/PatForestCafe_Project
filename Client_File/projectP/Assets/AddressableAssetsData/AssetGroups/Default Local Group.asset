@@ -60,8 +60,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3f010411062898b4c83e2272b83315a8
+    m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 51862154d365eaa49841e0af8a8b0957
     m_Address: Input/PlacementInput
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 63c592db880314f4f8136775c96ae74a
+    m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_5
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -85,13 +95,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 8255fa77919a88949ac41cb8e6ad7952
-    m_Address: FurnitureVisual/FV_flr_0120_forest_ground_spring_grass
+  - m_GUID: 88723fbef3bb18b4e9f44eb0b17bab20
+    m_Address: FurnitureVisual/FV_flr_0110_ForestGardenStone_Natural_set
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 88723fbef3bb18b4e9f44eb0b17bab20
-    m_Address: FurnitureVisual/FV_flr_0110_ForestGardenStone_Natural_set
+  - m_GUID: 8cf7c0b2e1c7d414fae4e175ac142059
+    m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 90a8b28ca5f3101489b793dc45ec2747
+    m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_6
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -115,6 +130,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c530742180445e745b55b3cf83d63671
+    m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cc9b307291f16ba4caeea53da70dd7b8
     m_Address: FurnitureVisual/FV_flr_0100_forest_path_stone_tile_1
     m_ReadOnly: 0
@@ -130,8 +150,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e254268db2a67934e8acae9b9f87198d
+    m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f19faf14a9ca5c344a9d49753060c0be
     m_Address: FurnitureVisual/FV_flr_0114_ForestGardenStone_Moonlight_set
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f32e47b0421b35b4d98fc5e4d78e12ed
+    m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_4
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5870453547503502445}
   - component: {fileID: 1722482277860144916}
   m_Layer: 0
-  m_Name: flr_0114_ForestGardenStone_Moonlight_0
+  m_Name: flr_0114_ForestGardenStone_Moonlight_set
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

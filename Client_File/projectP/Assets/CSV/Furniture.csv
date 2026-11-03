@@ -11,12 +11,18 @@ int,string,string,string,string,long,int,int,int,int,int,int,int
 30008,숲길 돌바닥 4,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0100_forest_path_stone_tile_3,300,1,1,0,2,0,6,5
 30009,숲길 돌바닥 5,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0100_forest_path_stone_tile_4,300,1,1,0,2,0,6,5
 30010,숲길 돌바닥 6,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0100_forest_path_stone_tile_5,300,1,1,0,2,0,6,5
-30013,정원석 바닥(꽃),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0111_ForestGardenStone_Blossom_set,300,1,1,0,2,0,6,5
-30016,정원석 바닥(가을),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0112_ForestGardenStone_Autumn_set,300,1,1,0,2,0,6,5
-30019,정원석 바닥(이끼),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0113_ForestGardenStone_Moss_set,300,1,1,0,2,0,6,5
-30022,정원석 바닥(달빛),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0114_ForestGardenStone_Moonlight_set,300,1,1,0,2,0,6,5
-30025,숲 흙길(봄),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0120_forest_ground_spring_path,300,1,1,0,2,0,6,5
-30026,숲 풀밭(봄),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0120_forest_ground_spring_grass,300,1,1,0,2,0,6,5
+30011,정원석 바닥(꽃),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0111_ForestGardenStone_Blossom_set,300,1,1,0,2,0,6,5
+30012,정원석 바닥(가을),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0112_ForestGardenStone_Autumn_set,300,1,1,0,2,0,6,5
+30013,정원석 바닥(이끼),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0113_ForestGardenStone_Moss_set,300,1,1,0,2,0,6,5
+30014,정원석 바닥(달빛),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0114_ForestGardenStone_Moonlight_set,300,1,1,0,2,0,6,5
+30015,숲 바닥(봄),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0120_forest_ground_spring_path,300,1,1,0,2,0,6,5
+30016,나무 바닥 1,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_0,300,1,1,0,2,0,6,5
+30017,나무 바닥 2,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_1,300,1,1,0,2,0,6,5
+30018,나무 바닥 3,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_2,300,1,1,0,2,0,6,5
+30019,나무 바닥 4,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_3,300,1,1,0,2,0,6,5
+30020,나무 바닥 5,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_4,300,1,1,0,2,0,6,5
+30021,나무 바닥 6,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_5,300,1,1,0,2,0,6,5
+30022,나무 바닥 7,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_6,300,1,1,0,2,0,6,5
 30041,숲 돌벽 1,FurnitureAtlas,WallpaperIcon,FurnitureVisual/FV_wal_0100_forest_stone_wall_set_0,500,1,3,0,1,0,5,5
 30042,숲 돌벽 3,FurnitureAtlas,WallpaperIcon,FurnitureVisual/FV_wal_0100_forest_stone_wall_set_2,500,1,3,0,1,0,5,5
 30043,숲 덩굴벽 1,FurnitureAtlas,WallpaperIcon,FurnitureVisual/FV_wal_0110_forest_vine_wall_set_0,500,1,3,0,1,0,5,5

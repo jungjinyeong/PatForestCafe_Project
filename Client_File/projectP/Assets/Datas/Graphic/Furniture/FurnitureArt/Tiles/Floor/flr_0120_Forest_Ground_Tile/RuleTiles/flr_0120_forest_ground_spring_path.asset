@@ -9,27 +9,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59b4a69af7ef38d49a63194019c92b3f, type: 3}
+  m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
   m_Name: flr_0120_forest_ground_spring_path
-  m_EditorClassIdentifier: Assembly-CSharp::BorderedRuleTile
+  m_EditorClassIdentifier: Unity.2D.Tilemap.Extras::UnityEngine.RuleTile
   m_DefaultSprite: {fileID: 1946046823, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 0
   m_TilingRules:
   - m_Id: 0
     m_Sprites:
-    - {fileID: -161697302, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
-    - {fileID: -13689691, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
-    - {fileID: 92560209, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
-    - {fileID: -1096235061, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
-    - {fileID: -903548160, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
-    - {fileID: -1821847238, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
-    - {fileID: 143807495, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
+    - {fileID: 1946046823, guid: 8750c30608c839d48b1e0422fe91fa99, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
     m_PerlinScale: 0.5
-    m_Output: 1
+    m_Output: 0
     m_ColliderType: 0
     m_RandomTransform: 0
     m_Scroll: {x: 0.5, y: 0.5}

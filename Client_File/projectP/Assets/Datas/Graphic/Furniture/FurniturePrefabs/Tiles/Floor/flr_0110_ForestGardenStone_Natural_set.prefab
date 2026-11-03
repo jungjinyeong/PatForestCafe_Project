@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5870453547503502445}
   - component: {fileID: 1722482277860144916}
   m_Layer: 0
-  m_Name: flr_0112_ForestGardenStone_Autumn_0
+  m_Name: flr_0110_ForestGardenStone_Natural_set
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -96,7 +96,6 @@ MonoBehaviour:
   mSpriteRenderer: {fileID: 1444986378335094560}
   mValidColor: {r: 1, g: 1, b: 1, a: 1}
   mInvalidColor: {r: 1, g: 0.4, b: 0.4, a: 0.6}
-  mClearanceOffsets: []
 --- !u!1 &9113152253824113598
 GameObject:
   m_ObjectHideFlags: 0
@@ -178,7 +177,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1821350149, guid: 49c14ed931e7a704fa835c6926d5425f, type: 3}
+  m_Sprite: {fileID: 18312565, guid: 9e931e611d5f0a843bb7261291f99f0c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
