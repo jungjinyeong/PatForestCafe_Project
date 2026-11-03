@@ -80,6 +80,19 @@ public class UIPopupShopFurniture : UIWndBase, IUIParam<UIPopupShopFurniture.Par
 
     private void OnClickBuy(UIScrollFurnitureData data)
     {
+        // 영업 중에는 배치할 수 없으니 사서 보관함에 넣기만 한다(영업 정산 후 로비 가구배치 목록에서 꺼내 놓는다).
+        if (!GameInstance.Model.Business.CanEditLayout)
+        {
+            var placement = GameInstance.Model.Placement;
+            string message = placement.IsUnlimitedUnlocked(data.Tid, data.IsSub)
+                ? $"{data.Name}은(는) 이미 가지고 있어요 · 영업 정산 후에 배치할 수 있어요"
+                : placement.TryPurchaseToStorage(data)
+                    ? $"{data.Name}을(를) 보관함에 넣었어요 · 영업 정산 후에 배치할 수 있어요"
+                    : "골드가 부족해요";
+            GameInstance.Model.Notice.Push(eNoticeType.Business, message);
+            return;
+        }
+
         // 구매 성공 시 곧바로 드래그 배치 모드로 전환되므로, 모달을 닫아 로비 화면이 보이게 한다.
         // 상점가 팝업이 남아 있으면 화면을 덮어 배치 입력(PlacementInputController의 UI 레이캐스트 체크)이 막히므로 같이 닫는다.
         if (GameInstance.Model.Placement.TryPurchaseAndBeginPlacement(data))

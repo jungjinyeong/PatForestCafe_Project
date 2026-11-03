@@ -29,7 +29,7 @@ namespace CTable
 
     // 배치된 가구가 바라보는 방향. 값 = Down(정면이 아래) 기준 반시계 90° 회전 횟수(칸/손님 위치 계산에 그대로 쓴다).
     // 프리팹은 Down 기준으로 만들고, R키는 시계 방향(Down→Left→Up→Right)으로 돈다.
-    // 그림(DirectionalSprite)은 Down=Front, Up=Back, Right=Side, Left=Side 좌우반전. 바닥타일(RotateTile)은 그림 회전 단계로 쓴다.
+    // 그림(DirectionalSprite)은 Down=Front, Up=Back, Right=Side, Left=Side 좌우반전.
     public enum eFurnitureDirection
     {
         Down,
@@ -47,8 +47,7 @@ namespace CTable
         DirectionalSprite,  // 일반 가구 — 방향별 스프라이트(앞/뒤/옆) + 한쪽 옆면은 FlipX, footprint도 같이 돈다
         [LabelText("벽가구 (좌우반전)")]
         FlipXOnly,          // 벽가구 — 좌우반전만
-        [LabelText("바닥타일 (그림 회전)")]
-        RotateTile,         // 바닥타일 — 그림 자체를 90°씩 회전(+선택적으로 FlipX)
+        // 바닥타일은 회전하지 않는다(None). 예전 바닥타일 그림 회전(3)은 없앴다 — 새 값을 추가할 때 3을 재사용하지 말 것.
     }
 
     // FurnitureRow.Category / SubFurnitureRow.Category(int)를 코드에서 읽을 때 쓰는 타입. 가구 구입 목록의 탭 분류.

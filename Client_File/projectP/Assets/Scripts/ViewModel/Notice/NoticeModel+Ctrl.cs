@@ -64,6 +64,7 @@ public partial class NoticeModel
         var business = GameInstance.Model.Business;
         switch (state)
         {
+            case eBusinessState.Preparing: return $"{business.GetDateText(business.Day.Value)} 영업 준비 · 가구를 정리하고 영업을 시작하세요";
             case eBusinessState.Closing: return "영업 마감 시작 · 남은 손님이 나가면 정산해요";
             case eBusinessState.Closed: return $"{business.GetDateText(business.Day.Value)} 영업 종료 · 매출 {business.TodayGold.Value:N0}G";
             default: return $"{business.GetDateText(business.Day.Value)} 영업 시작";

@@ -213,8 +213,10 @@ public class TilePlacementArea : MonoBehaviour
     // 같은 레이어를 다른 베이스가 점유하지 않은(또는 selfPlacementId 자신) 경우만 유효. 벽과 바닥에 걸치면 무효.
     // accessOffsets(footprint 기준 셀 오프셋)가 있으면 그 접근 칸들도 손님이 설 수 있는 바닥이어야 하고,
     // clearanceOffsets(비워둘 칸)는 영역 안이면 다른 일반 가구가 없어야 한다(벽/영역 밖은 통과).
+    // canReplace: 같은 레이어의 다른 가구 중 덮어쓸 수 있는 것(벽지 드래그 설치가 다른 벽지를 바꿔 붙일 때). null이면 겹치면 무효.
     public bool TryGetSnappedPositionForBase(Vector3 worldPos, Vector2Int footprintCells, int selfPlacementId, ePlacementSurface surface, int layer,
-        IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets, out Vector3 snappedPos)
+        IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets, out Vector3 snappedPos,
+        System.Func<int, bool> canReplace = null)
     {
         snappedPos = worldPos;
 
@@ -222,11 +224,30 @@ public class TilePlacementArea : MonoBehaviour
             return false;
 
         Vector3Int origin = GetFootprintOrigin(worldPos, footprintCells);
-        if (!IsBasePlacementValid(origin, footprintCells, selfPlacementId, surface, layer, accessOffsets, clearanceOffsets))
+        if (!IsBasePlacementValid(origin, footprintCells, selfPlacementId, surface, layer, accessOffsets, clearanceOffsets, canReplace))
             return false;
 
         snappedPos = GetFootprintCenterWorld(origin, footprintCells, worldPos.z);
         return true;
+    }
+
+    // 기준 셀 origin에 베이스 가구를 놓을 수 있는지(TryGetSnappedPositionForBase의 셀 버전). 대량 설치가 칸마다 검사할 때 쓴다.
+    public bool IsBasePlacementValidAt(Vector3Int origin, Vector2Int footprintCells, ePlacementSurface surface, int layer, System.Func<int, bool> canReplace)
+    {
+        return mTilemap != null && IsBasePlacementValid(origin, footprintCells, -1, surface, layer, null, null, canReplace);
+    }
+
+    // origin의 footprint 칸들에서 layer를 차지한 베이스 가구 placementId(중복 없음).
+    public List<int> GetBaseOccupantIds(Vector3Int origin, Vector2Int footprintCells, int layer)
+    {
+        var result = new List<int>();
+        foreach (var cell in IterateFootprintCells(origin, footprintCells))
+        {
+            if (mOccupants.TryGetValue(cell, out CellOccupant occupant) && occupant.Bases.TryGetValue(layer, out BaseSlot slot) &&
+                !result.Contains(slot.PlacementId))
+                result.Add(slot.PlacementId);
+        }
+        return result;
     }
 
     // sub가구용 유효 위치 판정: footprint 전체 셀에 allowedGroupId(0 초과, 즉 실제로 지정된 그룹)의 베이스가 (어느 레이어든)
@@ -407,10 +428,10 @@ public class TilePlacementArea : MonoBehaviour
     // 드래그 중 베이스 가구를 실제로 놓을 수 있는 자리(footprint 전체 + 손님 칸 + 비워둘 칸 조건을 배치 판정과 똑같이 검사)가
     // 덮는 칸은 밝게, 같은 면인데 어떤 자리로도 덮이지 않는 칸은 붉게 강조한다. 2×2 카펫처럼 큰 가구도 실제 배치 가능 영역과 일치한다.
     public void ShowBaseHighlight(Vector2Int footprintCells, ePlacementSurface surface, int layer, int selfPlacementId,
-        IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets)
+        IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets, System.Func<int, bool> canReplace = null)
     {
         var coverable = CollectCoverableCells(footprintCells,
-            origin => IsBasePlacementValid(origin, footprintCells, selfPlacementId, surface, layer, accessOffsets, clearanceOffsets));
+            origin => IsBasePlacementValid(origin, footprintCells, selfPlacementId, surface, layer, accessOffsets, clearanceOffsets, canReplace));
         ShowHighlight(coverable.Contains, cell => GetSurface(cell) == surface);
     }
 
@@ -634,11 +655,11 @@ public class TilePlacementArea : MonoBehaviour
 
     // 기준 셀 origin에 베이스 가구를 놓을 수 있는지 — 실제 배치(TryGetSnappedPositionForBase)와 강조 표시가 같이 쓰는 단일 판정.
     private bool IsBasePlacementValid(Vector3Int origin, Vector2Int footprintCells, int selfPlacementId, ePlacementSurface surface, int layer,
-        IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets)
+        IReadOnlyList<Vector2Int> accessOffsets, IReadOnlyList<Vector2Int> clearanceOffsets, System.Func<int, bool> canReplace = null)
     {
         foreach (var cell in IterateFootprintCells(origin, footprintCells))
         {
-            if (!IsBaseCellAvailable(cell, surface, layer, selfPlacementId))
+            if (!IsBaseCellAvailable(cell, surface, layer, selfPlacementId, canReplace))
                 return false;
         }
 
@@ -655,7 +676,7 @@ public class TilePlacementArea : MonoBehaviour
         return true;
     }
 
-    private bool IsBaseCellAvailable(Vector3Int cell, ePlacementSurface surface, int layer, int selfPlacementId)
+    private bool IsBaseCellAvailable(Vector3Int cell, ePlacementSurface surface, int layer, int selfPlacementId, System.Func<int, bool> canReplace)
     {
         if (!mTilemap.HasTile(cell) || GetSurface(cell) != surface)
             return false;
@@ -666,7 +687,8 @@ public class TilePlacementArea : MonoBehaviour
 
         return !mOccupants.TryGetValue(cell, out CellOccupant occupant) ||
                !occupant.Bases.TryGetValue(layer, out BaseSlot slot) ||
-               slot.PlacementId == selfPlacementId;
+               slot.PlacementId == selfPlacementId ||
+               (canReplace != null && canReplace(slot.PlacementId));
     }
 
     // 손님 접근 칸: 배치 영역 안의 바닥이고, 다른 일반 가구(레이어 2 이상)가 차지하지 않은 칸이어야 손님이 설 수 있다.

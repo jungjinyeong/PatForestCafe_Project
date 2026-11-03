@@ -146,7 +146,6 @@ public static class FloorTileVisualBuilder
         var so = new SerializedObject(visual);
         so.FindProperty("mFloorTile").objectReferenceValue = floorTile;
         so.FindProperty("mOrientMode").enumValueIndex = (int)CTable.eFurnitureOrientMode.None;
-        so.FindProperty("mTileIncludeFlipX").boolValue = false;
         if (front != null)
             so.FindProperty("mFront").objectReferenceValue = front;
         so.ApplyModifiedPropertiesWithoutUndo();

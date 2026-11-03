@@ -74,9 +74,17 @@ public class UIRootLobby : UIWndBase
             mBtnShop.OnSubscribeOnClick(OnClickOpenShopStreet).AddTo(this);
     }
 
+    // 가구 배치는 영업 정산 후 ~ 영업 시작 전에만 켤 수 있다. 영업 중에 누르면 안내만 한다(끄기는 언제나 가능).
     private void OnClickTogglePlacementMode()
     {
-        GameInstance.Model.Placement.ToggleEditMode();
+        var placement = GameInstance.Model.Placement;
+        if (!placement.IsEditMode.Value && !GameInstance.Model.Business.CanEditLayout)
+        {
+            GameInstance.Model.Notice.Push(eNoticeType.Business, "영업 중에는 가구를 배치할 수 없어요 · 영업 정산 후에 배치해 주세요");
+            return;
+        }
+
+        placement.ToggleEditMode();
     }
 
     // 배치 모드 → 가구배치 목록 팝업, 가구를 들고 있는 동안 → 확정/취소 팝업. 둘 다 PlacementModel 상태에 맞춰 열고 닫는다.

@@ -145,11 +145,6 @@ public class GameModeFurnitureTest : GameModeBase
             default:
                 foreach (var direction in SHOWCASE_DIRECTIONS)
                     states.Add((direction, false));
-                if (mode == CTable.eFurnitureOrientMode.RotateTile && visual.TileIncludeFlipX)
-                {
-                    foreach (var direction in SHOWCASE_DIRECTIONS)
-                        states.Add((direction, true));
-                }
                 break;
         }
 

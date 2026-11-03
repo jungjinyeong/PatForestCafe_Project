@@ -73,12 +73,10 @@ public class PlaceableObject : MonoBehaviour
     private Vector2 mBaseColliderOffset;
     private Vector2 mBaseColliderSize;
     private Sprite mBaseSprite;
-    // 그림 오브젝트(mSpriteRenderer)의 원래 회전. 바닥타일(RotateTile)은 여기에 90°씩 더해 그림을 돌린다.
-    private Quaternion mBaseSpriteLocalRotation = Quaternion.identity;
 
     // 방향 = Down 기준 반시계 90° 회전 횟수(eFurnitureDirection 값). R은 시계 방향(Down→Left→Up→Right)으로 돈다.
     private CTable.eFurnitureDirection mDirection = CTable.eFurnitureDirection.Down;
-    // 좌우반전. 벽가구(FlipXOnly)와 바닥타일(RotateTile + TileIncludeFlipX)만 쓴다 — 일반 가구의 Left 반전은 방향에서 계산한다.
+    // 좌우반전. 벽가구(FlipXOnly)만 쓴다 — 일반 가구의 Left 반전은 방향에서 계산한다.
     // 기하(칸/손님 칸/콜라이더)와 그림 모두 "좌우반전 후 회전" 순서로 적용한다.
     private bool mFlipX;
     // 아트 설정(방향별 스프라이트, 회전 방식). 등록되지 않은 가구면 null — 프리팹 그림 그대로, 회전 없음.
@@ -105,7 +103,7 @@ public class PlaceableObject : MonoBehaviour
     public ePlacementSurface Surface { get; private set; } = ePlacementSurface.Floor;
     // 같은 레이어끼리만 칸을 두고 겹칠 수 없다(TilePlacementArea). sub가구에는 의미 없음.
     public int LayoutOrder { get; private set; } = LAYER_FURNITURE_MIN;
-    // 드래그 연속 설치 / Shift+드래그 사각형 채우기 대상인지. 지금은 바닥타일(FurnitureType=타일)만 — 대상은 추후 바뀔 수 있다.
+    // 드래그 연속 설치 / Shift+드래그 사각형 채우기 대상인지. 구매 후 무제한인 바닥타일(타일)과 벽지(벽).
     public bool IsBulkPlaceable { get; private set; }
 
     private int PickRank => mIsSubFurniture ? SUB_PICK_RANK : LayoutOrder;
@@ -125,7 +123,7 @@ public class PlaceableObject : MonoBehaviour
             ? ePlacementSurface.Wall
             : ePlacementSurface.Floor;
         LayoutOrder = row != null ? Mathf.Max(0, row.LayoutOrder) : LAYER_FURNITURE_MIN;
-        IsBulkPlaceable = row != null && row.FurnitureType == (int)CTable.eFurnitureType.Tile;
+        IsBulkPlaceable = PlacementModel.IsUnlimitedFurniture(tid, false);
         mVisual = visualOverride != null ? visualOverride : GameInstance.Model.Placement.GetFurnitureVisual(tid, false);
 
         CacheBaseLayout();
@@ -164,7 +162,6 @@ public class PlaceableObject : MonoBehaviour
     // R 한 번: 회전 방식(아트 설정)에 따라 다음 상태로 바꾼다.
     // - DirectionalSprite(일반 가구): 시계 방향 90°(Down→Left→Up→Right)
     // - FlipXOnly(벽가구): 좌우반전 토글
-    // - RotateTile(바닥타일): 그림 시계 방향 90°. TileIncludeFlipX면 한 바퀴 돌 때마다 좌우반전도 토글(8가지 상태)
     public void RotateNext()
     {
         var nextDirection = (CTable.eFurnitureDirection)(((int)mDirection + 3) % 4);
@@ -176,10 +173,6 @@ public class PlaceableObject : MonoBehaviour
                 break;
             case CTable.eFurnitureOrientMode.FlipXOnly:
                 SetOrientation(CTable.eFurnitureDirection.Down, !mFlipX);
-                break;
-            case CTable.eFurnitureOrientMode.RotateTile:
-                bool wrapped = nextDirection == CTable.eFurnitureDirection.Down;
-                SetOrientation(nextDirection, wrapped && mVisual.TileIncludeFlipX ? !mFlipX : mFlipX);
                 break;
         }
     }
@@ -204,10 +197,6 @@ public class PlaceableObject : MonoBehaviour
                 break;
             case CTable.eFurnitureOrientMode.FlipXOnly:
                 direction = CTable.eFurnitureDirection.Down;
-                break;
-            case CTable.eFurnitureOrientMode.RotateTile:
-                if (!mVisual.TileIncludeFlipX)
-                    flipX = false;
                 break;
         }
 
@@ -258,7 +247,6 @@ public class PlaceableObject : MonoBehaviour
         mBaseColliderOffset = mCollider != null ? mCollider.offset : Vector2.zero;
         mBaseColliderSize = mCollider != null ? mCollider.size : Vector2.one;
         mBaseSprite = mSpriteRenderer != null ? mSpriteRenderer.sprite : null;
-        mBaseSpriteLocalRotation = mSpriteRenderer != null ? mSpriteRenderer.transform.localRotation : Quaternion.identity;
     }
 
     private static Vector2 MirrorX(Vector2 v, bool flipX)
@@ -317,7 +305,6 @@ public class PlaceableObject : MonoBehaviour
     // 회전 방식별 그림(아트 설정 FurnitureVisualData). 벽지처럼 여러 가구가 프리팹 하나를 같이 쓰는 경우에도 이 경로로 그림만 바꿔 끼운다.
     // - DirectionalSprite: Down = Front, Up = Back, Right = Side, Left = Side 좌우반전. 픽셀아트라 그림 자체는 돌리지 않는다.
     // - FlipXOnly: Front + 좌우반전
-    // - RotateTile: Front + 좌우반전 후 그림 오브젝트를 반시계 (방향 값 × 90°) 회전(= 시계 방향 R 횟수 × 90°)
     // 그림이 비어 있으면 Front, Front도 없으면 프리팹에 지정된 그림을 쓴다.
     private void ApplyOrientationSprite()
     {
@@ -342,21 +329,6 @@ public class PlaceableObject : MonoBehaviour
 
         mSpriteRenderer.sprite = sprite != null ? sprite : mBaseSprite;
         mSpriteRenderer.flipX = flipX;
-        ApplySpriteRotation(mode == CTable.eFurnitureOrientMode.RotateTile ? (int)mDirection * 90f : 0f);
-    }
-
-    // 그림 오브젝트만 돌린다(루트를 돌리면 콜라이더/Waypoint까지 돌아 칸 계산이 틀어짐). 그림이 루트에 붙은 프리팹은 돌리지 않는다.
-    private void ApplySpriteRotation(float counterClockwiseDegrees)
-    {
-        var spriteTransform = mSpriteRenderer.transform;
-        if (spriteTransform == transform)
-        {
-            if (counterClockwiseDegrees != 0f)
-                Logger.Warning($"[PlaceableObject] '{name}'은 SpriteRenderer가 루트에 있어 그림을 회전할 수 없습니다. 그림을 자식 오브젝트로 옮겨 주세요.");
-            return;
-        }
-
-        spriteTransform.localRotation = mBaseSpriteLocalRotation * Quaternion.Euler(0f, 0f, counterClockwiseDegrees);
     }
 
     // 벽지/바닥타일/카펫처럼 면에 깔리는 가구만 정렬 순서를 레이어에 맞춰 덮어쓴다.

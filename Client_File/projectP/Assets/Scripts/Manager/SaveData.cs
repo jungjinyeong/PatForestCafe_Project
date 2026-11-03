@@ -108,6 +108,7 @@ public class SaveData
     public int CafeExp;
     public int BusinessDay;
     public bool BusinessClosed;
+    public bool BusinessPreparing;
     public BusinessStats TodayStats = new BusinessStats();
     public BusinessStats NextDayStats = new BusinessStats();
     public int HiredWorkerCount;

@@ -68,7 +68,7 @@ public class UIPlacementControlGuide : MonoBehaviour
         else if (placement.IsBulkPlacing)
         {
             string placeKey = controller.GetKeyDisplayName(PlacementInputController.ACTION_PLACE);
-            AppendLine(controller, PlacementInputController.ACTION_PLACE, "칠하기 · 드래그 연속");
+            AppendLine(controller, PlacementInputController.ACTION_PLACE, "놓기 · 드래그 연속");
             AppendKeyLine($"{controller.GetKeyDisplayName(PlacementInputController.ACTION_FILL_MODIFIER)} + {placeKey}", "드래그 영역 채우기");
             if (placement.CanRotatePlacing)
                 AppendLine(controller, PlacementInputController.ACTION_ROTATE, "회전");

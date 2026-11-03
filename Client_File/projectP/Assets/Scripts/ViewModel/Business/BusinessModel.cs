@@ -3,9 +3,10 @@ using UniRx;
 
 public enum eBusinessState
 {
+    Preparing,  // 영업 준비 — 새 날 개점 전. 시계 정지, 가구 배치 가능, [영업 시작]으로 영업 중이 된다. 새 게임은 여기서 시작한다.
     Open,       // 영업 중 — 손님 입장
     Closing,    // 마감 중 — 새 손님 입장 중단, 남은 손님 퇴장 대기
-    Closed,     // 영업 종료 — 정산 완료, [다음 날 영업 시작] 대기
+    Closed,     // 영업 종료 — 정산 완료(정산 팝업). 시계 정지, 가구 배치 가능. 정산 [확인] → 다음 날 영업 준비
 }
 
 // 영업 종료 중(Closed)에 생긴 통계(배달 매출·경험치 등)를 다음 날로 넘기기 위한 묶음. 세이브에도 그대로 쓴다.
@@ -22,7 +23,8 @@ public class BusinessStats
 
 // 하루 영업 상태 + 일차 + 오늘 통계(정산 팝업용).
 // 하루 길이·개점/마감 시각·마감 대기 제한은 GameTime.csv(CTable.GameTimeRow, Tid 1)에서 읽는다.
-// 영업 종료(Closed)는 세이브한다 — 정산만 보고 종료해도 재실행 시 같은 날을 다시 영업하지 않는다.
+// 영업 종료(Closed)·영업 준비(Preparing)는 세이브한다 — 정산만 보고 종료해도 재실행 시 같은 날을 다시 영업하지 않는다.
+// 가구 배치는 영업 정산 후 ~ 영업 시작 전(Closed/Preparing)에만 할 수 있다(CanEditLayout).
 // 마감 중(Closing)은 세이브하지 않는다 — 재실행하면 같은 날 영업 중으로 이어진다(정산 전이라 통계 중복 없음).
 public partial class BusinessModel : IModelBase
 {
@@ -44,7 +46,10 @@ public partial class BusinessModel : IModelBase
     public static int SeasonDays => GameTimeRow != null && GameTimeRow.SeasonDays > 0 ? GameTimeRow.SeasonDays : DEFAULT_SEASON_DAYS;
 
     public IReadOnlyReactiveProperty<eBusinessState> State => mState;
-    private readonly ReactiveProperty<eBusinessState> mState = new ReactiveProperty<eBusinessState>(eBusinessState.Open);
+    private readonly ReactiveProperty<eBusinessState> mState = new ReactiveProperty<eBusinessState>(eBusinessState.Preparing);
+
+    // 가구 배치를 할 수 있는지 — 영업 정산 후(Closed) ~ 영업 시작 전(Preparing).
+    public bool CanEditLayout => mState.Value == eBusinessState.Closed || mState.Value == eBusinessState.Preparing;
 
     public IReadOnlyReactiveProperty<int> Day => mDay;
     private readonly ReactiveProperty<int> mDay = new ReactiveProperty<int>(1);
@@ -75,7 +80,7 @@ public partial class BusinessModel : IModelBase
 
     public void Dispose()
     {
-        mState.Value = eBusinessState.Open;
+        mState.Value = eBusinessState.Preparing;
         mDay.Value = 1;
         ResetTodayStats();
         mNextDayStats = new BusinessStats();

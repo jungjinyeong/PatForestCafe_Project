@@ -4,7 +4,8 @@ using UnityEngine;
 using Extension;
 
 // 영업 정산 팝업(프리팹 UI_Popup_Settlement). 영업 종료(BusinessModel.State == Closed) 시 GameModeLobby가 연다.
-// ✕/배경으로 닫아도 탑바의 "영업 종료"를 누르면 다시 열린다. [다음 날 영업 시작]은 영업 종료 상태에서만 동작한다.
+// [확인]은 영업 종료 상태에서만 동작하며 다음 날 영업 준비로 넘어간다
+// (영업 시작은 탑바의 [영업 시작] 버튼). 버튼 필드 이름(mBtnNextDay)은 프리팹 연결을 유지하려고 그대로 둔다.
 public class UIPopupSettlement : UIWndBase, IUIParam<UIPopupSettlement.Param>
 {
     public struct Param
@@ -23,7 +24,7 @@ public class UIPopupSettlement : UIWndBase, IUIParam<UIPopupSettlement.Param>
     {
         base.Init();
 
-        mBtnNextDay.OnSubscribeOnClick(OnClickNextDay).AddTo(this);
+        mBtnNextDay.OnSubscribeOnClick(OnClickConfirm).AddTo(this);
     }
 
     public override void Open()
@@ -37,10 +38,10 @@ public class UIPopupSettlement : UIWndBase, IUIParam<UIPopupSettlement.Param>
     {
     }
 
-    private void OnClickNextDay()
+    private void OnClickConfirm()
     {
         SelfClose();
-        GameModeLobby.StartNextBusinessDay();
+        GameModeLobby.ConfirmSettlement();
     }
 
     private void Refresh()
@@ -70,6 +71,6 @@ public class UIPopupSettlement : UIWndBase, IUIParam<UIPopupSettlement.Param>
         }
 
         mBtnNextDay.interactable = isClosed;
-        mTextNextDay.SetTextEx(isClosed ? "다음 날 영업 시작" : "영업 중");
+        mTextNextDay.SetTextEx(isClosed ? "확인" : "영업 중");
     }
 }

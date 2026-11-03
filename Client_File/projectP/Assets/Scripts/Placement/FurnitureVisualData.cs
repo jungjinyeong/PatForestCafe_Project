@@ -34,13 +34,9 @@ public class FurnitureVisualData : ScriptableObject
     [SerializeField] private Sprite mSide;
 
     [Title("바닥타일")]
-    [LabelText("좌우반전 포함")]
-    [PropertyTooltip("회전 방식이 '바닥타일'일 때만 쓴다. 켜면 R 회전 순환에 좌우반전 상태를 포함한다(0°,90°,180°,270° 다음 반전된 4방향).")]
-    [SerializeField] private bool mTileIncludeFlipX;
-
     [LabelText("칠할 타일")]
     [PropertyTooltip("바닥타일(FurnitureType=타일)만 쓴다. 층의 바닥 Tilemap에 칠할 타일 — RuleTile이면 주변 칸에 맞춰 경계/변형 그림이 자동으로 정해진다.\n" +
-                     "프리팹/정면 그림은 들고 있는 동안 커서를 따라오는 미리보기로만 쓴다(Tools/Furniture/Build Floor Tile Sets).")]
+                     "프리팹/정면 그림은 들고 있는 동안 커서를 따라오는 미리보기로만 쓴다(프로젝트 창 타일 우클릭 Furniture/바닥타일 아트 설정 만들기).")]
     [FloorTilePreview]
     [SerializeField] private TileBase mFloorTile;
 
@@ -49,7 +45,6 @@ public class FurnitureVisualData : ScriptableObject
     public Sprite Front => mFront;
     public Sprite Back => mBack;
     public Sprite Side => mSide;
-    public bool TileIncludeFlipX => mTileIncludeFlipX;
     public TileBase FloorTile => mFloorTile;
 
 #if UNITY_EDITOR

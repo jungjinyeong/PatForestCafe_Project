@@ -193,7 +193,7 @@ public class PlacementInputController : MonoBehaviour
     }
 
     // 들고 있기 방식: 들고 있지 않을 때 LMB/탭 = 가장 위 가구 집기, 들고 있을 때 가구가 커서를 따라오고 LMB = 놓기, RMB = 취소.
-    // 새로 꺼낸 바닥타일은 LMB 드래그 연속 설치 / Shift+LMB 드래그 사각형 채우기(TickBulk).
+    // 새로 꺼낸 바닥타일/벽지는 LMB 드래그 연속 설치 / Shift+LMB 드래그 사각형 채우기(TickBulk).
     // X/Delete = 철거 모드 토글(들고 있지 않을 때), 철거 모드에서 LMB = 철거(TickDemolish), RMB = 철거 모드 끄기.
     // G = 그리드 오버레이 토글(표시는 PlacementGridOverlay).
     private void Tick()
@@ -336,14 +336,19 @@ public class PlacementInputController : MonoBehaviour
             placement.Confirm();
     }
 
-    // 새로 꺼낸 바닥타일을 들고 있을 때(마우스): 들고 있는 미리보기는 커서에 남겨 두고 칸마다 층의 바닥 Tilemap에 칠한다.
-    // - LMB 클릭/드래그: 지나간 칸마다 칠한다(빠르게 움직여 건너뛴 칸은 직선으로 이어 채움).
+    // 새로 꺼낸 대량 설치 가구(바닥타일/벽지)를 들고 있을 때(마우스): 들고 있는 미리보기는 커서에 남겨 두고 칸마다 놓는다(바닥타일은 칠함).
+    // - LMB 클릭/드래그: 지나간 칸마다 놓는다(빠르게 움직여 건너뛴 칸은 직선으로 이어 채움).
     // - Shift + LMB 드래그: 시작 칸~현재 칸 사각형을 미리 보여 주고, 버튼을 떼면 한 번에 채운다.
     // RMB(취소)로 들고 있기를 끝낸다.
     private void TickBulk(PlacementModel placement, Vector3 worldPos)
     {
         if (!placement.TryGetPlacingCell(worldPos, out var cell))
             return;
+
+        // 벽지는 벽 줄을 따라 붙이므로, 드래그(연속 설치) 중 커서가 위아래로 흔들려도 시작한 줄에서 벗어나지 않게 한다.
+        // Shift 사각형 채우기는 범위를 직접 고르는 것이라 고정하지 않는다.
+        if (mBulkMode == eBulkMode.Paint && placement.IsPlacingOnWall)
+            cell.y = mBulkStartCell.y;
 
         if (mPlace.WasPressedThisFrame())
         {
@@ -373,7 +378,7 @@ public class PlacementInputController : MonoBehaviour
         }
         else if (mBulkMode == eBulkMode.Rect && mPlace.WasReleasedThisFrame())
         {
-            placement.PaintFloorTiles(FilterToFootprintGrid(GetRectCells(mBulkStartCell, cell), placement.PlacingFootprint));
+            placement.PlaceBulk(FilterToFootprintGrid(GetRectCells(mBulkStartCell, cell), placement.PlacingFootprint));
             mBulkMode = eBulkMode.None;
         }
         else if (!mPlace.IsPressed())
@@ -385,7 +390,7 @@ public class PlacementInputController : MonoBehaviour
     private void PaintBulk(PlacementModel placement, List<Vector3Int> cells)
     {
         if (cells.Count > 0)
-            placement.PaintFloorTiles(cells);
+            placement.PlaceBulk(cells);
     }
 
     // from→to 사이 칸(양 끝 포함, from부터 순서대로). 브레젠험 직선.

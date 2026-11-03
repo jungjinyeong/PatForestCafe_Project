@@ -62,7 +62,7 @@ public partial class BusinessModel
         return true;
     }
 
-    // 영업 종료 → 다음 날 영업 중. 일차 +1, 오늘 통계 = 영업 종료 중에 쌓인 다음 날 통계.
+    // 영업 종료 → 다음 날 영업 준비(정산 [확인]). 일차 +1, 오늘 통계 = 영업 종료 중에 쌓인 다음 날 통계.
     public bool StartNextDay()
     {
         if (mState.Value != eBusinessState.Closed) return false;
@@ -70,17 +70,29 @@ public partial class BusinessModel
         mDay.Value++;
         SetTodayStats(mNextDayStats);
         mNextDayStats = new BusinessStats();
+        mState.Value = eBusinessState.Preparing;
+        return true;
+    }
+
+    // 영업 준비 → 영업 중([영업 시작]).
+    public bool OpenBusiness()
+    {
+        if (mState.Value != eBusinessState.Preparing) return false;
+
         mState.Value = eBusinessState.Open;
         return true;
     }
 
     // 세이브 복원. 구 세이브(0)는 1일차로 보정한다. 영업 종료 상태였으면 종료 상태로 복원한다(로비가 정산 팝업을 다시 연다).
-    public void Restore(int day, BusinessStats today, bool isClosed, BusinessStats nextDay)
+    // 영업 준비 기록이 없는 구 세이브는 영업 중/종료 둘 중 하나로 복원된다.
+    public void Restore(int day, BusinessStats today, bool isClosed, bool isPreparing, BusinessStats nextDay)
     {
         mDay.Value = Mathf.Max(1, day);
         SetTodayStats(today);
         mNextDayStats = nextDay ?? new BusinessStats();
-        mState.Value = isClosed ? eBusinessState.Closed : eBusinessState.Open;
+        mState.Value = isClosed ? eBusinessState.Closed
+            : isPreparing ? eBusinessState.Preparing
+            : eBusinessState.Open;
     }
 
     public BusinessStats GetTodayStats()

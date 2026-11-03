@@ -149,6 +149,7 @@ public class SaveManager : MonoBehaviour
         var business = GameInstance.Model.Business;
         data.BusinessDay = business.Day.Value;
         data.BusinessClosed = business.State.Value == eBusinessState.Closed;
+        data.BusinessPreparing = business.State.Value == eBusinessState.Preparing;
         data.TodayStats = business.GetTodayStats();
         data.NextDayStats = business.NextDayStats;
 
@@ -230,7 +231,7 @@ public class SaveManager : MonoBehaviour
         GameInstance.Model.RecipeBook.SetDiscovered(data.DiscoveredRecipeTids);
         GameInstance.Model.Upgrade.SetLevel(data.GoldIncomeUpgradeLevel);
         GameInstance.Model.Cafe.Restore(data.CafeLevel, data.CafeExp);
-        GameInstance.Model.Business.Restore(data.BusinessDay, data.TodayStats, data.BusinessClosed, data.NextDayStats);
+        GameInstance.Model.Business.Restore(data.BusinessDay, data.TodayStats, data.BusinessClosed, data.BusinessPreparing, data.NextDayStats);
 
         GameInstance.Model.Workshop.SetHiredWorkerCount(data.HiredWorkerCount);
         for (int i = 0; i < data.WorkshopSlotIngredientTids.Count; i++)

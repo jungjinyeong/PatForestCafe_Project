@@ -17,10 +17,12 @@ public class UITopbarInfo : UIHUDBase
     [SerializeField] private GameObject mExpGuideRoot;
     [SerializeField] private UIButtonEx mBtnExpGuideClose;
 
-    // 날짜/시계 + 영업 상태. 영업 중에 누르면 조기 마감 확인, 영업 종료 후 누르면 정산 팝업.
+    // 날짜/시계 + 영업 상태(표시만) + 그 옆 영업 버튼.
+    // 영업 버튼: 영업 중 = [조기 마감], 영업 종료(정산 후)·영업 준비 = [영업 시작], 마감 중 = 숨김. 둘 다 확인 팝업을 거친다.
     [SerializeField] private TextMeshProUGUI mTextDayClock;
-    [SerializeField] private UIButtonEx mBtnShopStatus;
     [SerializeField] private TextMeshProUGUI mTextShopStatus;
+    [SerializeField] private UIButtonEx mBtnBusiness;
+    [SerializeField] private TextMeshProUGUI mTextBusiness;
     [SerializeField] private Color mColorOpen = new Color(0.45f, 0.7f, 0.4f);
     [SerializeField] private Color mColorClosed = new Color(0.62f, 0.52f, 0.46f);
 
@@ -33,24 +35,31 @@ public class UITopbarInfo : UIHUDBase
         SubscribeBusiness();
     }
 
-    private void OnClickShopStatus()
+    private void OnClickBusiness()
     {
-        switch (GameInstance.Model.Business.State.Value)
+        var business = GameInstance.Model.Business;
+        if (business.State.Value == eBusinessState.Open)
         {
-            case eBusinessState.Open:
-                GameInstance.UI.Open<UIPopupConfirm, UIPopupConfirm.Param>(eUIType.PopupConfirm, new UIPopupConfirm.Param
-                {
-                    Title = "오늘 영업을 마감할까요?",
-                    Message = "새로운 손님의 입장이 중단됩니다.\n매장에 남은 손님이 모두 나가면 정산하고 저장합니다.",
-                    OkText = "조기 마감",
-                    CancelText = "계속 영업",
-                    OnOk = () => GameInstance.Model.Business.RequestClose(),
-                });
-                break;
-
-            case eBusinessState.Closed:
-                GameInstance.UI.Open<UIPopupSettlement, UIPopupSettlement.Param>(eUIType.PopupSettlement, new UIPopupSettlement.Param());
-                break;
+            GameInstance.UI.Open<UIPopupConfirm, UIPopupConfirm.Param>(eUIType.PopupConfirm, new UIPopupConfirm.Param
+            {
+                Title = "오늘 영업을 마감할까요?",
+                Message = "새로운 손님의 입장이 중단됩니다.\n매장에 남은 손님이 모두 나가면 정산하고 저장합니다.",
+                OkText = "조기 마감",
+                CancelText = "계속 영업",
+                OnOk = () => GameInstance.Model.Business.RequestClose(),
+            });
+        }
+        else if (business.CanEditLayout)
+        {
+            // 영업 종료(정산 후)·영업 준비. 배치 중이던 가구는 취소되고 배치 모드가 닫힌다(GameModeLobby).
+            GameInstance.UI.Open<UIPopupConfirm, UIPopupConfirm.Param>(eUIType.PopupConfirm, new UIPopupConfirm.Param
+            {
+                Title = "영업을 시작할까요?",
+                Message = "손님이 들어오기 시작해요.\n영업 중에는 가구를 배치할 수 없어요.",
+                OkText = "영업 시작",
+                CancelText = "준비 계속",
+                OnOk = GameModeLobby.StartBusiness,
+            });
         }
     }
 
@@ -103,8 +112,8 @@ public class UITopbarInfo : UIHUDBase
 
     private void SubscribeBusiness()
     {
-        if (mBtnShopStatus != null)
-            mBtnShopStatus.OnSubscribeOnClick(OnClickShopStatus).AddTo(this);
+        if (mBtnBusiness != null)
+            mBtnBusiness.OnSubscribeOnClick(OnClickBusiness).AddTo(this);
 
         var business = GameInstance.Model.Business;
 
@@ -129,6 +138,9 @@ public class UITopbarInfo : UIHUDBase
             case eBusinessState.Closing:
                 mTextShopStatus.SetTextEx($"마감 중 · 손님 {guests}명");
                 break;
+            case eBusinessState.Preparing:
+                mTextShopStatus.SetTextEx("영업 준비 중");
+                break;
             default:
                 mTextShopStatus.SetTextEx("영업 종료");
                 break;
@@ -136,6 +148,19 @@ public class UITopbarInfo : UIHUDBase
 
         if (mTextShopStatus != null)
             mTextShopStatus.color = state == eBusinessState.Open ? mColorOpen : mColorClosed;
+
+        RefreshBusinessButton(state);
+    }
+
+    private void RefreshBusinessButton(eBusinessState state)
+    {
+        if (mBtnBusiness == null)
+            return;
+
+        bool isOpen = state == eBusinessState.Open;
+        bool canStart = state == eBusinessState.Closed || state == eBusinessState.Preparing;
+        mBtnBusiness.gameObject.SetActive(isOpen || canStart);
+        mTextBusiness.SetTextEx(isOpen ? "조기 마감" : "영업 시작");
     }
 
     // 하루 분(0~1439) → "AM 10:24"
