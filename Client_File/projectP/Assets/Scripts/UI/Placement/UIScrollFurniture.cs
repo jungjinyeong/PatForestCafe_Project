@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using Extension;
 using UniRx;
@@ -17,12 +18,15 @@ public class UIScrollFurnitureData
     public int Height;
     // 보관 중(산 뒤 배치하지 않은) 개수. 0보다 크면 배치 목록에서 골드 없이 꺼내 놓는다.
     public int StoredCount;
+    // 이미 산 무제한 설치 가구(바닥타일·벽지). true면 골드 없이 몇 개든 놓는다.
+    public bool IsUnlimitedUnlocked;
 
     public string SizeText => $"{Width}×{Height}";
 }
 
 public class UIScrollFurniture : UIScrollRow<UIScrollFurnitureData>
 {
+    [SerializeField] private Image mIcon;
     [SerializeField] private TextMeshProUGUI mName;
     [SerializeField] private TextMeshProUGUI mPrice;
     [SerializeField] private UIButtonEx mBtnAdd;
@@ -39,8 +43,20 @@ public class UIScrollFurniture : UIScrollRow<UIScrollFurnitureData>
         CurrentData = data;
         if (data == null) return;
 
+        // 창고처럼 왼쪽에 가구 그림을 보여준다(비율 유지). 그림이 없으면 칸을 숨긴다.
+        if (mIcon != null)
+        {
+            var icon = GameInstance.Model.Placement.GetFurnitureIcon(data.Tid, data.IsSub);
+            mIcon.sprite = icon;
+            mIcon.preserveAspect = true;
+            mIcon.enabled = icon != null;
+        }
+
         mName.SetTextEx($"{data.Name}\n<size=70%>{data.SizeText}</size>");
-        // 보관 중인 가구가 있으면 가격 대신 보관 수를 보여준다(누르면 골드 없이 배치).
-        mPrice.SetTextEx(data.StoredCount > 0 ? $"보관 {data.StoredCount}" : data.Price.ToString());
+        // 이미 산 바닥타일·벽지는 "보유", 보관 중인 가구가 있으면 보관 수를 가격 대신 보여준다(누르면 골드 없이 배치).
+        if (data.IsUnlimitedUnlocked)
+            mPrice.SetTextEx("보유");
+        else
+            mPrice.SetTextEx(data.StoredCount > 0 ? $"보관 {data.StoredCount}" : data.Price.ToString());
     }
 }

@@ -57,6 +57,15 @@ public class TilePlacementArea : MonoBehaviour
     // placementId -> 그 placement가 예약한 칸 목록. ReleaseByPlacementId에서 역조회용.
     private readonly Dictionary<int, List<Vector3Int>> mAccessCellsByPlacementId = new Dictionary<int, List<Vector3Int>>();
 
+    // 씬에 켜져 있는 배치 영역들. 철거 모드에서 커서 아래 바닥 칸이 어느 층인지 찾는 데 쓴다(FindContaining).
+    private static readonly List<TilePlacementArea> mActiveAreas = new List<TilePlacementArea>();
+
+    // 칠해진 바닥타일을 그리는 런타임 전용 타일맵(RuleTile이 주변 칸에 맞춰 그림을 고른다). 처음 칠할 때 만든다.
+    // 무엇이 칠해졌는지는 PlacementModel이 기록하고(세이브), 이 타일맵은 그리기만 한다.
+    private Tilemap mFloorTileTilemap;
+    // 철거 모드에서 붉게 표시 중인 바닥 칸.
+    private Vector3Int? mDemolishCell;
+
     private Tilemap mHighlightTilemap;
     private Tile mHighlightTile;
     private Tile mBlockedTile;
@@ -94,10 +103,111 @@ public class TilePlacementArea : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        mActiveAreas.Add(this);
+    }
+
+    private void OnDisable()
+    {
+        mActiveAreas.Remove(this);
+    }
+
     public bool Contains(Vector3 worldPos)
     {
         return mTilemap != null && mTilemap.HasTile(mTilemap.WorldToCell(worldPos));
     }
+
+    // worldPos가 배치 칸 안에 있는 영역(층). 없으면 null.
+    public static TilePlacementArea FindContaining(Vector3 worldPos)
+    {
+        foreach (var area in mActiveAreas)
+        {
+            if (area != null && area.Contains(worldPos))
+                return area;
+        }
+        return null;
+    }
+
+    public Vector3Int WorldToCell(Vector3 worldPos) => mTilemap.WorldToCell(worldPos);
+
+    #region Floor Tiles
+
+    // 바닥타일을 칠할 수 있는 칸: 배치 칸이고 벽이 아닌 바닥. 다른 가구/카펫과는 겹쳐도 된다(그 아래에 깔린다).
+    public bool IsFloorPaintable(Vector3Int cell)
+    {
+        return mTilemap != null && mTilemap.HasTile(cell) && GetSurface(cell) == ePlacementSurface.Floor;
+    }
+
+    public bool HasFloorTile(Vector3Int cell)
+    {
+        return mFloorTileTilemap != null && mFloorTileTilemap.HasTile(cell);
+    }
+
+    // 같은 타일을 여러 칸에 한 번에 칠한다(세이브 복원/사각형 채우기). RuleTile은 주변 칸 그림도 같이 갱신한다.
+    public void SetFloorTiles(IReadOnlyList<Vector3Int> cells, TileBase tile)
+    {
+        if (cells == null || cells.Count == 0 || !EnsureFloorTileTilemap())
+            return;
+
+        var positions = new Vector3Int[cells.Count];
+        var tiles = new TileBase[cells.Count];
+        for (int i = 0; i < cells.Count; i++)
+        {
+            positions[i] = cells[i];
+            tiles[i] = tile;
+        }
+        mFloorTileTilemap.SetTiles(positions, tiles);
+    }
+
+    public void EraseFloorTile(Vector3Int cell)
+    {
+        if (mFloorTileTilemap != null)
+            mFloorTileTilemap.SetTile(cell, null);
+    }
+
+    public void ClearFloorTiles()
+    {
+        if (mFloorTileTilemap != null)
+            mFloorTileTilemap.ClearAllTiles();
+    }
+
+    // 철거 모드에서 커서 아래 바닥 칸을 붉게 표시한다. null이면 표시를 지운다.
+    public void SetDemolishCell(Vector3Int? cell)
+    {
+        if (mDemolishCell == cell)
+            return;
+
+        if (mDemolishCell.HasValue && mHighlightTilemap != null)
+            mHighlightTilemap.SetTile(mDemolishCell.Value, null);
+
+        mDemolishCell = cell;
+
+        if (cell.HasValue && EnsureHighlightTilemap())
+            mHighlightTilemap.SetTile(cell.Value, mBlockedTile);
+    }
+
+    // 강조 타일맵과 같은 방식으로 배치 Grid 아래에 바닥 타일맵을 만든다(씬/프리팹에 저장되지 않음).
+    private bool EnsureFloorTileTilemap()
+    {
+        if (mFloorTileTilemap != null)
+            return true;
+
+        if (mTilemap == null || mTilemap.layoutGrid == null)
+            return false;
+
+        var go = new GameObject("FloorTileLayer") { hideFlags = HideFlags.DontSave };
+        go.transform.SetParent(mTilemap.layoutGrid.transform, false);
+
+        mFloorTileTilemap = go.AddComponent<Tilemap>();
+        mFloorTileTilemap.tileAnchor = mTilemap.tileAnchor;
+
+        var renderer = go.AddComponent<TilemapRenderer>();
+        renderer.sortingOrder = PlaceableObject.SORTING_FLOOR_TILE;
+        return true;
+    }
+
+    #endregion
 
     // 일반(베이스) 가구용 유효 위치 판정: footprint 전체 셀이 타일이 있고, 가구가 붙는 면(벽/바닥)과 일치하며,
     // 같은 레이어를 다른 베이스가 점유하지 않은(또는 selfPlacementId 자신) 경우만 유효. 벽과 바닥에 걸치면 무효.
@@ -335,6 +445,7 @@ public class TilePlacementArea : MonoBehaviour
     public void HideHighlight()
     {
         mPreviewOverwritten.Clear();
+        mDemolishCell = null;
         if (mHighlightTilemap != null)
             mHighlightTilemap.ClearAllTiles();
     }
@@ -402,6 +513,7 @@ public class TilePlacementArea : MonoBehaviour
 
         // 강조를 처음부터 다시 그리므로 이전 미리보기가 덮어쓴 칸 기록은 무효(회전 직후 옛 강조로 되돌리는 문제 방지).
         mPreviewOverwritten.Clear();
+        mDemolishCell = null;
         mHighlightTilemap.ClearAllTiles();
 
         BoundsInt bounds = mTilemap.cellBounds;

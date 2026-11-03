@@ -18,8 +18,9 @@ MonoBehaviour:
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
-  mOrientMode: 3
+  mOrientMode: 0
   mFront: {fileID: 321291503, guid: 295184982f62fc0418e173026550f6a2, type: 3}
   mBack: {fileID: 0}
   mSide: {fileID: 0}
   mTileIncludeFlipX: 0
+  mFloorTile: {fileID: 11400000, guid: 380596e6045b1f145a94b74582465793, type: 2}

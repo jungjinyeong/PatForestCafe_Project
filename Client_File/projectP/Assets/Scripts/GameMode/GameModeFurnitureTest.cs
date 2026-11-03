@@ -12,7 +12,7 @@ public class GameModeFurnitureTest : GameModeBase
     private const float SHOWCASE_GAP = 1f;
     private const float SHOWCASE_LABEL_OFFSET_Y = 0.3f;
     private const int SHOWCASE_LABEL_SORTING_ORDER = 100;
-    // 바닥타일 연속 설치(PlaceBulkCopies)는 칸마다 골드로 산다. 테스트 중 골드 부족으로 멈추지 않게 메모리에서만 채워 둔다(저장 안 함).
+    // 가구를 꺼낼 때 골드로 산다. 테스트 중 골드 부족으로 막히지 않게 메모리에서만 채워 둔다(저장 안 함).
     private const int TEST_GOLD = 100000000;
 
     private static readonly CTable.eFurnitureDirection[] SHOWCASE_DIRECTIONS =

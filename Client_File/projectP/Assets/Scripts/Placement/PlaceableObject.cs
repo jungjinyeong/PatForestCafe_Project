@@ -17,7 +17,8 @@ public class PlaceableObject : MonoBehaviour
 
     // 면/레이어별 스프라이트 정렬 순서. 배경 바닥(-10)·장식(-5)·벽(-1) 타일맵과 캐릭터(1) 사이에 끼워 넣는다.
     // 일반 가구(레이어 2 이상)는 프리팹에 지정된 정렬(빵 진열 등 자식 스프라이트 포함)을 그대로 쓴다.
-    private const int SORTING_FLOOR_TILE = -3;
+    // 칠해진 바닥타일(TilePlacementArea의 바닥 Tilemap)도 SORTING_FLOOR_TILE을 쓴다.
+    public const int SORTING_FLOOR_TILE = -3;
     private const int SORTING_CARPET = -2;
     private const int SORTING_WALL = 0;
     // sub가구(소품)는 올라가는 베이스 가구(1)보다 위.

@@ -138,6 +138,9 @@ public class SaveManager : MonoBehaviour
         foreach (var kvp in GameInstance.Model.Placement.GetAllPlacements())
             data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, Floor = kvp.Value.Floor, Cell = kvp.Value.Cell, AssignedBreadTid = kvp.Value.AssignedBreadTid, IsSub = kvp.Value.IsSub, Direction = (int)kvp.Value.Direction, FlipX = kvp.Value.FlipX });
 
+        foreach (var (floor, cell, tid) in GameInstance.Model.Placement.GetAllFloorTiles())
+            data.FloorTiles.Add(new FloorTileSaveEntry { Floor = floor, Cell = cell, Tid = tid });
+
         data.DiscoveredRecipeTids.AddRange(GameInstance.Model.RecipeBook.GetDiscoveredTids());
         data.GoldIncomeUpgradeLevel = GameInstance.Model.Upgrade.Level;
         data.CafeLevel = GameInstance.Model.Cafe.Level.Value;
@@ -189,14 +192,38 @@ public class SaveManager : MonoBehaviour
 
         MigrateFloorLayout(data);
 
+        // 바닥타일이 칸 단위 저장(FloorTiles)으로 바뀌기 전의 바닥 배치와, 표에서 빠진 가구(합쳐진 바닥 조각 등)는 복원하지 않는다.
+        int droppedPlacements = 0;
         foreach (var entry in data.PlacedFurniture)
+        {
+            if (!IsFurnitureTidValid(entry.Tid, entry.IsSub) || PlacementModel.IsFloorTileFurniture(entry.Tid, entry.IsSub))
+            {
+                droppedPlacements++;
+                continue;
+            }
+
             GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position, entry.Floor, entry.Cell,
                 (CTable.eFurnitureDirection)entry.Direction, entry.FlipX, entry.AssignedBreadTid, entry.IsSub);
+        }
+        if (droppedPlacements > 0)
+            Logger.Log($"[SaveManager] 구 바닥타일/표에 없는 가구 배치 {droppedPlacements}건을 버렸습니다.");
+
+        if (data.FloorTiles != null)
+        {
+            foreach (var entry in data.FloorTiles)
+            {
+                if (PlacementModel.IsFloorTileFurniture(entry.Tid, false))
+                    GameInstance.Model.Placement.RestoreFloorTile(entry.Floor, entry.Cell, entry.Tid);
+            }
+        }
 
         if (data.OwnedFurniture != null)
         {
             foreach (var entry in data.OwnedFurniture)
-                GameInstance.Model.Placement.RestoreOwned(entry.Tid, entry.IsSub, entry.Count);
+            {
+                if (IsFurnitureTidValid(entry.Tid, entry.IsSub))
+                    GameInstance.Model.Placement.RestoreOwned(entry.Tid, entry.IsSub, entry.Count);
+            }
         }
         GameInstance.Model.Placement.EnsureOwnedCoversPlacements();
 
@@ -223,6 +250,13 @@ public class SaveManager : MonoBehaviour
         ApplyOfflineIncome(data.LastSaveUnixSeconds);
 
         Logger.Log($"[SaveManager] 불러오기 완료: {SavePath}");
+    }
+
+    private static bool IsFurnitureTidValid(int tid, bool isSub)
+    {
+        return isSub
+            ? GameInstance.Table.Get<CTable.SubFurnitureRow>(tid) != null
+            : GameInstance.Table.Get<CTable.FurnitureRow>(tid) != null;
     }
 
     // 층 ID 체계 버전(SaveData.FloorLayoutVersion). 2 = 아래→위 1~7(B3 B2 B1 1F T1 T2 T3).

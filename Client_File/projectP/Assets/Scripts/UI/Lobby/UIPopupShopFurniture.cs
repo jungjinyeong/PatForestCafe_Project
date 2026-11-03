@@ -64,7 +64,9 @@ public class UIPopupShopFurniture : UIWndBase, IUIParam<UIPopupShopFurniture.Par
 
             var text = row.GetComponentInChildren<TextMeshProUGUI>();
             if (text != null)
-                text.text = data.StoredCount > 0
+                text.text = data.IsUnlimitedUnlocked
+                    ? $"{data.Name} <size=80%>{data.SizeText}</size>  보유"
+                    : data.StoredCount > 0
                     ? $"{data.Name} <size=80%>{data.SizeText}</size>  {data.Price:N0}G <size=80%>(보관 {data.StoredCount})</size>"
                     : $"{data.Name} <size=80%>{data.SizeText}</size>  {data.Price:N0}G";
 

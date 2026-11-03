@@ -50,19 +50,21 @@ public partial class PlacementModel : IModelBase
     private CTable.eFurnitureDirection mOriginDirection;
     private bool mOriginFlipX;
     private Vector2Int mFootprint = Vector2Int.one;
-    // 대량 설치로 들고 있는 타일 몫 1개를 첫 복사본에 이미 써 버렸는지. true인 채로 들고 있는 타일을 확정하면 몫을 새로 확보해야 한다.
-    private bool mIsHeldUnitSpent;
 
     // 배치 확정된 가구(Tid+위치) 레지스트리. placementId는 최초 배치 시 발급되고,
     // 이후 같은 가구를 다시 옮겨도 같은 id의 위치(Position/Floor/Cell)만 갱신된다(세이브 시 이 딕셔너리를 그대로 직렬화).
     private readonly Dictionary<int, PlacedFurnitureRecord> mDicPlacedFurniture = new();
     private int mNextPlacementId = 1;
 
+    // 칠해진 바닥타일: 층(WaypointGroup.Order) -> (칸 -> FurnitureRow Tid). 가구 배치 기록과 달리 칸마다 오브젝트가 없고,
+    // 그림은 층별 바닥 Tilemap(TilePlacementArea)이 RuleTile로 그린다. 세이브 시 이 딕셔너리를 그대로 직렬화한다.
+    private readonly Dictionary<int, Dictionary<Vector2Int, int>> mFloorTiles = new();
+
     // 보유 가구 수(구매한 총 개수, 배치된 것 포함). 보관 중(미배치) = 보유 − 배치. 키 = (IsSub, Tid).
     // 가구는 팔 수 없다 — 리셋/취소해도 보유 수는 그대로이고 보관 중으로 돌아간다.
     private readonly Dictionary<(bool isSub, int tid), int> mOwnedFurniture = new();
 
-    // 들고 있기(IsPlacing)를 거치지 않고 배치가 바뀌었을 때(철거/대량 설치/리셋) 발행. 손님 동선 재수집(WaypointGroup)용.
+    // 들고 있기(IsPlacing)를 거치지 않고 배치가 바뀌었을 때(철거/리셋) 발행. 손님 동선 재수집(WaypointGroup)용.
     public System.IObservable<Unit> PlacedLayoutChanged => mPlacedLayoutChanged;
     private readonly Subject<Unit> mPlacedLayoutChanged = new Subject<Unit>();
 
@@ -85,6 +87,7 @@ public partial class PlacementModel : IModelBase
         mPlacedLayoutChanged.Dispose();
         mInventoryVersion.Dispose();
         mDicPlacedFurniture.Clear();
+        mFloorTiles.Clear();
         mOwnedFurniture.Clear();
         mDicVisual.Clear();
     }

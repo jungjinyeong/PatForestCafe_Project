@@ -51,11 +51,11 @@ public class PlacementInputController : MonoBehaviour
     private eBulkMode mBulkMode = eBulkMode.None;
     private Vector3Int mBulkStartCell;
     private Vector3Int mBulkLastCell;
-    // 골드가 떨어져 이번 드래그의 연속 설치를 멈췄는지(버튼을 떼면 풀림).
-    private bool mIsBulkStopped;
     // 철거 모드에서 커서가 올라가 붉게 표시 중인 배치물.
     private PlaceableObject mDemolishHover;
-    // 바닥타일을 눌러 철거한 드래그인지(누른 채 지나가는 바닥타일도 계속 철거).
+    // 철거 모드에서 커서 아래 가구가 없을 때 붉게 표시 중인 바닥 칸(영역 + 칸).
+    private TilePlacementArea mDemolishTileArea;
+    // 바닥타일을 눌러 철거한 드래그인지(누른 채 지나가는 바닥 칸도 계속 지움).
     private bool mIsDemolishDragTiles;
 
     // 리바인드 UI가 액션을 찾을 때 쓴다(GetAction 참고).
@@ -188,6 +188,7 @@ public class PlacementInputController : MonoBehaviour
             mMap.Disable();
             // 배치 모드를 끄면 Tick이 돌지 않으므로 철거 대상 표시를 여기서 지운다.
             SetDemolishHover(null);
+            SetDemolishTile(null, default);
         }
     }
 
@@ -223,6 +224,7 @@ public class PlacementInputController : MonoBehaviour
         }
 
         SetDemolishHover(null);
+        SetDemolishTile(null, default);
 
         if (placement.IsPlacing.Value)
             TickHolding(placement);
@@ -231,36 +233,60 @@ public class PlacementInputController : MonoBehaviour
     }
 
     // 철거 모드: 커서 아래 가장 위 배치물을 붉게 표시하고, UI 밖에서 LMB를 누르면 철거(보관함으로 회수)한다.
-    // 바닥타일을 눌러 철거했다면 버튼을 누른 채 지나가는 바닥타일도 계속 철거한다(연속 설치와 대칭). 다른 가구는 클릭마다 하나씩.
+    // 가구가 없으면 칠해진 바닥 칸이 대상이다. 바닥 칸을 눌러 지웠다면 버튼을 누른 채 지나가는 바닥 칸도 계속 지운다
+    // (연속 칠하기와 대칭). 다른 가구는 클릭마다 하나씩.
     private void TickDemolish(PlacementModel placement)
     {
         mBulkMode = eBulkMode.None;
 
         PlaceableObject hover = null;
+        TilePlacementArea tileArea = null;
+        Vector3Int tileCell = default;
         if (!IsPointerOverUI() && TryGetPointerWorld(out var worldPos))
         {
             hover = PlaceableObject.FindTopmostAt(worldPos);
             if (hover != null && hover.PlacementId < 0)
                 hover = null;
+
+            if ((hover == null || mIsDemolishDragTiles) && placement.TryGetFloorTileAt(worldPos, out var area, out var cell))
+            {
+                tileArea = area;
+                tileCell = cell;
+            }
         }
 
         if (mPlace.WasPressedThisFrame())
         {
-            mIsDemolishDragTiles = hover != null && hover.IsBulkPlaceable;
+            mIsDemolishDragTiles = hover == null && tileArea != null;
             if (hover != null && placement.Demolish(hover))
                 hover = null;
+            else if (mIsDemolishDragTiles && placement.EraseFloorTile(tileArea, tileCell))
+                tileArea = null;
         }
         else if (mPlace.IsPressed())
         {
-            if (mIsDemolishDragTiles && hover != null && hover.IsBulkPlaceable && placement.Demolish(hover))
-                hover = null;
+            if (mIsDemolishDragTiles && tileArea != null && placement.EraseFloorTile(tileArea, tileCell))
+                tileArea = null;
         }
         else
         {
             mIsDemolishDragTiles = false;
         }
 
-        SetDemolishHover(hover);
+        // 바닥 칸을 지우며 드래그하는 동안에는 지나가는 가구를 표시하지 않는다(지워지는 건 바닥뿐).
+        SetDemolishHover(mIsDemolishDragTiles ? null : hover);
+        SetDemolishTile(hover == null || mIsDemolishDragTiles ? tileArea : null, tileCell);
+    }
+
+    private void SetDemolishTile(TilePlacementArea area, Vector3Int cell)
+    {
+        if (mDemolishTileArea != null && mDemolishTileArea != area)
+            mDemolishTileArea.SetDemolishCell(null);
+
+        mDemolishTileArea = area;
+
+        if (mDemolishTileArea != null)
+            mDemolishTileArea.SetDemolishCell(cell);
     }
 
     private void SetDemolishHover(PlaceableObject hover)
@@ -310,10 +336,10 @@ public class PlacementInputController : MonoBehaviour
             placement.Confirm();
     }
 
-    // 새로 꺼낸 바닥타일을 들고 있을 때(마우스): 들고 있는 타일은 커서에 남겨 두고 칸마다 복사본을 깐다.
-    // - LMB 클릭/드래그: 지나간 칸마다 깐다(빠르게 움직여 건너뛴 칸은 직선으로 이어 채움).
+    // 새로 꺼낸 바닥타일을 들고 있을 때(마우스): 들고 있는 미리보기는 커서에 남겨 두고 칸마다 층의 바닥 Tilemap에 칠한다.
+    // - LMB 클릭/드래그: 지나간 칸마다 칠한다(빠르게 움직여 건너뛴 칸은 직선으로 이어 채움).
     // - Shift + LMB 드래그: 시작 칸~현재 칸 사각형을 미리 보여 주고, 버튼을 떼면 한 번에 채운다.
-    // 골드가 떨어지면 이번 드래그는 거기서 멈춘다. RMB(취소)로 들고 있기를 끝낸다.
+    // RMB(취소)로 들고 있기를 끝낸다.
     private void TickBulk(PlacementModel placement, Vector3 worldPos)
     {
         if (!placement.TryGetPlacingCell(worldPos, out var cell))
@@ -327,7 +353,6 @@ public class PlacementInputController : MonoBehaviour
             mBulkMode = IsFillModifierHeld ? eBulkMode.Rect : eBulkMode.Paint;
             mBulkStartCell = cell;
             mBulkLastCell = cell;
-            mIsBulkStopped = false;
 
             if (mBulkMode == eBulkMode.Paint)
                 PaintBulk(placement, FilterToFootprintGrid(new List<Vector3Int> { cell }, placement.PlacingFootprint));
@@ -348,7 +373,7 @@ public class PlacementInputController : MonoBehaviour
         }
         else if (mBulkMode == eBulkMode.Rect && mPlace.WasReleasedThisFrame())
         {
-            placement.PlaceBulkCopies(FilterToFootprintGrid(GetRectCells(mBulkStartCell, cell), placement.PlacingFootprint), out _);
+            placement.PaintFloorTiles(FilterToFootprintGrid(GetRectCells(mBulkStartCell, cell), placement.PlacingFootprint));
             mBulkMode = eBulkMode.None;
         }
         else if (!mPlace.IsPressed())
@@ -359,11 +384,8 @@ public class PlacementInputController : MonoBehaviour
 
     private void PaintBulk(PlacementModel placement, List<Vector3Int> cells)
     {
-        if (mIsBulkStopped || cells.Count == 0)
-            return;
-
-        placement.PlaceBulkCopies(cells, out bool outOfGold);
-        mIsBulkStopped = outOfGold;
+        if (cells.Count > 0)
+            placement.PaintFloorTiles(cells);
     }
 
     // from→to 사이 칸(양 끝 포함, from부터 순서대로). 브레젠험 직선.

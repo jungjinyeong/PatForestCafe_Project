@@ -52,6 +52,15 @@ public class PlacedFurnitureSaveEntry
     public bool FlipX;
 }
 
+// 칠해진 바닥 칸 1개. 층(WaypointGroup.Order) + 배치 칸 + 바닥타일 종류(FurnitureRow Tid).
+[Serializable]
+public class FloorTileSaveEntry
+{
+    public int Floor;
+    public Vector2Int Cell;
+    public int Tid;
+}
+
 // 보유 가구 수(구매한 총 개수, 배치된 것 포함). 보관 중 = Count − 배치 수.
 [Serializable]
 public class OwnedFurnitureSaveEntry
@@ -89,6 +98,8 @@ public class SaveData
     public List<ItemSaveEntry> Ingredients = new List<ItemSaveEntry>();
     public List<BreadSaveEntry> Breads = new List<BreadSaveEntry>();
     public List<PlacedFurnitureSaveEntry> PlacedFurniture = new List<PlacedFurnitureSaveEntry>();
+    // 바닥타일은 가구 배치(PlacedFurniture)가 아니라 칸 단위로 저장한다(2026-11-01~). 그 전 세이브의 바닥 배치는 불러올 때 버린다.
+    public List<FloorTileSaveEntry> FloorTiles = new List<FloorTileSaveEntry>();
     // 없던 구 세이브는 배치된 가구 수로 채운다(PlacementModel.EnsureOwnedCoversPlacements).
     public List<OwnedFurnitureSaveEntry> OwnedFurniture = new List<OwnedFurnitureSaveEntry>();
     public List<int> DiscoveredRecipeTids = new List<int>();

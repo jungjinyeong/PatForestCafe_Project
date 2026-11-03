@@ -1,6 +1,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Tilemaps;
 
 // 가구/소품 1개의 아트 설정. 아트 작업자가 Inspector에서 직접 고치는 값만 둔다
 // (가격/칸 수/그룹 같은 기획 값과 아이템 아이콘(Atlas/Icon)은 Furniture.csv / SubFurniture.csv).
@@ -37,12 +38,19 @@ public class FurnitureVisualData : ScriptableObject
     [PropertyTooltip("회전 방식이 '바닥타일'일 때만 쓴다. 켜면 R 회전 순환에 좌우반전 상태를 포함한다(0°,90°,180°,270° 다음 반전된 4방향).")]
     [SerializeField] private bool mTileIncludeFlipX;
 
+    [LabelText("칠할 타일")]
+    [PropertyTooltip("바닥타일(FurnitureType=타일)만 쓴다. 층의 바닥 Tilemap에 칠할 타일 — RuleTile이면 주변 칸에 맞춰 경계/변형 그림이 자동으로 정해진다.\n" +
+                     "프리팹/정면 그림은 들고 있는 동안 커서를 따라오는 미리보기로만 쓴다(Tools/Furniture/Build Floor Tile Sets).")]
+    [FloorTilePreview]
+    [SerializeField] private TileBase mFloorTile;
+
     public AssetReferenceGameObject Prefab => mPrefab;
     public CTable.eFurnitureOrientMode OrientMode => mOrientMode;
     public Sprite Front => mFront;
     public Sprite Back => mBack;
     public Sprite Side => mSide;
     public bool TileIncludeFlipX => mTileIncludeFlipX;
+    public TileBase FloorTile => mFloorTile;
 
 #if UNITY_EDITOR
     // Play 중 Inspector에서 값을 바꾸면 발행한다. 가구 테스트 씬(GameModeFurnitureTest)이 받아 배치된 가구 그림을 바로 갱신한다.

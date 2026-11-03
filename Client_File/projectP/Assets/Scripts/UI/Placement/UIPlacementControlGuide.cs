@@ -61,14 +61,14 @@ public class UIPlacementControlGuide : MonoBehaviour
         if (placement.IsDemolishMode.Value)
         {
             mBuilder.Append("<color=#FF7A7A><b>철거 모드</b></color>\n");
-            AppendLine(controller, PlacementInputController.ACTION_PLACE, "철거 (보관함으로 회수) · 바닥타일은 드래그 연속");
+            AppendLine(controller, PlacementInputController.ACTION_PLACE, "철거 (보관함으로 회수) · 바닥은 드래그로 지우기");
             AppendKeyLine($"{controller.GetKeyDisplayName(PlacementInputController.ACTION_DEMOLISH)} / {controller.GetKeyDisplayName(PlacementInputController.ACTION_CANCEL)}",
                 "철거 모드 끄기");
         }
         else if (placement.IsBulkPlacing)
         {
             string placeKey = controller.GetKeyDisplayName(PlacementInputController.ACTION_PLACE);
-            AppendLine(controller, PlacementInputController.ACTION_PLACE, "배치 · 드래그 연속 설치");
+            AppendLine(controller, PlacementInputController.ACTION_PLACE, "칠하기 · 드래그 연속");
             AppendKeyLine($"{controller.GetKeyDisplayName(PlacementInputController.ACTION_FILL_MODIFIER)} + {placeKey}", "드래그 영역 채우기");
             if (placement.CanRotatePlacing)
                 AppendLine(controller, PlacementInputController.ACTION_ROTATE, "회전");

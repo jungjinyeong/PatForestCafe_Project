@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UniRx;
 using UnityEngine;
 
@@ -73,8 +74,23 @@ public partial class PlacementModel
         return count;
     }
 
-    // 보관 중(배치하지 않은) 개수. 배치 목록에서 이 수만큼은 골드 없이 꺼내 놓을 수 있다.
-    public int GetStoredCount(int tid, bool isSub) => Mathf.Max(0, GetOwnedCount(tid, isSub) - GetPlacedCount(tid, isSub));
+    // 바닥타일·벽지는 한 번 사면(보유 1) 골드 없이 몇 개든 깔 수 있다. 나머지 가구는 1개씩 사서 보유 수만큼 놓는다.
+    public static bool IsUnlimitedFurniture(int tid, bool isSub)
+    {
+        if (isSub)
+            return false;
+
+        var row = GameInstance.Table.Get<CTable.FurnitureRow>(tid);
+        return row != null && (row.FurnitureType == (int)CTable.eFurnitureType.Tile || row.FurnitureType == (int)CTable.eFurnitureType.Wall);
+    }
+
+    // 무제한 설치 가구(바닥타일·벽지)를 이미 샀는지.
+    public bool IsUnlimitedUnlocked(int tid, bool isSub) => IsUnlimitedFurniture(tid, isSub) && GetOwnedCount(tid, isSub) > 0;
+
+    // 보관 중(배치하지 않은) 개수. 배치 목록에서 이 수만큼은 골드 없이 꺼내 놓을 수 있다. 무제한 설치 가구는 보관 개념이 없어 0.
+    public int GetStoredCount(int tid, bool isSub) => IsUnlimitedFurniture(tid, isSub)
+        ? 0
+        : Mathf.Max(0, GetOwnedCount(tid, isSub) - GetPlacedCount(tid, isSub));
 
     public IEnumerable<KeyValuePair<(bool isSub, int tid), int>> GetAllOwned() => mOwnedFurniture;
 
@@ -86,13 +102,14 @@ public partial class PlacementModel
     }
 
     // 보유 수 기록이 없던 구 세이브 — 배치된 가구는 이미 산 것이므로 보유 수가 배치 수보다 적으면 맞춰 준다.
+    // 무제한 설치 가구(바닥타일·벽지)는 하나라도 깔려 있으면 산 것(보유 1)으로 본다.
     // RestorePlacement/RestoreOwned를 모두 끝낸 뒤 호출한다.
     public void EnsureOwnedCoversPlacements()
     {
         foreach (var record in mDicPlacedFurniture.Values)
         {
             var key = (record.IsSub, record.Tid);
-            int placed = GetPlacedCount(record.Tid, record.IsSub);
+            int placed = IsUnlimitedFurniture(record.Tid, record.IsSub) ? 1 : GetPlacedCount(record.Tid, record.IsSub);
             if (GetOwnedCount(record.Tid, record.IsSub) < placed)
                 mOwnedFurniture[key] = placed;
         }
@@ -222,7 +239,6 @@ public partial class PlacementModel
         mOriginPosition = target.position;
         mOriginDirection = placeable != null ? placeable.Direction : CTable.eFurnitureDirection.Down;
         mOriginFlipX = placeable != null && placeable.FlipX;
-        mIsHeldUnitSpent = false;
 
         mIsValidPosition.Value = false;
         mIsPlacing.Value = true;
@@ -230,8 +246,8 @@ public partial class PlacementModel
         ShowPlacingHighlight();
     }
 
-    // 들고 있는 것이 새로 꺼낸(아직 한 번도 놓지 않은) 대량 설치 대상(바닥타일)인지. 이미 깔린 타일을 다시 집은 경우는 이동이라
-    // 지금처럼 하나만 놓는다. true면 PC 입력은 들고 있는 타일을 그대로 두고 칸마다 복사본을 깐다(PlaceBulkCopies).
+    // 들고 있는 것이 새로 꺼낸 바닥타일인지. 바닥타일은 가구 오브젝트로 놓지 않고, 들고 있는 미리보기는 커서에 둔 채
+    // 지나가는 칸을 층의 바닥 Tilemap에 칠한다(PaintFloorTiles). 칠해진 바닥은 집어서 옮기지 않는다(철거 후 다시 칠함).
     public bool IsBulkPlacing => mIsPlacing.Value && mPlaceable != null && mPlaceable.PlacementId < 0 && mPlaceable.IsBulkPlaceable;
 
     // 들고 있는 가구가 차지하는 칸 수(회전 반영). 대량 설치가 footprint 간격으로 칸을 고르는 데 쓴다.
@@ -255,68 +271,143 @@ public partial class PlacementModel
             mArea.ShowFillPreview(cells, mFootprint);
     }
 
-    // 들고 있는 바닥타일과 같은 타일(같은 방향/좌우반전)을 cells(footprint 기준 셀)마다 깐다. 놓을 수 없는 칸은 건너뛴다.
-    // 비용: 들고 있는 타일을 꺼낼 때 확보한 몫 1개를 첫 복사본에 쓰고, 그다음 보관 수량, 모자라면 칸마다 골드로 산다.
-    // 골드가 떨어지면 거기서 멈추고 outOfGold=true.
-    // 목록 UI 갱신(InventoryVersion)은 끝에 한 번만 한다. 반환값 = 실제로 깐 수.
-    public int PlaceBulkCopies(IReadOnlyList<Vector3Int> cells, out bool outOfGold)
+    #region Floor Tiles
+
+    // 바닥타일(FurnitureType=타일)인지. 바닥타일은 가구 배치 기록 대신 층별 바닥 칸 기록(mFloorTiles)으로 다룬다.
+    public static bool IsFloorTileFurniture(int tid, bool isSub)
     {
-        outOfGold = false;
-        if (!IsBulkPlacing || mArea == null || mTarget == null || cells == null || cells.Count == 0)
-            return 0;
+        if (isSub)
+            return false;
 
-        var ghost = mPlaceable;
-        var row = GameInstance.Table.Get<CTable.FurnitureRow>(ghost.FurnitureTid);
-        var prefab = LoadFurniturePrefab(ghost.FurnitureTid, false);
-        if (row == null || prefab == null)
-            return 0;
-
-        int placed = 0;
-        foreach (var cell in cells)
-        {
-            var worldPos = mArea.GetFootprintCenterWorld(cell, mFootprint, mTarget.position.z);
-            if (!mArea.TryGetSnappedPositionForBase(worldPos, mFootprint, -1, ghost.Surface, ghost.LayoutOrder,
-                    ghost.AccessOffsets, ghost.ClearanceOffsets, out var snappedPos))
-                continue;
-
-            // 들고 있는 타일 몫도 보관 수량(보유 − 배치)에 포함돼 있으므로 남겨 두지 않고 그대로 쓴다.
-            // 남겨 두면 꺼낼 때 산 1개가 끝까지 놓이지 않은 채 보유 수에만 더해져, 리셋하면 깐 수보다 1개 많아진다.
-            if (!TryConsumeForPlacement(ghost.FurnitureTid, false, row.Price, reservedStoredCount: 0, notify: false))
-            {
-                outOfGold = true;
-                break;
-            }
-            mIsHeldUnitSpent = true;
-
-            var instance = Object.Instantiate(prefab, snappedPos, Quaternion.identity, mArea.transform);
-            var placeable = instance.GetComponent<PlaceableObject>();
-            placeable.SetFurnitureTid(ghost.FurnitureTid);
-            placeable.SetArea(mArea);
-            placeable.SetOrientation(ghost.Direction, ghost.FlipX);
-
-            int placementId = RegisterPlacement(ghost.FurnitureTid, snappedPos, mArea.Floor, new Vector2Int(cell.x, cell.y),
-                placeable.Direction, placeable.FlipX, isSub: false, notify: false);
-            placeable.SetPlacementId(placementId);
-            mArea.OccupyBase(snappedPos, placeable.Footprint, placementId, placeable.GroupId, placeable.LayoutOrder,
-                placeable.AccessOffsets, placeable.ClearanceOffsets);
-            placed++;
-        }
-
-        if (placed > 0)
-        {
-            mInventoryVersion.Value++;
-            Physics2D.SyncTransforms();
-            mPlacedLayoutChanged.OnNext(Unit.Default);
-            // 방금 깐 칸은 더 이상 놓을 수 없으므로 강조/유효 위치를 다시 계산한다.
-            ShowPlacingHighlight();
-            UpdatePreview(mTarget.position);
-        }
-
-        if (outOfGold)
-            Logger.Log("[PlacementModel] 골드가 부족해 연속 설치를 멈췄습니다.");
-
-        return placed;
+        var row = GameInstance.Table.Get<CTable.FurnitureRow>(tid);
+        return row != null && row.FurnitureType == (int)CTable.eFurnitureType.Tile;
     }
+
+    // 들고 있는 바닥타일 종류를 cells에 칠한다. 칠할 수 없는 칸(벽/영역 밖)과 이미 같은 종류인 칸은 건너뛰고,
+    // 다른 종류가 칠해진 칸은 덮어쓴다. 바닥타일은 꺼낼 때 산 무제한 설치 가구라 골드가 들지 않는다. 반환값 = 새로 칠한 칸 수.
+    public int PaintFloorTiles(IReadOnlyList<Vector3Int> cells)
+    {
+        if (!IsBulkPlacing || mArea == null || cells == null || cells.Count == 0)
+            return 0;
+
+        return PaintFloorTiles(mArea, mPlaceable.FurnitureTid, cells, mFootprint);
+    }
+
+    // 철거 모드에서 커서 아래의 칠해진 바닥 칸. 바닥타일은 오브젝트가 없어 PlaceableObject 대신 칸으로 찾는다.
+    public bool TryGetFloorTileAt(Vector3 worldPos, out TilePlacementArea area, out Vector3Int cell)
+    {
+        cell = default;
+        area = TilePlacementArea.FindContaining(worldPos);
+        if (area == null)
+            return false;
+
+        cell = area.WorldToCell(worldPos);
+        return HasFloorTileRecord(area.Floor, cell);
+    }
+
+    // 칠해진 바닥 칸 하나를 지운다. 무제한 설치 가구라 보관함으로 회수할 수량은 없다. 들고 있는 동안에는 하지 않는다.
+    // 그림이 아니라 기록으로 판단한다 — 아트 설정이 빠져 그려지지 않은 칸도 지울 수 있게.
+    public bool EraseFloorTile(TilePlacementArea area, Vector3Int cell)
+    {
+        if (area == null || mIsPlacing.Value || !mFloorTiles.TryGetValue(area.Floor, out var floorTiles) ||
+            !floorTiles.Remove(new Vector2Int(cell.x, cell.y)))
+            return false;
+
+        area.EraseFloorTile(cell);
+        return true;
+    }
+
+    private bool HasFloorTileRecord(int floor, Vector3Int cell)
+    {
+        return mFloorTiles.TryGetValue(floor, out var floorTiles) && floorTiles.ContainsKey(new Vector2Int(cell.x, cell.y));
+    }
+
+    public IEnumerable<(int floor, Vector2Int cell, int tid)> GetAllFloorTiles()
+    {
+        foreach (var floorPair in mFloorTiles)
+        {
+            foreach (var cellPair in floorPair.Value)
+                yield return (floorPair.Key, cellPair.Key, cellPair.Value);
+        }
+    }
+
+    // 세이브 복원 전용. 그림은 RespawnSavedFurniture에서 층 영역을 찾은 뒤 칠한다.
+    public void RestoreFloorTile(int floor, Vector2Int cell, int tid)
+    {
+        GetOrCreateFloorTiles(floor)[cell] = tid;
+    }
+
+    // origins = footprint 기준 셀(좌하단). 1×1보다 큰 바닥타일이면 footprint 칸을 모두 칠한다.
+    private int PaintFloorTiles(TilePlacementArea area, int tid, IReadOnlyList<Vector3Int> origins, Vector2Int footprint)
+    {
+        var tile = GetFurnitureVisual(tid, false)?.FloorTile;
+        if (tile == null)
+        {
+            Logger.Warning($"[PlacementModel] 바닥타일 아트 설정에 칠할 타일이 없습니다. Tid={tid}");
+            return 0;
+        }
+
+        var floorTiles = GetOrCreateFloorTiles(area.Floor);
+        var painted = new List<Vector3Int>();
+        foreach (var origin in origins)
+        {
+            for (int x = 0; x < footprint.x; x++)
+            {
+                for (int y = 0; y < footprint.y; y++)
+                {
+                    var cell = new Vector3Int(origin.x + x, origin.y + y, 0);
+                    var key = new Vector2Int(cell.x, cell.y);
+                    // 같은 종류가 기록돼 있어도 그려져 있지 않으면(아트 설정이 늦게 채워진 경우 등) 다시 칠한다.
+                    if (!area.IsFloorPaintable(cell) || (floorTiles.TryGetValue(key, out int current) && current == tid && area.HasFloorTile(cell)))
+                        continue;
+
+                    floorTiles[key] = tid;
+                    painted.Add(cell);
+                }
+            }
+        }
+
+        area.SetFloorTiles(painted, tile);
+        return painted.Count;
+    }
+
+    // 저장된 바닥 칸을 층 영역마다 종류별로 한 번에 칠한다. 영역이나 칠할 타일을 못 찾은 칸은 기록만 남는다.
+    private void RespawnFloorTiles(TilePlacementArea[] allAreas)
+    {
+        foreach (var floorPair in mFloorTiles)
+        {
+            var area = System.Array.Find(allAreas, a => a != null && a.Floor == floorPair.Key);
+            if (area == null)
+            {
+                Logger.Warning($"[PlacementModel] {floorPair.Key}층의 TilePlacementArea를 찾지 못해 바닥타일을 그리지 못했습니다.");
+                continue;
+            }
+
+            foreach (var group in floorPair.Value.GroupBy(pair => pair.Value))
+            {
+                var tile = GetFurnitureVisual(group.Key, false)?.FloorTile;
+                if (tile == null)
+                {
+                    Logger.Warning($"[PlacementModel] 바닥타일 아트 설정에 칠할 타일이 없습니다. Tid={group.Key}");
+                    continue;
+                }
+
+                area.SetFloorTiles(group.Select(pair => new Vector3Int(pair.Key.x, pair.Key.y, 0)).ToList(), tile);
+            }
+        }
+    }
+
+    private Dictionary<Vector2Int, int> GetOrCreateFloorTiles(int floor)
+    {
+        if (!mFloorTiles.TryGetValue(floor, out var floorTiles))
+        {
+            floorTiles = new Dictionary<Vector2Int, int>();
+            mFloorTiles[floor] = floorTiles;
+        }
+        return floorTiles;
+    }
+
+    #endregion
 
     // 배치 중인 가구가 회전 가능한지(확정/취소 팝업의 회전 버튼, 조작 안내 표시용).
     public bool CanRotatePlacing => mIsPlacing.Value && mPlaceable != null && mPlaceable.CanRotate;
@@ -398,16 +489,12 @@ public partial class PlacementModel
             var origin = mArea.GetFootprintOrigin(mTarget.position, mFootprint);
             var cell = new Vector2Int(origin.x, origin.y);
 
-            // 대량 설치로 몫을 이미 복사본에 쓴 타일을 확정 버튼으로 놓는 경우 — 1개 몫을 다시 확보한다.
-            if (placeable.PlacementId < 0 && mIsHeldUnitSpent)
+            // 새로 꺼낸 바닥타일(확정 버튼)은 가구로 놓지 않고 그 칸을 칠한 뒤 미리보기를 치운다.
+            if (placeable.PlacementId < 0 && placeable.IsBulkPlaceable)
             {
-                var row = GameInstance.Table.Get<CTable.FurnitureRow>(placeable.FurnitureTid);
-                if (row == null || !TryConsumeForPlacement(placeable.FurnitureTid, false, row.Price, reservedStoredCount: 0))
-                {
-                    Logger.Log("[PlacementModel] 골드가 부족합니다.");
-                    return;
-                }
-                mIsHeldUnitSpent = false;
+                PaintFloorTiles(mArea, placeable.FurnitureTid, new[] { origin }, mFootprint);
+                Cancel();
+                return;
             }
 
             if (placeable.PlacementId < 0)
@@ -494,7 +581,7 @@ public partial class PlacementModel
             foreach (var row in furnitureGroup.All.Values)
                 dataList.Add(new UIScrollFurnitureData { Tid = row.Tid, Name = row.Name, Price = row.Price, IsSub = false,
                     Category = (CTable.eFurnitureCategory)row.Category, Width = Mathf.Max(1, row.Width), Height = Mathf.Max(1, row.Height),
-                    StoredCount = GetStoredCount(row.Tid, false) });
+                    StoredCount = GetStoredCount(row.Tid, false), IsUnlimitedUnlocked = IsUnlimitedUnlocked(row.Tid, false) });
         }
 
         var subFurnitureGroup = GameInstance.Table.GetTable<CTable.SubFurnitureRow>();
@@ -513,14 +600,15 @@ public partial class PlacementModel
     }
 
     // 상점가 [가구 구입] — 항상 골드로 새로 사서(보유 +1) 곧바로 드래그 배치 모드로 전환한다.
+    // 이미 산 무제한 설치 가구(바닥타일·벽지)는 다시 사지 않고 골드 없이 꺼낸다.
     public bool TryPurchaseAndBeginPlacement(UIScrollFurnitureData data) => TryBeginPlacement(data, useStored: false);
 
-    // 로비 가구배치 목록 — 보관 중인 가구가 있으면 골드 없이 꺼내 놓고, 없으면 골드로 산다.
+    // 로비 가구배치 목록 — 보관 중인 가구(또는 이미 산 바닥타일·벽지)는 골드 없이 꺼내 놓고, 없으면 골드로 산다.
     public bool TryPlaceOrPurchase(UIScrollFurnitureData data) => TryBeginPlacement(data, useStored: true);
 
     private bool TryBeginPlacement(UIScrollFurnitureData data, bool useStored)
     {
-        if (data == null || mIsPlacing.Value)
+        if (data == null)
             return false;
 
         // 층마다 별도 TilePlacementArea가 있으므로 "지금 카메라가 보고 있는 층"에 배치한다.
@@ -535,7 +623,7 @@ public partial class PlacementModel
         if (prefab == null)
             return false;
 
-        bool hasUnit = useStored
+        bool hasUnit = useStored || IsUnlimitedFurniture(data.Tid, data.IsSub)
             ? TryConsumeForPlacement(data.Tid, data.IsSub, data.Price, reservedStoredCount: 0)
             : TryPurchase(data.Tid, data.IsSub, data.Price);
         if (!hasUnit)
@@ -543,6 +631,12 @@ public partial class PlacementModel
             Logger.Log("[PlacementModel] 골드가 부족합니다.");
             return false;
         }
+
+        // 다른 가구를 들고 있으면 그 가구를 취소하고 새 가구로 바꿔 든다(새로 꺼낸 것 → 보관함, 옮기던 것 → 원위치).
+        // 새 가구를 꺼낼 수 있는지(영역/프리팹/골드)를 먼저 확인한 뒤에 취소해야 실패했을 때 들고 있던 가구가 사라지지 않는다.
+        // Cancel은 보유 수·골드를 바꾸지 않으므로 위에서 확보한 몫에 영향이 없다.
+        if (mIsPlacing.Value)
+            Cancel();
 
         // 층별 TilePlacementArea 오브젝트 아래에 생성해서 씬 계층 구조에서 어느 층 소속인지 바로 보이게 한다.
         var instance = Object.Instantiate(prefab, area.Bounds.center, Quaternion.identity, area.transform);
@@ -562,10 +656,10 @@ public partial class PlacementModel
     }
 
     // 가구 1개를 놓을 몫을 확보한다: 보관 수량(reservedStoredCount개는 남겨 둠)이 있으면 그걸 쓰고(보유/골드 변화 없음),
-    // 없으면 골드로 산다(보유 +1). 골드가 부족하면 false.
+    // 없으면 골드로 산다(보유 +1). 골드가 부족하면 false. 무제한 설치 가구는 한 번 샀으면 항상 true.
     private bool TryConsumeForPlacement(int tid, bool isSub, long price, int reservedStoredCount, bool notify = true)
     {
-        if (GetStoredCount(tid, isSub) > reservedStoredCount)
+        if (IsUnlimitedUnlocked(tid, isSub) || GetStoredCount(tid, isSub) > reservedStoredCount)
             return true;
 
         return TryPurchase(tid, isSub, price, notify);
@@ -660,10 +754,13 @@ public partial class PlacementModel
                 breadStand.SyncDisplayToSavedCount();
             }
         }
+
+        RespawnFloorTiles(allAreas);
     }
 
     // 가구배치 리셋 — 지금까지 배치한 가구를 전부 씬에서 제거하고 배치 기록도 함께 비운다.
     // 가구를 팔지 않는다: 보유 수는 그대로라 치운 가구는 전부 보관 중으로 돌아가고, 배치 목록에서 골드 없이 다시 놓을 수 있다.
+    // 칠해진 바닥타일도 모두 지운다(무제한 설치라 다시 칠하면 된다).
     // 가구를 들고 있으면 먼저 취소해서 PlacementModel/입력이 파괴된 오브젝트를 참조하지 않게 한다.
     public void ResetAllPlacedFurniture()
     {
@@ -680,8 +777,12 @@ public partial class PlacementModel
         }
 
         foreach (var area in Object.FindObjectsByType<TilePlacementArea>(FindObjectsSortMode.None))
+        {
             area.ClearAllOccupants();
+            area.ClearFloorTiles();
+        }
 
+        mFloorTiles.Clear();
         ClearAllPlacements();
         mPlacedLayoutChanged.OnNext(Unit.Default);
     }
@@ -718,6 +819,20 @@ public partial class PlacementModel
 
         mDicVisual[(isSub, tid)] = visual;
         return visual;
+    }
+
+    // 목록 미리보기 그림. 아트 설정의 앞모습(Front), 없으면 프리팹의 첫 SpriteRenderer 그림. 둘 다 없으면 null.
+    public Sprite GetFurnitureIcon(int tid, bool isSub)
+    {
+        var visual = GetFurnitureVisual(tid, isSub);
+        if (visual == null)
+            return null;
+        if (visual.Front != null)
+            return visual.Front;
+
+        var prefab = LoadVisualPrefab(visual);
+        var renderer = prefab != null ? prefab.GetComponentInChildren<SpriteRenderer>(true) : null;
+        return renderer != null ? renderer.sprite : null;
     }
 
     // 아트 설정에 연결된 배치 프리팹(AssetReferenceGameObject → Addressables GUID 키로 로드).
