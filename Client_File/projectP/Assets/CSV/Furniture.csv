@@ -23,6 +23,13 @@ int,string,string,string,string,long,int,int,int,int,int,int,int
 30020,나무 바닥 5,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_4,300,1,1,0,2,0,6,5
 30021,나무 바닥 6,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_5,300,1,1,0,2,0,6,5
 30022,나무 바닥 7,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_6,300,1,1,0,2,0,6,5
+30023,숲 풀밭(봄) 1,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_9,300,1,1,0,2,0,6,5
+30024,숲 풀밭(봄) 2,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_10,300,1,1,0,2,0,6,5
+30025,숲 풀밭(봄) 3,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_11,300,1,1,0,2,0,6,5
+30026,숲 풀밭(봄) 4,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_12,300,1,1,0,2,0,6,5
+30027,숲 풀밭(봄) 5,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_13,300,1,1,0,2,0,6,5
+30028,숲 풀밭(봄) 6,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_14,300,1,1,0,2,0,6,5
+30029,숲 풀밭(봄) 7,FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_15,300,1,1,0,2,0,6,5
 30041,숲 돌벽 1,FurnitureAtlas,WallpaperIcon,FurnitureVisual/FV_wal_0100_forest_stone_wall_set_0,500,1,3,0,1,0,5,5
 30042,숲 돌벽 3,FurnitureAtlas,WallpaperIcon,FurnitureVisual/FV_wal_0100_forest_stone_wall_set_2,500,1,3,0,1,0,5,5
 30043,숲 덩굴벽 1,FurnitureAtlas,WallpaperIcon,FurnitureVisual/FV_wal_0110_forest_vine_wall_set_0,500,1,3,0,1,0,5,5
