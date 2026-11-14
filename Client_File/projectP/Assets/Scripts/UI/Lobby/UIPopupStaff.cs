@@ -5,7 +5,8 @@ using UniRx;
 using UnityEngine;
 using Extension;
 
-// 직원 관리(프리팹 UI_Popup_Staff, 로비 하단 [직원]). ForestCafe UI Lab 직원 관리 시안 기준.
+// 직원 관리(프리팹 UI_Popup_Staff). ForestCafe UI Lab 직원 관리 시안 기준.
+// 로비 오른쪽 패널 [직원] 화면(UISideStaffView)에서 직원 칸을 누르면 그 직원을 고른 채로 열린다(Param.SelectIndex) — 상세 보기 창.
 // 왼쪽: 채용한 직원 명단(StaffModel.HiredStaff). 비어 있으면 안내 문구. [직업사무소로 이동]으로 바로 채용하러 간다.
 // 오른쪽: 선택한 직원 상세(이름·작업 속도·배치 상태).
 // 층/업무 배치는 기획 미정이라 아직 없다(상세에 "미배치"로만 표시).
@@ -13,6 +14,8 @@ public class UIPopupStaff : UIWndBase, IUIParam<UIPopupStaff.Param>
 {
     public struct Param
     {
+        // 처음 고를 직원의 명단 순번(0부터). 없는 순번이면 첫 직원.
+        public int SelectIndex;
     }
 
     [Header("List")]
@@ -35,6 +38,7 @@ public class UIPopupStaff : UIWndBase, IUIParam<UIPopupStaff.Param>
     private readonly List<UIStaffCell> mCells = new List<UIStaffCell>();
     private readonly SerialDisposable mHiredDisposable = new SerialDisposable();
     private int mSelectedIndex = -1;
+    private int mRequestedIndex;
     private int mLastCount = -1;
 
     public override eUIType GetUIType() => eUIType.PopupStaff;
@@ -53,7 +57,8 @@ public class UIPopupStaff : UIWndBase, IUIParam<UIPopupStaff.Param>
     {
         base.Open();
 
-        mSelectedIndex = -1;
+        // UIManager가 Set(param) 뒤에 Open()을 부른다.
+        mSelectedIndex = mRequestedIndex;
         mLastCount = -1;
         // 직업사무소에서 채용하고 돌아오면(이 팝업이 뒤에 열려 있어도) 명단을 바로 갱신한다.
         mHiredDisposable.Disposable = GameInstance.Model.Staff.HiredCount
@@ -62,6 +67,7 @@ public class UIPopupStaff : UIWndBase, IUIParam<UIPopupStaff.Param>
 
     public void Set(Param param)
     {
+        mRequestedIndex = param.SelectIndex;
     }
 
     private void OnDisable()
@@ -84,27 +90,9 @@ public class UIPopupStaff : UIWndBase, IUIParam<UIPopupStaff.Param>
         SelectEntry(cell.Data);
     }
 
-    private List<UIStaffCellData> GetEntries()
-    {
-        var hired = GameInstance.Model.Staff.HiredStaff;
-        var list = new List<UIStaffCellData>(hired.Count);
-        for (int i = 0; i < hired.Count; i++)
-        {
-            var row = GameInstance.Table.Get<CTable.StaffRow>(hired[i].Tid);
-            list.Add(new UIStaffCellData
-            {
-                Index = i,
-                Tid = hired[i].Tid,
-                Name = row?.Name ?? $"직원 {hired[i].Tid}",
-                WorkSpeed = row != null && row.WorkSpeed > 0f ? row.WorkSpeed : 1f,
-            });
-        }
-        return list;
-    }
-
     private void Refresh()
     {
-        var list = GetEntries();
+        var list = StaffEntries.Get();
         mTextHiredCount.SetTextEx($"채용 {list.Count}명");
 
         while (mCells.Count < list.Count)

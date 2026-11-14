@@ -1,6 +1,5 @@
 using UniRx;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Extension;
 
 public class UIRootLobby : UIWndBase
@@ -9,24 +8,14 @@ public class UIRootLobby : UIWndBase
 
     [SerializeField] private WaypointGroup[] mWaypointGroups;
 
-    [Header("Placement")]
-    [SerializeField] private UIButtonEx mBtnTogglePlacementMode;
-
     [Header("Floor")]
     [SerializeField] private LobbyFloorCameraController mFloorCamera;
-    [SerializeField] private UIButtonEx mBtnFloorUnlock;
+    // 월드를 둘러싼 액자. 카메라가 월드 중심을 액자 안쪽 가운데에 맞춘다.
+    [SerializeField] private LobbyViewFrame mViewFrame;
 
-    [Header("Menu")]
-    [FormerlySerializedAs("mBtnRecipeBook")]
-    [SerializeField] private UIButtonEx mBtnCollection;
-    [SerializeField] private UIButtonEx mBtnUpgrade;
-
-    [Header("Menu (Warehouse / Staff)")]
-    [SerializeField] private UIButtonEx mBtnWarehouse;
-    [SerializeField] private UIButtonEx mBtnStaff;
-
-    [Header("Shop")]
-    [SerializeField] private UIButtonEx mBtnShop;
+    // 오른쪽 열(세로 탭 + 창고 패널 + 층 이동 목록). 메뉴 버튼(창고/상점가/직원/배치/도감/업그레이드)은 모두 여기로 옮겼다(로비 UX 개편).
+    [Header("Side Panel")]
+    [SerializeField] private UILobbySidePanel mSidePanel;
 
     public override eUIType GetUIType() => eUIType.RootLobby;
 
@@ -41,7 +30,10 @@ public class UIRootLobby : UIWndBase
 
         // 가구 구매 시 "지금 보고 있는 층"(FloorModel.ViewingFloor)을 알아야 하므로 가구 복원/배치보다 먼저 초기화한다.
         if (mFloorCamera != null)
+        {
+            mFloorCamera.SetViewFrame(mViewFrame);
             mFloorCamera.Init();
+        }
 
         GameInstance.Model.Placement.RespawnSavedFurniture();
         SubscribePlacementPopups();
@@ -52,49 +44,14 @@ public class UIRootLobby : UIWndBase
         if (GetComponent<PlacementGridOverlay>() == null)
             gameObject.AddComponent<PlacementGridOverlay>().Init();
 
-        mBtnTogglePlacementMode.OnSubscribeOnClick(OnClickTogglePlacementMode).AddTo(this);
-
-        // mBtnFloorUnlock/mBtnCollection/mBtnUpgrade는 UI_Root_Lobby 프리팹에 버튼을 배치하기 전까지 비어있을 수 있음.
-        if (mBtnFloorUnlock != null)
-            mBtnFloorUnlock.OnSubscribeOnClick(OnClickOpenFloorUnlock).AddTo(this);
-
-        if (mBtnCollection != null)
-            mBtnCollection.OnSubscribeOnClick(OnClickOpenCollection).AddTo(this);
-
-        if (mBtnUpgrade != null)
-            mBtnUpgrade.OnSubscribeOnClick(OnClickOpenUpgrade).AddTo(this);
-
-        if (mBtnWarehouse != null)
-            mBtnWarehouse.OnSubscribeOnClick(OnClickOpenWarehouse).AddTo(this);
-
-        if (mBtnStaff != null)
-            mBtnStaff.OnSubscribeOnClick(OnClickOpenStaff).AddTo(this);
-
-        if (mBtnShop != null)
-            mBtnShop.OnSubscribeOnClick(OnClickOpenShopStreet).AddTo(this);
+        if (mSidePanel != null)
+            mSidePanel.Init(mFloorCamera);
     }
 
-    // 가구 배치는 영업 정산 후 ~ 영업 시작 전에만 켤 수 있다. 영업 중에 누르면 안내만 한다(끄기는 언제나 가능).
-    private void OnClickTogglePlacementMode()
-    {
-        var placement = GameInstance.Model.Placement;
-        if (!placement.IsEditMode.Value && !GameInstance.Model.Business.CanEditLayout)
-        {
-            GameInstance.Model.Notice.Push(eNoticeType.Business, "영업 중에는 가구를 배치할 수 없어요 · 영업 정산 후에 배치해 주세요");
-            return;
-        }
-
-        placement.ToggleEditMode();
-    }
-
-    // 배치 모드 → 가구배치 목록 팝업, 가구를 들고 있는 동안 → 확정/취소 팝업. 둘 다 PlacementModel 상태에 맞춰 열고 닫는다.
+    // 가구를 들고 있는 동안 → 확정/취소 팝업. 가구 목록은 오른쪽 패널의 [가구 배치] 화면(UISidePlacementView)이 맡는다.
     private void SubscribePlacementPopups()
     {
         var placement = GameInstance.Model.Placement;
-
-        placement.IsEditMode
-            .Subscribe(isEditMode => SetPopupOpen<UIPopupFurnitureList, UIPopupFurnitureList.Param>(eUIType.PopupFurnitureList, isEditMode))
-            .AddTo(this);
 
         placement.IsPlacing
             .Subscribe(isPlacing => SetPopupOpen<UIPopupPlacementConfirm, UIPopupPlacementConfirm.Param>(eUIType.PopupPlacementConfirm, isPlacing))
@@ -109,34 +66,11 @@ public class UIRootLobby : UIWndBase
             GameInstance.UI.Close(uiType);
     }
 
-    private void OnClickOpenFloorUnlock()
+    // 오른쪽 패널의 내용 탭을 연다(상점가 "시설 업그레이드" → 업그레이드 탭 등).
+    public void ShowSideTab(UILobbySidePanel.eSideTab tab)
     {
-        GameInstance.UI.Open<UIFloorUnlock, UIFloorUnlock.Param>(eUIType.PopupFloorUnlock, new UIFloorUnlock.Param());
-    }
-
-    private void OnClickOpenCollection()
-    {
-        GameInstance.UI.Open<UIPopupCollection, UIPopupCollection.Param>(eUIType.PopupCollection, new UIPopupCollection.Param());
-    }
-
-    private void OnClickOpenUpgrade()
-    {
-        GameInstance.UI.Open<UIPopupUpgrade, UIPopupUpgrade.Param>(eUIType.PopupUpgrade, new UIPopupUpgrade.Param());
-    }
-
-    private void OnClickOpenWarehouse()
-    {
-        GameInstance.UI.Open<UIPopupWarehouse, UIPopupWarehouse.Param>(eUIType.PopupWarehouse, new UIPopupWarehouse.Param());
-    }
-
-    private void OnClickOpenStaff()
-    {
-        GameInstance.UI.Open<UIPopupStaff, UIPopupStaff.Param>(eUIType.PopupStaff, new UIPopupStaff.Param());
-    }
-
-    private void OnClickOpenShopStreet()
-    {
-        GameInstance.UI.Open<UIPopupShopStreet, UIPopupShopStreet.Param>(eUIType.PopupShopStreet, new UIPopupShopStreet.Param());
+        if (mSidePanel != null)
+            mSidePanel.ShowTab(tab);
     }
 
     public override void Open()

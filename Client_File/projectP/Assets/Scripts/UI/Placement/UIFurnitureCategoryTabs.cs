@@ -4,7 +4,7 @@ using UniRx;
 using UnityEngine;
 using Extension;
 
-// 가구 구입 목록의 카테고리 탭 묶음. 로비 가구배치 팝업(UIPopupFurnitureList)과 상점가 가구구입 팝업(UIPopupShopFurniture)이 같이 쓴다.
+// 가구 구입 목록의 카테고리 탭 묶음. 로비 패널 가구 배치 화면(UISidePlacementView)과 상점가 가구구입 팝업(UIPopupShopFurniture)이 같이 쓴다.
 // 탭 순서 = CTable.eFurnitureCategory 값 순서(전체/진열대/테이블/의자/스탠드/장식/파티션). 창고/도감 탭과 같은 버튼+밑줄 구성.
 public class UIFurnitureCategoryTabs : MonoBehaviour
 {

@@ -12,5 +12,6 @@ namespace CTable
         public int FloorType;
         public int UnlockOrder;
         public long UnlockCost;
+        public string Desc;
     }
 }

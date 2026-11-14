@@ -12,6 +12,8 @@ public class FloorModel : IModelBase
     {
         public int Id;
         public string Name;
+        // 층 이동 목록에 이름 옆으로 붙는 설명(예: "메인 로비"). Floor.csv Desc.
+        public string Desc;
         public eFloorType Type;
         public int UnlockOrder;
         public int UnlockCost;
@@ -20,13 +22,13 @@ public class FloorModel : IModelBase
     // Floor.csv가 없을 때만 사용하는 기본 층 구성.
     private static readonly FloorInfo[] mDefaultFloors =
     {
-        new FloorInfo { Id = 1, Name = "B3", Type = eFloorType.Store, UnlockOrder = 3, UnlockCost = 2000 },
-        new FloorInfo { Id = 2, Name = "B2", Type = eFloorType.Store, UnlockOrder = 2, UnlockCost = 1000 },
-        new FloorInfo { Id = 3, Name = "B1", Type = eFloorType.Store, UnlockOrder = 1, UnlockCost = 500 },
-        new FloorInfo { Id = 4, Name = "1F", Type = eFloorType.Store, UnlockOrder = 0, UnlockCost = 0 },
-        new FloorInfo { Id = 5, Name = "T1", Type = eFloorType.Terrace, UnlockOrder = 0, UnlockCost = 0 },
-        new FloorInfo { Id = 6, Name = "T2", Type = eFloorType.Terrace, UnlockOrder = 1, UnlockCost = 4000 },
-        new FloorInfo { Id = 7, Name = "T3", Type = eFloorType.Terrace, UnlockOrder = 2, UnlockCost = 8000 },
+        new FloorInfo { Id = 1, Name = "B3", Desc = "깊은 지하 매장", Type = eFloorType.Store, UnlockOrder = 3, UnlockCost = 2000 },
+        new FloorInfo { Id = 2, Name = "B2", Desc = "지하 창고 매장", Type = eFloorType.Store, UnlockOrder = 2, UnlockCost = 1000 },
+        new FloorInfo { Id = 3, Name = "B1", Desc = "지하 매장", Type = eFloorType.Store, UnlockOrder = 1, UnlockCost = 500 },
+        new FloorInfo { Id = 4, Name = "1F", Desc = "메인 로비", Type = eFloorType.Store, UnlockOrder = 0, UnlockCost = 0 },
+        new FloorInfo { Id = 5, Name = "T1", Desc = "테라스", Type = eFloorType.Terrace, UnlockOrder = 0, UnlockCost = 0 },
+        new FloorInfo { Id = 6, Name = "T2", Desc = "윗층 테라스", Type = eFloorType.Terrace, UnlockOrder = 1, UnlockCost = 4000 },
+        new FloorInfo { Id = 7, Name = "T3", Desc = "하늘 테라스", Type = eFloorType.Terrace, UnlockOrder = 2, UnlockCost = 8000 },
     };
 
     private readonly List<FloorInfo> mFloors = new List<FloorInfo>();
@@ -60,6 +62,7 @@ public class FloorModel : IModelBase
                 {
                     Id = row.Tid,
                     Name = string.IsNullOrEmpty(row.Name) ? row.Tid.ToString() : row.Name,
+                    Desc = row.Desc ?? string.Empty,
                     Type = row.FloorType == (int)eFloorType.Terrace ? eFloorType.Terrace : eFloorType.Store,
                     UnlockOrder = row.UnlockOrder,
                     UnlockCost = (int)System.Math.Clamp(row.UnlockCost, 0L, int.MaxValue),

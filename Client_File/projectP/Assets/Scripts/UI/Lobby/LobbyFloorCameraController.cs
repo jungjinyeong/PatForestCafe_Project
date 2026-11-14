@@ -7,14 +7,15 @@ using UnityEngine.Rendering.Universal;
 using TMPro;
 using Extension;
 
-// 로비 카메라(매장 B3~1F + 테라스 T1~T3). 층 이동(층 이동 버튼)과 마우스 휠 줌을 담당한다.
+// 로비 카메라(매장 B3~1F + 테라스 T1~T3). 층 이동(MoveToFloor — 로비 층 이동 목록 UILobbyFloorList가 부른다)과 마우스 휠 줌을 담당한다.
+// 액자(LobbyViewFrame)가 있으면 월드 중심이 액자 안쪽 가운데에 보이도록 카메라를 옮긴다(줌/해상도가 바뀌어도 매 프레임 맞춘다).
 // 층 이동 목표 Y좌표는 GameInstance.WayPoint에 등록된 WaypointGroup(Order=층 ID, Floor.csv Tid)의 위치를 그대로 사용한다.
-// 잠긴 층도 미리보기 삼아 자유롭게 이동 가능하고, 실제 스폰/구매 제한은 FloorModel.IsUnlocked 쪽에서 건다.
+// MoveToFloor 자체는 잠긴 층도 막지 않는다. 로비 층 이동 목록은 잠긴 층을 누르면 이동 대신 층 해금 팝업을 연다(로비 UX 개편).
+// 실제 스폰/구매 제한은 FloorModel.IsUnlocked 쪽에서 건다.
 // 2026-09: 휠 = 층 이동 → 휠 = 줌 인/아웃으로 변경. 팝업이 떠 있거나 포인터가 UI 위에 있으면 줌하지 않는다.
 public class LobbyFloorCameraController : MonoBehaviour
 {
     [SerializeField] private Camera mCamera;
-    [SerializeField] private UIButtonEx[] mFloorButtons; // 아래→위 순서. index i = Floor.csv 층 ID 순 i번째 층(0=B3 … 6=T3)
     [SerializeField] private float mScrollThrottleSeconds = 0.2f; // 휠 한 번(노치)당 줌 한 단계만 바뀌도록 하는 디바운스 간격
 
     [Header("Zoom")]
@@ -33,6 +34,13 @@ public class LobbyFloorCameraController : MonoBehaviour
     private int mPixelRatio;          // 0 = 아직 줌하지 않음(첫 휠 입력 때 현재 배율에서 시작)
     private float mFallbackZoom = 1f;
 
+    // 카메라 기준 위치: x = 씬에 놓인 카메라 x, y = 보고 있는 층(WaypointGroup) y. 실제 위치 = 기준 + 액자 보정.
+    private float mBaseX;
+    private float mFloorY;
+
+    // 로비 액자(UI_Root_Lobby/ViewFrame). UIRootLobby가 Init 전에 넘겨준다. 없으면 화면 가운데를 기준으로 한다.
+    private LobbyViewFrame mViewFrame;
+
     private void Awake()
     {
         if (mCamera == null)
@@ -42,13 +50,24 @@ public class LobbyFloorCameraController : MonoBehaviour
         {
             mPixelPerfect = mCamera.GetComponent<PixelPerfectCamera>();
             mBaseOrthographicSize = mCamera.orthographicSize;
+            mBaseX = mCamera.transform.position.x;
+            mFloorY = mCamera.transform.position.y;
         }
+    }
+
+    public void SetViewFrame(LobbyViewFrame viewFrame)
+    {
+        mViewFrame = viewFrame;
     }
 
     public void Init()
     {
-        SubscribeFloorButtons();
         SubscribeZoomInput();
+
+        // PixelPerfectCamera가 렌더 직전에 orthographicSize를 정하므로, 보정은 매 프레임 끝에 다시 계산한다(값이 같으면 위치를 건드리지 않는다).
+        Observable.EveryLateUpdate()
+            .Subscribe(_ => ApplyCameraPosition())
+            .AddTo(this);
 
         var startFloor = FindGroupByFloor(GameInstance.Model.Floor.DefaultViewFloor);
         if (startFloor != null)
@@ -68,34 +87,6 @@ public class LobbyFloorCameraController : MonoBehaviour
             indicator.Play(() => SnapToFloor(group));
         else
             SnapToFloor(group);
-    }
-
-    private void SubscribeFloorButtons()
-    {
-        if (mFloorButtons == null) return;
-
-        // 버튼 글자는 Floor.csv의 Name(B3, 1F, T1 …)으로 채운다. 층보다 버튼이 많으면 남는 버튼은 숨긴다.
-        var floors = GameInstance.Model.Floor.Floors;
-        for (int i = 0; i < mFloorButtons.Length; i++)
-        {
-            var button = mFloorButtons[i];
-            if (button == null) continue;
-
-            if (i >= floors.Count)
-            {
-                button.gameObject.SetActive(false);
-                continue;
-            }
-
-            var info = floors[i];
-            button.GetComponentInChildren<TextMeshProUGUI>(true)?.SetTextEx(info.Name);
-
-            int floor = info.Id;
-            button.OnSubscribeOnClick(() => MoveToFloor(floor)).AddTo(this);
-        }
-
-        if (mFloorButtons.Length < floors.Count)
-            Logger.Warning($"[LobbyFloorCameraController] 층 버튼이 {mFloorButtons.Length}개라 {floors.Count}개 층 중 일부로 이동할 버튼이 없습니다.");
     }
 
     private void SubscribeZoomInput()
@@ -149,10 +140,38 @@ public class LobbyFloorCameraController : MonoBehaviour
     {
         GameInstance.Model.Floor.SetViewingFloor(group.Order);
 
+        mFloorY = group.transform.position.y;
+        ApplyCameraPosition();
+    }
+
+    // 기준 위치 + 액자 보정. 액자 안쪽 중심(u, v)에 기준 위치가 보이려면 카메라를 (0.5 - u) * 보이는 폭만큼 옮긴다.
+    private void ApplyCameraPosition()
+    {
         if (mCamera == null) return;
 
+        var offset = Vector2.zero;
+        if (mViewFrame != null && mCamera.orthographic)
+        {
+            // 로비 UI가 닫혀 있는 동안(가공섬 화면 등)은 액자를 잴 수 없으니 카메라를 그대로 둔다.
+            if (!mViewFrame.TryGetInnerViewportCenter(out var center))
+                return;
+
+            float height = mCamera.orthographicSize * 2f;
+            float width = height * mCamera.aspect;
+            offset = new Vector2((0.5f - center.x) * width, (0.5f - center.y) * height);
+
+            // 픽셀 퍼펙트 카메라면 에셋 1픽셀 단위로 맞춰 그림이 떨리지 않게 한다.
+            if (mPixelPerfect != null && mPixelPerfect.enabled && mPixelPerfect.assetsPPU > 0)
+            {
+                float ppu = mPixelPerfect.assetsPPU;
+                offset = new Vector2(Mathf.Round(offset.x * ppu) / ppu, Mathf.Round(offset.y * ppu) / ppu);
+            }
+        }
+
         var pos = mCamera.transform.position;
-        mCamera.transform.position = new Vector3(pos.x, group.transform.position.y, pos.z);
+        var target = new Vector3(mBaseX + offset.x, mFloorY + offset.y, pos.z);
+        if (pos != target)
+            mCamera.transform.position = target;
     }
 
     private WaypointGroup FindGroupByFloor(int floor)

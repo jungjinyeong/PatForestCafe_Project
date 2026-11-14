@@ -31,13 +31,18 @@ public class UIHudController : MonoBehaviour
         if (mPlacementControlGuide != null)
             mPlacementControlGuide.Init();
 
-        mBtnToggleIngredientIsland.OnSubscribeOnClick(OnClickToggleIngredientIsland).AddTo(this);
+        // 로비에서는 오른쪽 세로 탭(UILobbySidePanel)이 ToggleIngredientIsland()를 부르고, HUD 버튼은 가공섬에 있을 때(로비로 돌아가기)만 보인다.
+        if (mBtnToggleIngredientIsland != null)
+            mBtnToggleIngredientIsland.OnSubscribeOnClick(ToggleIngredientIsland).AddTo(this);
 
         mIsInIngredientIsland = false;
         RefreshToggleIcon();
     }
 
-    private void OnClickToggleIngredientIsland()
+    public bool IsInIngredientIsland => mIsInIngredientIsland;
+
+    // 로비 <-> 가공섬 화면 전환.
+    public void ToggleIngredientIsland()
     {
         mIsInIngredientIsland = !mIsInIngredientIsland;
 
@@ -51,6 +56,9 @@ public class UIHudController : MonoBehaviour
 
     private void RefreshToggleIcon()
     {
+        if (mBtnToggleIngredientIsland != null)
+            mBtnToggleIngredientIsland.gameObject.SetActive(mIsInIngredientIsland);
+
         if (mIconGoToIngredientIsland != null)
             mIconGoToIngredientIsland.SetActive(!mIsInIngredientIsland);
 

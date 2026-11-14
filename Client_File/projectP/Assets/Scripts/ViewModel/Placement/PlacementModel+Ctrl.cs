@@ -666,7 +666,7 @@ public partial class PlacementModel
 
     #region Furniture Spawn
 
-    // 가구 구매 목록 — 로비의 가구배치 팝업(UIPopupFurnitureList)과 상점가 가구 구입(UIPopupShopFurniture)이 공유한다.
+    // 가구 구매 목록 — 로비 패널의 가구 배치 화면(UISidePlacementView)과 상점가 가구 구입(UIPopupShopFurniture)이 공유한다.
     // category가 All이 아니면 그 탭(표의 Category)에 속한 가구만 돌려준다.
     public List<UIScrollFurnitureData> BuildFurnitureShopData(CTable.eFurnitureCategory category = CTable.eFurnitureCategory.All)
     {

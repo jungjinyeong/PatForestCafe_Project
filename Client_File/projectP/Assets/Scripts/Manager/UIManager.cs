@@ -20,7 +20,7 @@ public enum eUIType
     PopupBreadSelect,
     PopupOfflineIncome,
     PopupCollection,
-    PopupUpgrade,
+    PopupUpgrade,             // 미사용(로비 오른쪽 패널 [업그레이드] 탭 UISideUpgradeView로 옮김). 번호가 밀리지 않도록 남겨 둔다.
     PopupBreadMinigame,
     PopupBreadProduction,
     PopupIngredientShop,      // 미사용(상점가 서브 패널로 통합). 지우면 뒤 항목 번호가 밀려 UIManager.prefab 등록이 어긋나므로 남겨 둔다.
@@ -33,7 +33,7 @@ public enum eUIType
     PopupJobOffice,
     PopupDelivery,
     PopupRecipeLab,
-    PopupFurnitureList,
+    PopupFurnitureList,       // 미사용(로비 오른쪽 패널 [가구 배치] 탭 UISidePlacementView로 옮김). 번호가 밀리지 않도록 남겨 둔다.
     PopupPlacementConfirm,
     PopupComingSoon,
     PopupBreadRecipeShop,
@@ -304,6 +304,12 @@ public class UIManager : MonoBehaviour
             mCurUI = ui;
 
         return ui as T;
+    }
+
+    // 이미 만들어진(한 번이라도 연) 창을 가져온다. 없으면 null — 새로 만들거나 열지는 않는다.
+    public T Get<T>(eUIType uiType) where T : UIWndBase
+    {
+        return mUiContains.TryGetValue(uiType, out var ui) ? ui as T : null;
     }
 
     public void Close(eUIType eUIType)

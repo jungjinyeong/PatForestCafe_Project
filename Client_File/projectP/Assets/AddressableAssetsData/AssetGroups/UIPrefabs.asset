@@ -15,11 +15,6 @@ MonoBehaviour:
   m_GroupName: UIPrefabs
   m_GUID: 6590e8ab1ce837b47affa7602706b5d6
   m_SerializeEntries:
-  - m_GUID: 10afcf60e6074ed98b26ecb96921b81d
-    m_Address: UIPrefabs/UI_Popup_Upgrade
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1ec06f044d90f524eaa2ad3daabf4e88
     m_Address: UIPrefabs/UI_Root_Lobby
     m_ReadOnly: 0

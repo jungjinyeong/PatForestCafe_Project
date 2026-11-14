@@ -6,7 +6,8 @@ using TMPro;
 using UniRx;
 using Extension;
 
-// 도감(프리팹 UI_Popup_Collection, 로비 하단 [도감]). ForestCafe UI Lab 레시피 북 시안 기준 책 형태.
+// 도감(프리팹 UI_Popup_Collection). 로비 오른쪽 패널 [도감] 화면(UISideCollectionView)에서 레시피를 누르면
+// 그 분류 탭·레시피를 펼친 채로 열린다(Param) — 상세 보기 창. ForestCafe UI Lab 레시피 북 시안 기준 책 형태.
 // 왼쪽 페이지: 분류 탭(전체/음료/디저트) + 레시피 목록(번호·썸네일·분류·이름·발견 상태).
 // 오른쪽 페이지: 선택한 레시피 상세(번호·이름·분류 도장·그림·오늘의 기록·재료 목록).
 // 발견 여부는 RecipeBookModel(음료 = 레시피 연구소 개발, 디저트 = 기본 발견 + 상점가 레시피 구매)을 그대로 쓴다.
@@ -14,16 +15,13 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
 {
     public struct Param
     {
+        // 처음 보여 줄 분류 탭.
+        public CollectionEntries.eFilter Filter;
+        // 처음 펼칠 레시피 Tid. 0이면 첫 번째 발견 레시피.
+        public int SelectTid;
     }
 
-    private enum eTab
-    {
-        All,
-        Drink,
-        Dessert,
-    }
-
-    private static readonly string[] TAB_NAMES = { "전체", "음료", "디저트" };
+    private static readonly string[] TAB_NAMES = CollectionEntries.FILTER_NAMES;
     private static readonly string[] CHAPTER_NAMES = { "모든 레시피", "음료 레시피", "디저트 레시피" };
 
     [Header("Tabs")]
@@ -50,8 +48,9 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
     [SerializeField] private TextMeshProUGUI[] mIngredientOwned;
 
     private readonly List<UIScrollCollectionData> mAllEntries = new List<UIScrollCollectionData>();
-    private eTab mTab = eTab.All;
+    private CollectionEntries.eFilter mTab = CollectionEntries.eFilter.All;
     private int mSelectedTid;
+    private Param mRequest;
 
     public override eUIType GetUIType() => eUIType.PopupCollection;
 
@@ -64,7 +63,7 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
 
         for (int i = 0; i < mTabButtons.Length; i++)
         {
-            var tab = (eTab)i;
+            var tab = (CollectionEntries.eFilter)i;
             mTabButtons[i].OnSubscribeOnClick(() => SelectTab(tab)).AddTo(this);
         }
     }
@@ -73,13 +72,16 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
     {
         base.Open();
 
-        BuildEntries();
-        mSelectedTid = 0;
-        SelectTab(eTab.All);
+        // UIManager가 Set(param) 뒤에 Open()을 부른다.
+        mAllEntries.Clear();
+        mAllEntries.AddRange(CollectionEntries.Build());
+        mSelectedTid = mRequest.SelectTid;
+        SelectTab(mRequest.Filter);
     }
 
     public void Set(Param param)
     {
+        mRequest = param;
     }
 
     public static string GetCategoryName(bool isDrink) => isDrink ? "음료" : "디저트";
@@ -92,49 +94,18 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
         SelectEntry(collectionRow.CurrentData);
     }
 
-    // 음료(Tid 순) → 디저트(Tid 순)로 도감 번호를 매긴다.
-    private void BuildEntries()
+    private IEnumerable<UIScrollCollectionData> GetEntries(CollectionEntries.eFilter tab)
     {
-        mAllEntries.Clear();
-
-        var drinkTable = GameInstance.Table.GetTable<CTable.DrinkRow>();
-        if (drinkTable != null)
-        {
-            foreach (var row in drinkTable.All.Values.OrderBy(r => r.Tid))
-                mAllEntries.Add(new UIScrollCollectionData { Tid = row.Tid, IsDrink = true });
-        }
-
-        var breadTable = GameInstance.Table.GetTable<CTable.BreadRow>();
-        if (breadTable != null)
-        {
-            foreach (var row in breadTable.All.Values.OrderBy(r => r.Tid))
-                mAllEntries.Add(new UIScrollCollectionData { Tid = row.Tid, IsDrink = false });
-        }
-
-        for (int i = 0; i < mAllEntries.Count; i++)
-        {
-            mAllEntries[i].Number = i + 1;
-            mAllEntries[i].Discovered = GameInstance.Model.RecipeBook.IsDiscovered(mAllEntries[i].Tid);
-        }
+        return CollectionEntries.Filter(mAllEntries, tab);
     }
 
-    private IEnumerable<UIScrollCollectionData> GetEntries(eTab tab)
-    {
-        switch (tab)
-        {
-            case eTab.Drink: return mAllEntries.Where(e => e.IsDrink);
-            case eTab.Dessert: return mAllEntries.Where(e => !e.IsDrink);
-            default: return mAllEntries;
-        }
-    }
-
-    private void SelectTab(eTab tab)
+    private void SelectTab(CollectionEntries.eFilter tab)
     {
         mTab = tab;
 
         for (int i = 0; i < mTabButtons.Length; i++)
         {
-            var entries = GetEntries((eTab)i).ToList();
+            var entries = GetEntries((CollectionEntries.eFilter)i).ToList();
             if (i < mTabTexts.Length)
                 mTabTexts[i].SetTextEx($"{TAB_NAMES[i]} <size=80%>{entries.Count(e => e.Discovered)}/{entries.Count}</size>");
             if (i < mTabSelectedMarks.Length)

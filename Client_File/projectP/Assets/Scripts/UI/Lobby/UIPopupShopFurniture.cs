@@ -4,7 +4,7 @@ using TMPro;
 using UniRx;
 using Extension;
 
-// 상점가 독자 가구 목록 모달 — 로비의 가구배치 팝업(UIPopupFurnitureList)과 구매 로직
+// 상점가 독자 가구 목록 모달 — 로비 패널의 가구 배치 화면(UISidePlacementView)과 구매 로직
 // (PlacementModel.TryPurchaseAndBeginPlacement)만 공유하고, 표시는 별도 버튼 목록으로 만든다(사용자 확정: 상점가에도 독자적인 목록을 둔다).
 // 항목이 적어 ScrollRect 없이 단순 버튼 목록으로 뼈대만 구성 — 카탈로그가 커지면 UIScrollEx로 교체 필요.
 public class UIPopupShopFurniture : UIWndBase, IUIParam<UIPopupShopFurniture.Param>

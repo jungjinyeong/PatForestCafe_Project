@@ -17,12 +17,11 @@ public class UITopbarInfo : UIHUDBase
     [SerializeField] private GameObject mExpGuideRoot;
     [SerializeField] private UIButtonEx mBtnExpGuideClose;
 
-    // 날짜/시계 + 영업 상태(표시만) + 그 옆 영업 버튼.
-    // 영업 버튼: 영업 중 = [조기 마감], 영업 종료(정산 후)·영업 준비 = [영업 시작], 마감 중 = 숨김. 둘 다 확인 팝업을 거친다.
+    // 날짜/시계 + 영업 상태. 영업 상태 자체가 버튼이다(로비 UX 개편: 별도 영업 버튼 없음).
+    // 영업 중 = 조기 마감 확인, 영업 종료(정산 후)·영업 준비 = 영업 시작 확인, 마감 중 = 반응 없음.
     [SerializeField] private TextMeshProUGUI mTextDayClock;
     [SerializeField] private TextMeshProUGUI mTextShopStatus;
-    [SerializeField] private UIButtonEx mBtnBusiness;
-    [SerializeField] private TextMeshProUGUI mTextBusiness;
+    [SerializeField] private UIButtonEx mBtnShopStatus;
     [SerializeField] private Color mColorOpen = new Color(0.45f, 0.7f, 0.4f);
     [SerializeField] private Color mColorClosed = new Color(0.62f, 0.52f, 0.46f);
 
@@ -112,15 +111,15 @@ public class UITopbarInfo : UIHUDBase
 
     private void SubscribeBusiness()
     {
-        if (mBtnBusiness != null)
-            mBtnBusiness.OnSubscribeOnClick(OnClickBusiness).AddTo(this);
+        if (mBtnShopStatus != null)
+            mBtnShopStatus.OnSubscribeOnClick(OnClickBusiness).AddTo(this);
 
         var business = GameInstance.Model.Business;
 
         // 게임 분 단위가 바뀔 때만 다시 그린다.
         business.Day.CombineLatest(GameInstance.Time.CurrentHour.Select(h => Mathf.FloorToInt(h * 60f)).DistinctUntilChanged(),
                 (day, minutes) => (day, minutes))
-            .Subscribe(v => mTextDayClock.SetTextEx($"{business.GetDateText(v.day)} {FormatClock(v.minutes)}"))
+            .Subscribe(v => mTextDayClock.SetTextEx($"{FormatDate(business, v.day)}   {FormatClock(v.minutes)}"))
             .AddTo(this);
 
         business.State.CombineLatest(GameInstance.Spawn.ActiveCount, (state, guests) => (state, guests))
@@ -133,7 +132,7 @@ public class UITopbarInfo : UIHUDBase
         switch (state)
         {
             case eBusinessState.Open:
-                mTextShopStatus.SetTextEx("영업 중 OPEN");
+                mTextShopStatus.SetTextEx("영업 중");
                 break;
             case eBusinessState.Closing:
                 mTextShopStatus.SetTextEx($"마감 중 · 손님 {guests}명");
@@ -149,28 +148,26 @@ public class UITopbarInfo : UIHUDBase
         if (mTextShopStatus != null)
             mTextShopStatus.color = state == eBusinessState.Open ? mColorOpen : mColorClosed;
 
-        RefreshBusinessButton(state);
+        // 마감 중에는 누를 수 있는 동작이 없으므로 버튼을 비활성화해 눌리는 것처럼 보이지 않게 한다.
+        if (mBtnShopStatus != null)
+            mBtnShopStatus.interactable = state != eBusinessState.Closing;
     }
 
-    private void RefreshBusinessButton(eBusinessState state)
+    // "1일 · 봄" (계절 테이블이 없으면 "3일차")
+    private static string FormatDate(BusinessModel business, int day)
     {
-        if (mBtnBusiness == null)
-            return;
-
-        bool isOpen = state == eBusinessState.Open;
-        bool canStart = state == eBusinessState.Closed || state == eBusinessState.Preparing;
-        mBtnBusiness.gameObject.SetActive(isOpen || canStart);
-        mTextBusiness.SetTextEx(isOpen ? "조기 마감" : "영업 시작");
+        var season = business.GetSeason(day);
+        return season != null ? $"{business.GetDayInSeason(day)}일 · {season.Name}" : $"{day}일차";
     }
 
-    // 하루 분(0~1439) → "AM 10:24"
+    // 하루 분(0~1439) → "10:24 AM"
     private static string FormatClock(int minutes)
     {
         int hour = (minutes / 60) % 24;
         int minute = minutes % 60;
         string ampm = hour < 12 ? "AM" : "PM";
         int hour12 = hour % 12 == 0 ? 12 : hour % 12;
-        return $"{ampm} {hour12:00}:{minute:00}";
+        return $"{hour12:00}:{minute:00} {ampm}";
     }
 
     private void RefreshCafeLevel()

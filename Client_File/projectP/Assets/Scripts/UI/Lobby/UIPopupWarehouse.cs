@@ -99,31 +99,14 @@ public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
     {
         mCountDisposables.Clear();
 
-        var changes = GameInstance.Model.Ingredient.GetAll().Select(m => m.Count.Skip(1).AsUnitObservable())
-            .Concat(GameInstance.Model.Bread.GetAll().Select(b => b.ProducedCount.Skip(1).AsUnitObservable()));
-
-        Observable.Merge(changes)
-            .ThrottleFrame(1)
+        WarehouseEntries.ObserveChanges()
             .Subscribe(_ => Refresh())
             .AddTo(mCountDisposables);
     }
 
-    private List<UIWarehouseCellData> GetEntries(eTab tab)
+    private static List<UIWarehouseCellData> GetEntries(eTab tab)
     {
-        if (tab == eTab.Desserts)
-        {
-            return GameInstance.Model.Bread.GetAll()
-                .Where(b => b.ProducedCount.Value > 0)
-                .OrderBy(b => b.TId)
-                .Select(b => new UIWarehouseCellData { Tid = b.TId, IsDessert = true, Name = b.MenuItemRow?.Name ?? b.TId.ToString(), Count = b.ProducedCount.Value })
-                .ToList();
-        }
-
-        return GameInstance.Model.Ingredient.GetAll()
-            .Where(m => m.Count.Value > 0)
-            .OrderBy(m => m.Tid)
-            .Select(m => new UIWarehouseCellData { Tid = m.Tid, IsDessert = false, Name = m.Name, Count = m.Count.Value })
-            .ToList();
+        return WarehouseEntries.Get(tab == eTab.Desserts ? WarehouseEntries.eFilter.Desserts : WarehouseEntries.eFilter.Ingredients);
     }
 
     private void SelectTab(eTab tab)

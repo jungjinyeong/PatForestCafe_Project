@@ -112,9 +112,19 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
         GameInstance.UI.Open<UIPopupShopFurniture, UIPopupShopFurniture.Param>(eUIType.PopupShopFurniture, new UIPopupShopFurniture.Param());
     }
 
+    // 업그레이드는 로비 오른쪽 패널로 옮겼다. 상점가를 닫고 패널의 [업그레이드] 탭을 연다.
+    // 가공섬에서 연 상점가라면 먼저 로비로 돌아간다(숨은 로비 패널에서 탭만 바뀌지 않게).
     private void OnClickFacilityUpgrade()
     {
-        GameInstance.UI.Open<UIPopupUpgrade, UIPopupUpgrade.Param>(eUIType.PopupUpgrade, new UIPopupUpgrade.Param());
+        SelfClose();
+
+        var hud = GameInstance.UI.HudController;
+        if (hud != null && hud.IsInIngredientIsland)
+            hud.ToggleIngredientIsland();
+
+        var root = GameInstance.UI.Get<UIRootLobby>(eUIType.RootLobby);
+        if (root != null)
+            root.ShowSideTab(UILobbySidePanel.eSideTab.Upgrade);
     }
 
     private void OnClickFloorFacility()

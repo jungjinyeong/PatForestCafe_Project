@@ -5,7 +5,7 @@ using UniRx;
 using Extension;
 
 // 잠긴 층을 골드로 해금하는 팝업. 매장층(1F→B1→B2→B3)과 테라스층(T1→T2→T3)을 각각 따로 해금한다.
-// 순서·비용은 Floor.csv(UnlockOrder, UnlockCost). UIPopupUpgrade와 동일한 "현재 상태 + 다음 비용 + 버튼" 패턴.
+// 순서·비용은 Floor.csv(UnlockOrder, UnlockCost). UISideUpgradeView(로비 패널 업그레이드)와 같은 "현재 상태 + 다음 비용 + 버튼" 패턴.
 public class UIFloorUnlock : UIWndBase, IUIParam<UIFloorUnlock.Param>
 {
     public struct Param
