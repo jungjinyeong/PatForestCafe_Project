@@ -1,0 +1,4 @@
+{
+    "dotnet.defaultSolution": "projectP.sln",
+    "dotnet.preferCSharpExtension": true
+}

@@ -31,6 +31,7 @@ public class FurnitureVisualData : ScriptableObject
     [SerializeField] private Sprite mBack;
     [LabelText("옆면")]
     [PropertyTooltip("옆면 그림(오른쪽을 보는 방향 기준, 왼쪽은 FlipX). 비어 있으면 정면 그림을 쓴다. 회전 방식이 '일반 가구'일 때만 쓴다.")]
+    [FurnitureDirectionPreview]
     [SerializeField] private Sprite mSide;
 
     [Title("바닥타일")]

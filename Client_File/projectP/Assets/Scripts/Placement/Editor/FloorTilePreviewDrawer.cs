@@ -32,6 +32,7 @@ public class FloorTilePreviewDrawer<T> : OdinAttributeDrawer<FloorTilePreviewAtt
     private Sprite[,] mSprites;
     private Matrix4x4[,] mMatrices;
     private bool mIsExpanded = true;
+    private bool mWantExpanded = true;
 
     protected override void DrawPropertyLayout(GUIContent label)
     {
@@ -41,12 +42,17 @@ public class FloorTilePreviewDrawer<T> : OdinAttributeDrawer<FloorTilePreviewAtt
         if (tile == null)
             return;
 
-        mIsExpanded = SirenixEditorGUI.Foldout(mIsExpanded, "칠한 모양 미리보기");
+        // 펼침 상태는 Layout 이벤트에서만 반영한다 — Layout과 Repaint 사이에 컨트롤 개수가 달라지면 ArgumentException이 난다.
+        if (Event.current.type == EventType.Layout)
+            mIsExpanded = mWantExpanded;
+        mWantExpanded = SirenixEditorGUI.Foldout(mWantExpanded, "칠한 모양 미리보기");
         if (!mIsExpanded)
             return;
 
         // 타일 에셋(RuleTile 규칙 등)을 고친 뒤에는 [다시 그리기]로 갱신한다.
-        if (mBuiltTile != tile || mSprites == null || GUILayout.Button("다시 그리기", GUILayout.Width(100f)))
+        // 버튼은 매 이벤트 항상 그린다(조건식 안에서 단축 평가로 건너뛰면 Layout/Repaint 컨트롤 수가 어긋난다).
+        bool rebuild = GUILayout.Button("다시 그리기", GUILayout.Width(100f));
+        if (rebuild || mBuiltTile != tile || mSprites == null)
             Build(tile);
 
         int rows = SAMPLE.Length;

@@ -185,6 +185,17 @@ public class FurnitureTestWindow : OdinEditorWindow
         mLinkStatus = links.Count > 0 ? string.Join("\n", links) : "미연결";
     }
 
+    // 프로젝트 창에서 아트 설정을 클릭하면 창의 선택도 따라간다(드롭다운을 다시 열지 않아도 되게).
+    private void OnSelectionChange()
+    {
+        if (Selection.activeObject is FurnitureVisualData visual && visual != mSelected)
+        {
+            mSelected = visual;
+            RefreshLinkStatus();
+            Repaint();
+        }
+    }
+
     private void OnInspectorUpdate()
     {
         // Play 시작/정지에 따라 버튼 활성 상태가 바뀌므로 주기적으로 다시 그린다.
