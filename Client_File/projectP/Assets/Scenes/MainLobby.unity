@@ -488,11 +488,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2163864047423827841, guid: e6caa351a4b6f81469eeee32a81f554b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -185.70001
+      value: -371.40002
       objectReference: {fileID: 0}
     - target: {fileID: 2163864047423827841, guid: e6caa351a4b6f81469eeee32a81f554b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -154.70001
+      value: -309.40002
       objectReference: {fileID: 0}
     - target: {fileID: 2178365161862957975, guid: e6caa351a4b6f81469eeee32a81f554b, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1237,6 +1237,8 @@ MonoBehaviour:
   mFallbackMinZoom: 0.5
   mFallbackMaxZoom: 2
   mFallbackZoomStep: 1.25
+  mPanSpeed: 0.6
+  mPanMargin: 1
 --- !u!114 &1764468380
 MonoBehaviour:
   m_ObjectHideFlags: 0
