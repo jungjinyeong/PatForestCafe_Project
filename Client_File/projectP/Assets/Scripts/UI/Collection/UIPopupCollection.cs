@@ -107,7 +107,7 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
         {
             var entries = GetEntries((CollectionEntries.eFilter)i).ToList();
             if (i < mTabTexts.Length)
-                mTabTexts[i].SetTextEx($"{TAB_NAMES[i]} <size=80%>{entries.Count(e => e.Discovered)}/{entries.Count}</size>");
+                mTabTexts[i].SetTextEx($"{TAB_NAMES[i]} {entries.Count(e => e.Discovered)}/{entries.Count}");
             if (i < mTabSelectedMarks.Length)
                 mTabSelectedMarks[i].SetActive(i == (int)tab);
         }

@@ -335,8 +335,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uBE75 \uC7AC\uB8CC\uB97C \uCC3E\uC544\uBCF4\uC138\uC694!"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: de3ffd8ec94fd1f44bed34f7005abfa9, type: 2}
-  m_sharedMaterial: {fileID: 738068047728643008, guid: de3ffd8ec94fd1f44bed34f7005abfa9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 72f20475318c9db4ba4653e9d66256d4, type: 2}
+  m_sharedMaterial: {fileID: 395399242807123156, guid: 72f20475318c9db4ba4653e9d66256d4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -360,12 +360,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
-  m_fontSizeMin: 9
-  m_fontSizeMax: 36
+  m_fontSizeMin: 24
+  m_fontSizeMax: 24
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -443,11 +443,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 40
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 40
+      value: 24
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -479,11 +479,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -1.6000061
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -1.5999985
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: f642a9b862b12134db1b23fb32a112c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -536,7 +536,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8416465390708111415, guid: 81f39581812678f4d89329cd4484cda9, type: 3}
       propertyPath: m_fontSize
-      value: 13.1
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 8509297563890656426, guid: 81f39581812678f4d89329cd4484cda9, type: 3}
       propertyPath: m_Pivot.x

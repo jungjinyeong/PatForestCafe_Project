@@ -249,7 +249,7 @@ public class UIBreadDoughPanel : UIBase
         mTextExtraTags.SetTextEx(extraTags.Count > 0 ? string.Join(", ", extraTags) : "추가 재료 없음");
 
         mQuantity = Mathf.Clamp(mQuantity, 1, Oven.MaxQuantity);
-        mTextQuantity.SetTextEx($"{mQuantity}개 <size=70%>(최대 {Oven.MaxQuantity})</size>");
+        mTextQuantity.SetTextEx($"{mQuantity}개 (최대 {Oven.MaxQuantity})");
 
         mBtnSave.interactable = mRecipeTid != 0 && baseTids.Count > 0;
     }

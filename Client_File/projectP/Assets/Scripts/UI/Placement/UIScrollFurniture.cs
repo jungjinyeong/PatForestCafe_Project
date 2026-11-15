@@ -52,7 +52,8 @@ public class UIScrollFurniture : UIScrollRow<UIScrollFurnitureData>
             mIcon.enabled = icon != null;
         }
 
-        mName.SetTextEx($"{data.Name}\n<size=70%>{data.SizeText}</size>");
+        // 픽셀 글꼴은 정수 크기에서만 선명해서 <size=%>로 줄이지 않는다(두 줄 같은 크기).
+        mName.SetTextEx($"{data.Name}\n{data.SizeText}");
         // 이미 산 바닥타일·벽지는 "보유", 보관 중인 가구가 있으면 보관 수를 가격 대신 보여준다(누르면 골드 없이 배치).
         if (data.IsUnlimitedUnlocked)
             mPrice.SetTextEx("보유");

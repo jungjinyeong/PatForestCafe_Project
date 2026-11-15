@@ -125,7 +125,7 @@ public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
             int sum = entries.Sum(e => e.Count);
             total += sum;
             if (i < mTabTexts.Length)
-                mTabTexts[i].SetTextEx($"{TAB_NAMES[i]} <size=80%>{entries.Count}</size>");
+                mTabTexts[i].SetTextEx($"{TAB_NAMES[i]} {entries.Count}");
             if (i < mTabSelectedMarks.Length)
                 mTabSelectedMarks[i].SetActive(i == (int)mTab);
         }
