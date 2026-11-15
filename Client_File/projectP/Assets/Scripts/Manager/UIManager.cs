@@ -129,6 +129,11 @@ public class UIManager : MonoBehaviour
     UIIndicator mIndicator;
     public UIIndicator Indicator => mIndicator;
 
+    // 화면 전환 연출(UI_Transition 프리팹, Animator의 In/Out 클립). 층 이동 등에서 쓴다.
+    [SerializeField]
+    UITransition mTransition;
+    public UITransition Transition => mTransition;
+
     public Canvas GetTargetCanvas(eUILayerType type)
     {
         if (mTargetCanvasDic.TryGetValue(type, out var canvas))

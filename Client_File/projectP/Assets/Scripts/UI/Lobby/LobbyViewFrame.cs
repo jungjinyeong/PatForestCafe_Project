@@ -19,7 +19,15 @@ public class LobbyViewFrame : MonoBehaviour
     // 액자 안쪽 중심의 Viewport 좌표(0~1). 액자가 꺼져 있거나 화면 크기가 0이면 false.
     public bool TryGetInnerViewportCenter(out Vector2 viewportCenter)
     {
-        viewportCenter = new Vector2(0.5f, 0.5f);
+        bool ok = TryGetInnerViewportRect(out var rect);
+        viewportCenter = ok ? rect.center : new Vector2(0.5f, 0.5f);
+        return ok;
+    }
+
+    // 액자 안쪽 영역의 Viewport 사각형(0~1). 카메라 좌우 이동 범위(보이는 폭)를 재는 데도 쓴다.
+    public bool TryGetInnerViewportRect(out Rect viewportRect)
+    {
+        viewportRect = new Rect(0f, 0f, 1f, 1f);
         if (mInner == null || !mInner.gameObject.activeInHierarchy || Screen.width <= 0 || Screen.height <= 0)
             return false;
 
@@ -34,8 +42,7 @@ public class LobbyViewFrame : MonoBehaviour
         mInner.GetWorldCorners(mCorners);
         var min = RectTransformUtility.WorldToScreenPoint(uiCamera, mCorners[0]);
         var max = RectTransformUtility.WorldToScreenPoint(uiCamera, mCorners[2]);
-        var center = (min + max) * 0.5f;
-        viewportCenter = new Vector2(center.x / Screen.width, center.y / Screen.height);
+        viewportRect = Rect.MinMaxRect(min.x / Screen.width, min.y / Screen.height, max.x / Screen.width, max.y / Screen.height);
         return true;
     }
 
