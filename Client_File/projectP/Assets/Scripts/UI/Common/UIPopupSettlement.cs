@@ -54,7 +54,7 @@ public class UIPopupSettlement : UIWndBase, IUIParam<UIPopupSettlement.Param>
         var rows = new (string label, string value)[]
         {
             ("오늘 매출", $"{business.TodayGold.Value:N0} G"),
-            ("빵 판매", $"{business.TodayBreadSold.Value}개"),
+            ("빵 판매", $"{business.TodayDessertSold.Value}개"),
             ("음료 판매", $"{business.TodayDrinkSold.Value}잔"),
             ("배달 완료", $"{business.TodayDelivered.Value}건"),
             ("방문 손님", $"{business.TodayVisitors.Value}명"),

@@ -13,11 +13,11 @@ public class IngredientModel : IModelBase
             foreach (var row in drinkIngredientGroup.All.Values)
                 mDicIngredients[row.Tid] = IngredientData.Create(row.Tid, row.Name);
 
-        var breadIngredientGroup = GameInstance.Table.GetTable<CTable.BreadIngredientRow>();
-        if (breadIngredientGroup == null)
-            Logger.Warning("[IngredientModel] BreadIngredientGroup을 찾을 수 없습니다.");
+        var dessertIngredientGroup = GameInstance.Table.GetTable<CTable.DessertIngredientRow>();
+        if (dessertIngredientGroup == null)
+            Logger.Warning("[IngredientModel] DessertIngredientGroup을 찾을 수 없습니다.");
         else
-            foreach (var row in breadIngredientGroup.All.Values)
+            foreach (var row in dessertIngredientGroup.All.Values)
                 mDicIngredients[row.Tid] = IngredientData.Create(row.Tid, row.Name);
     }
 

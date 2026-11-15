@@ -56,9 +56,9 @@ public class UIPopupWorkshop : UIWndBase, IUIParam<UIPopupWorkshop.Param>
             foreach (var row in drinkIngredientGroup.All.Values)
                 mCandidateIngredientTids.Add(row.Tid);
 
-        var breadIngredientGroup = GameInstance.Table.GetTable<CTable.BreadIngredientRow>();
-        if (breadIngredientGroup != null)
-            foreach (var row in breadIngredientGroup.All.Values)
+        var dessertIngredientGroup = GameInstance.Table.GetTable<CTable.DessertIngredientRow>();
+        if (dessertIngredientGroup != null)
+            foreach (var row in dessertIngredientGroup.All.Values)
                 mCandidateIngredientTids.Add(row.Tid);
     }
 
@@ -142,7 +142,7 @@ public class UIPopupWorkshop : UIWndBase, IUIParam<UIPopupWorkshop.Param>
         if (drinkRow != null)
             return drinkRow.Name;
 
-        var breadRow = GameInstance.Table.GetTable<CTable.BreadIngredientRow>()?.Get(tid);
-        return breadRow?.Name ?? tid.ToString();
+        var dessertRow = GameInstance.Table.GetTable<CTable.DessertIngredientRow>()?.Get(tid);
+        return dessertRow?.Name ?? tid.ToString();
     }
 }

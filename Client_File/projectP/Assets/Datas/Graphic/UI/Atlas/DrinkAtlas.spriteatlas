@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: DrinkAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 4
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_IgnorePlatformSupport: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 2
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 24fdb2c23bf908944a5a0aa5608094f3, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - 9d30f995b973d214fa1636480f784cb5: 21300000
+    - a5e9936623177fb41bea28e2d5e06e5f: 21300000
+    - 6258e6080e2a4cf4f91e44f830617377: 21300000
+    - 1fef41d96b9baac46adc9ea01032d98f: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 9d30f995b973d214fa1636480f784cb5, type: 3}
+  - {fileID: 21300000, guid: a5e9936623177fb41bea28e2d5e06e5f, type: 3}
+  - {fileID: 21300000, guid: 6258e6080e2a4cf4f91e44f830617377, type: 3}
+  - {fileID: 21300000, guid: 1fef41d96b9baac46adc9ea01032d98f, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - drk_0102_iced_cafelatte
+  - drk_0100_iced_americano
+  - drk_0101_hot_americano
+  - drk_0103_hot_cafelatte
+  m_RenderDataMap: {}
+  m_Tag: DrinkAtlas
+  m_IsVariant: 0
+  m_Guid: b7af23cda6d521748a067c2df9739509

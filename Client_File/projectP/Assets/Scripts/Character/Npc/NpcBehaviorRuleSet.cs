@@ -7,9 +7,9 @@ public static class NpcBehaviorRuleSet
 {
     private static readonly eNpcBehaviorStepType[][] mRuleSets =
     {
-        new[] { eNpcBehaviorStepType.BuyBread, eNpcBehaviorStepType.OrderDrink, eNpcBehaviorStepType.ExitToTerrace },
+        new[] { eNpcBehaviorStepType.BuyDessert, eNpcBehaviorStepType.OrderDrink, eNpcBehaviorStepType.ExitToTerrace },
         new[] { eNpcBehaviorStepType.OrderDrink, eNpcBehaviorStepType.ExitToTerrace },
-        new[] { eNpcBehaviorStepType.BuyBread, eNpcBehaviorStepType.ExitToTerrace },
+        new[] { eNpcBehaviorStepType.BuyDessert, eNpcBehaviorStepType.ExitToTerrace },
     };
 
     public static Queue<eNpcBehaviorStepType> GetRandomQueue()

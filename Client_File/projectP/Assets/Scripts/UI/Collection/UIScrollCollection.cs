@@ -8,7 +8,7 @@ public class UIScrollCollectionData
 {
     public int Tid;
     public int Number;          // 도감 번호(전체 목록 기준 1부터)
-    public bool IsDrink;        // true = 음료(DrinkRow), false = 디저트(BreadRow)
+    public bool IsDrink;        // true = 음료(DrinkRow), false = 디저트(DessertRow)
     public bool Discovered;
 }
 

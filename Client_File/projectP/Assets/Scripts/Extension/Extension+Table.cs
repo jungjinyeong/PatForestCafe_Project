@@ -11,23 +11,23 @@ namespace Extension
             return GameInstance.Table.Get<DrinkRow>(menuItemRow.Tid);
         }
 
-        public static BreadRow GetBreadRow(this MenuItemRow menuItemRow)
+        public static DessertRow GetDessertRow(this MenuItemRow menuItemRow)
         {
-            return GameInstance.Table.Get<BreadRow>(menuItemRow.Tid);
+            return GameInstance.Table.Get<DessertRow>(menuItemRow.Tid);
         }
 
         // 테이블의 Tags 컬럼은 CSV 구분자(,)와 겹치지 않도록 '|'로 구분해 저장한다.
         public static IEnumerable<string> GetTags(this DrinkIngredientRow ingredientRow) => ParseTags(ingredientRow?.Tags);
-        public static IEnumerable<string> GetTags(this BreadIngredientRow ingredientRow) => ParseTags(ingredientRow?.Tags);
-        public static IEnumerable<string> GetTags(this BreadRow breadRow) => ParseTags(breadRow?.Tags);
+        public static IEnumerable<string> GetTags(this DessertIngredientRow ingredientRow) => ParseTags(ingredientRow?.Tags);
+        public static IEnumerable<string> GetTags(this DessertRow dessertRow) => ParseTags(dessertRow?.Tags);
 
-        // BreadIngredient1~5 중 0이 아닌 재료 Tid(중복 포함, 순서 유지).
-        public static List<int> GetIngredientTids(this BreadRow breadRow)
+        // DessertIngredient1~5 중 0이 아닌 재료 Tid(중복 포함, 순서 유지).
+        public static List<int> GetIngredientTids(this DessertRow dessertRow)
         {
             var list = new List<int>();
-            if (breadRow == null) return list;
+            if (dessertRow == null) return list;
 
-            foreach (int tid in new[] { breadRow.BreadIngredient1, breadRow.BreadIngredient2, breadRow.BreadIngredient3, breadRow.BreadIngredient4, breadRow.BreadIngredient5 })
+            foreach (int tid in new[] { dessertRow.DessertIngredient1, dessertRow.DessertIngredient2, dessertRow.DessertIngredient3, dessertRow.DessertIngredient4, dessertRow.DessertIngredient5 })
             {
                 if (tid != 0) list.Add(tid);
             }

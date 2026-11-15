@@ -6,7 +6,7 @@ public enum eNoticeType
     Oven,
     Delivery,
     CafeLevel,
-    BreadStock,
+    DessertStock,
     Business,
 }
 

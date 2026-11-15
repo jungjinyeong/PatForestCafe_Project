@@ -5,7 +5,7 @@ using UniRx;
 
 // 창고에 보관 중인 품목 목록. 창고 팝업(UIPopupWarehouse)과 로비 오른쪽 창고 패널(UISideWarehouseView)이 같이 쓴다.
 // - 재료 = IngredientModel(음료 재료 + 빵 재료) 중 보유 수량이 있는 것.
-// - 디저트 = 오븐에서 구워 창고에 보관 중인(진열 전) 빵 재고(BreadData.ProducedCount).
+// - 디저트 = 오븐에서 구워 창고에 보관 중인(진열 전) 빵 재고(DessertData.ProducedCount).
 public static class WarehouseEntries
 {
     public enum eFilter
@@ -29,7 +29,7 @@ public static class WarehouseEntries
 
         if (filter != eFilter.Ingredients)
         {
-            list.AddRange(GameInstance.Model.Bread.GetAll()
+            list.AddRange(GameInstance.Model.Dessert.GetAll()
                 .Where(b => b.ProducedCount.Value > 0)
                 .OrderBy(b => b.TId)
                 .Select(b => new UIWarehouseCellData { Tid = b.TId, IsDessert = true, Name = b.MenuItemRow?.Name ?? b.TId.ToString(), Count = b.ProducedCount.Value }));
@@ -42,7 +42,7 @@ public static class WarehouseEntries
     public static IObservable<Unit> ObserveChanges()
     {
         var changes = GameInstance.Model.Ingredient.GetAll().Select(m => m.Count.Skip(1).AsUnitObservable())
-            .Concat(GameInstance.Model.Bread.GetAll().Select(b => b.ProducedCount.Skip(1).AsUnitObservable()));
+            .Concat(GameInstance.Model.Dessert.GetAll().Select(b => b.ProducedCount.Skip(1).AsUnitObservable()));
 
         return Observable.Merge(changes).ThrottleFrame(1);
     }

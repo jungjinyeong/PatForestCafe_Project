@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: IngredientAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 4
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_IgnorePlatformSupport: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 2
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: e7bce2ec60f86914ab67a269939da8c2, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - 0377d110c62d86d4cb52296e7e9cee3f: 21300000
+    - fdb98f71049c2344ab9cb9c1115d2e20: 21300000
+    - 528a73c186d37eb45b01f7212cb6707b: 21300000
+    - 2f797f32129d2ce4ab82cc873dab031e: 21300000
+    - 4c034514e599f724e963d9b0d972a510: 21300000
+    - 0c312e155b616814ea86ebd8c38179c3: 21300000
+    - 95c9d00628b2c374c97cca6ce39f72f0: 21300000
+    - 9f6b170bf3bfa794c81c31d9d2a8891d: 21300000
+    - 62b53f1c66e48484da4ce90904b0a7bb: 21300000
+    - e807871f75167694f833df6c50edf614: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 0377d110c62d86d4cb52296e7e9cee3f, type: 3}
+  - {fileID: 21300000, guid: fdb98f71049c2344ab9cb9c1115d2e20, type: 3}
+  - {fileID: 21300000, guid: 528a73c186d37eb45b01f7212cb6707b, type: 3}
+  - {fileID: 21300000, guid: 2f797f32129d2ce4ab82cc873dab031e, type: 3}
+  - {fileID: 21300000, guid: 4c034514e599f724e963d9b0d972a510, type: 3}
+  - {fileID: 21300000, guid: 0c312e155b616814ea86ebd8c38179c3, type: 3}
+  - {fileID: 21300000, guid: 95c9d00628b2c374c97cca6ce39f72f0, type: 3}
+  - {fileID: 21300000, guid: 9f6b170bf3bfa794c81c31d9d2a8891d, type: 3}
+  - {fileID: 21300000, guid: 62b53f1c66e48484da4ce90904b0a7bb, type: 3}
+  - {fileID: 21300000, guid: e807871f75167694f833df6c50edf614, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - ing_0230_black_pepper
+  - ing_0120_coffee_beans
+  - ing_0200_flour
+  - ing_0100_water_v01
+  - ing_0100_water_v02
+  - ing_0140_strawberry
+  - ing_0110_ice
+  - ing_0130_milk
+  - ing_0210_sugar
+  - ing_0220_salt
+  m_RenderDataMap: {}
+  m_Tag: IngredientAtlas
+  m_IsVariant: 0
+  m_Guid: 36edbda8435c83f4db8d692d1ad68d59

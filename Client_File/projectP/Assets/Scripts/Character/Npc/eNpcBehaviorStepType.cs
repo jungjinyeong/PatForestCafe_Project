@@ -1,6 +1,6 @@
 public enum eNpcBehaviorStepType
 {
-    BuyBread,
+    BuyDessert,
     OrderDrink,
     ExitToTerrace,
 }

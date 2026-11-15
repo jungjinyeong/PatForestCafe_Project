@@ -17,12 +17,12 @@ public enum eUIType
     PopupOption = eUILayerType.Popup << 16,
     PopupDrinkRecipeProduction,
     PopupOrderDetail,
-    PopupBreadSelect,
+    PopupDessertSelect,
     PopupOfflineIncome,
     PopupCollection,
     PopupUpgrade,             // 미사용(로비 오른쪽 패널 [업그레이드] 탭 UISideUpgradeView로 옮김). 번호가 밀리지 않도록 남겨 둔다.
-    PopupBreadMinigame,
-    PopupBreadProduction,
+    PopupDessertMinigame,
+    PopupDessertProduction,
     PopupIngredientShop,      // 미사용(상점가 서브 패널로 통합). 지우면 뒤 항목 번호가 밀려 UIManager.prefab 등록이 어긋나므로 남겨 둔다.
     PopupWorkshop,
     PopupFloorUnlock,
@@ -36,7 +36,7 @@ public enum eUIType
     PopupFurnitureList,       // 미사용(로비 오른쪽 패널 [가구 배치] 탭 UISidePlacementView로 옮김). 번호가 밀리지 않도록 남겨 둔다.
     PopupPlacementConfirm,
     PopupComingSoon,
-    PopupBreadRecipeShop,
+    PopupDessertRecipeShop,
     PopupConfirm,
     PopupSettlement,
 
@@ -150,6 +150,17 @@ public class UIManager : MonoBehaviour
 
     void Awake()
     {
+        EnsureInstance();
+    }
+
+    // 씬에 놓인 UIManager의 Awake가 GameInstance.Awake보다 늦게 불릴 수 있다(오브젝트 간 Awake 순서는 보장되지 않음).
+    // 그러면 GameInstance.Init → 로비 UI 열기 시점에 Instance가 비어 있으므로, GameInstance.Init이 먼저 불러 준다.
+    // 두 번 불려도(이후 Awake) 한 번만 초기화한다.
+    public void EnsureInstance()
+    {
+        if (mInstance == this)
+            return;
+
         Logger.Log("awake ui");
         mInstance = this;
         DontDestroyOnLoad(this);

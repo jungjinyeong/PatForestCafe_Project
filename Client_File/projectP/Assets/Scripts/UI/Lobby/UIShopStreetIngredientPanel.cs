@@ -70,14 +70,14 @@ public class UIShopStreetIngredientPanel : MonoBehaviour
                 dataList.Add(new UIScrollIngredientShopData { Tid = row.Tid, Name = row.Name, Price = row.Price, OwnedCount = GetIngredientCount(row.Tid), EntryType = eShopEntryType.Ingredient });
         }
 
-        var breadIngredientGroup = GameInstance.Table.GetTable<CTable.BreadIngredientRow>();
-        if (breadIngredientGroup != null)
+        var dessertIngredientGroup = GameInstance.Table.GetTable<CTable.DessertIngredientRow>();
+        if (dessertIngredientGroup != null)
         {
             // 빵 재료는 등급(하/중/고급)별로 모두 판매한다 — 오븐 반죽 설정에서 같은 분류 안에서 등급을 교체해 품질을 올린다.
-            foreach (var row in breadIngredientGroup.All.Values)
+            foreach (var row in dessertIngredientGroup.All.Values)
             {
-                var quality = BreadQuality.FromGrade(row.Grade);
-                string name = $"<color={BreadQuality.GetColorHex(quality)}>[{BreadQuality.GetName(quality)}]</color> {row.Name}";
+                var quality = DessertQuality.FromGrade(row.Grade);
+                string name = $"<color={DessertQuality.GetColorHex(quality)}>[{DessertQuality.GetName(quality)}]</color> {row.Name}";
                 dataList.Add(new UIScrollIngredientShopData { Tid = row.Tid, Name = name, Price = row.Price, OwnedCount = GetIngredientCount(row.Tid), EntryType = eShopEntryType.Ingredient });
             }
         }

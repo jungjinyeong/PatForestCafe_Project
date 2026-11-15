@@ -4,7 +4,7 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.U2D;
 
-public class CharNpc : CharBase, IBreadPickup
+public class CharNpc : CharBase, IDessertPickup
 {
     [Header("Movement")]
     [SerializeField] private float mMoveSpeed = 3f;
@@ -19,7 +19,7 @@ public class CharNpc : CharBase, IBreadPickup
     [SerializeField] private float mTerraceLingerMinSeconds = 3f;
     [SerializeField] private float mTerraceLingerMaxSeconds = 6f;
 
-    [Header("Bread Unavailable")]
+    [Header("Dessert Unavailable")]
     [SerializeField] private float mSweatDisplaySeconds = 1.2f;
 
     private bool mIsMoving = true;
@@ -200,8 +200,8 @@ public class CharNpc : CharBase, IBreadPickup
         var lobbyUI = GetComponentInChildren<LobbyCharUI>();
         if (lobbyUI != null)
         {
-            foreach (var bread in lobbyUI.DetachAllBreads())
-                bread.Despawn();
+            foreach (var dessert in lobbyUI.DetachAllDesserts())
+                dessert.Despawn();
         }
 
         mBehaviorQueue?.Clear();
@@ -236,16 +236,16 @@ public class CharNpc : CharBase, IBreadPickup
 
         MessageBroker.Default.Publish(new CEvent.Waypoint(triggerWaypoint.WaypointType));
 
-        if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Trigger_Bread)
+        if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Trigger_Dessert)
         {
-            bool hasStock = (GameInstance.Model.Bread.GetCount(triggerWaypoint.TableId)?.Value ?? 0) > 0;
+            bool hasStock = (GameInstance.Model.Dessert.GetCount(triggerWaypoint.TableId)?.Value ?? 0) > 0;
             if (hasStock)
             {
-                MessageBroker.Default.Publish(new CEvent.BreadPickup(triggerWaypoint.TableId, this));
+                MessageBroker.Default.Publish(new CEvent.DessertPickup(triggerWaypoint.TableId, this));
             }
             else
             {
-                BeginBreadUnavailableFlow();
+                BeginDessertUnavailableFlow();
                 return;
             }
         }
@@ -264,11 +264,11 @@ public class CharNpc : CharBase, IBreadPickup
             .AddTo(this);
     }
 
-    // 진열대에 빵 재고가 없으면(BreadModel.GetCount == 0) 잠시 더 둘러보다가(Idle 대기, eConfigType.BreadUnavailablePauseMs)
+    // 진열대에 빵 재고가 없으면(DessertModel.GetCount == 0) 잠시 더 둘러보다가(Idle 대기, eConfigType.DessertUnavailablePauseMs)
     // 땀방울 아이콘을 띄운 뒤, 남은 행동 큐(예: 음료 주문)를 포기하고 곧장 매장을 퇴장한다.
-    private void BeginBreadUnavailableFlow()
+    private void BeginDessertUnavailableFlow()
     {
-        float lookAroundSeconds = GameInstance.Config.GetValue(eConfigType.BreadUnavailablePauseMs) / 1000f;
+        float lookAroundSeconds = GameInstance.Config.GetValue(eConfigType.DessertUnavailablePauseMs) / 1000f;
 
         mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(lookAroundSeconds))
             .Subscribe(_ => ShowSweatThenExit())
@@ -281,11 +281,11 @@ public class CharNpc : CharBase, IBreadPickup
         lobbyCharUI?.SetSweatIconActive(true);
 
         mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(mSweatDisplaySeconds))
-            .Subscribe(_ => ExitEarlyDueToNoBread(lobbyCharUI))
+            .Subscribe(_ => ExitEarlyDueToNoDessert(lobbyCharUI))
             .AddTo(this);
     }
 
-    private void ExitEarlyDueToNoBread(LobbyCharUI lobbyCharUI)
+    private void ExitEarlyDueToNoDessert(LobbyCharUI lobbyCharUI)
     {
         lobbyCharUI?.SetSweatIconActive(false);
 
@@ -295,7 +295,7 @@ public class CharNpc : CharBase, IBreadPickup
 
     private void ProcessOrderPayment()
     {
-        TryReceiveBreadGold();
+        TryReceiveDessertGold();
         ReceiveRandomUnlockedDrinkGold();
 
         var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
@@ -318,25 +318,25 @@ public class CharNpc : CharBase, IBreadPickup
         AdvanceBehaviorQueue();
     }
 
-    private void TryReceiveBreadGold()
+    private void TryReceiveDessertGold()
     {
         var lobbyUI = GetComponentInChildren<LobbyCharUI>();
-        if (lobbyUI == null || !lobbyUI.HasBread) return;
+        if (lobbyUI == null || !lobbyUI.HasDessert) return;
 
-        foreach (var bread in lobbyUI.DetachAllBreads())
+        foreach (var dessert in lobbyUI.DetachAllDesserts())
         {
-            var breadData = GameInstance.Model.Bread.Get(bread.TableId);
-            if (breadData?.MenuItemRow != null)
+            var dessertData = GameInstance.Model.Dessert.Get(dessert.TableId);
+            if (dessertData?.MenuItemRow != null)
             {
                 // 판매가 = 메뉴 가격 × 빵 품질 배율 × 결제 수익 업그레이드 배율 × 계절 판매 배율(Season.csv).
-                int price = Mathf.RoundToInt(breadData.MenuItemRow.Price * BreadQuality.GetSaleMultiplier(bread.Quality));
+                int price = Mathf.RoundToInt(dessertData.MenuItemRow.Price * DessertQuality.GetSaleMultiplier(dessert.Quality));
                 int gold = GameInstance.Model.Business.ApplySaleRate(GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier(price));
                 GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
-                GameInstance.Model.Business.RecordBreadSale(gold);
+                GameInstance.Model.Business.RecordDessertSale(gold);
                 GameInstance.Model.Cafe.AddExp(CafeModel.EXP_STORE_PAYMENT);
             }
 
-            bread.Despawn();
+            dessert.Despawn();
         }
     }
 
@@ -454,8 +454,8 @@ public class CharNpc : CharBase, IBreadPickup
 
         switch (step)
         {
-            case eNpcBehaviorStepType.BuyBread:
-                return mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Trigger, Waypoint.eWaypointType.Trigger_Bread, out target);
+            case eNpcBehaviorStepType.BuyDessert:
+                return mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Trigger, Waypoint.eWaypointType.Trigger_Dessert, out target);
             case eNpcBehaviorStepType.OrderDrink:
                 return mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Trigger, Waypoint.eWaypointType.Trigger_Order, out target);
             case eNpcBehaviorStepType.ExitToTerrace:

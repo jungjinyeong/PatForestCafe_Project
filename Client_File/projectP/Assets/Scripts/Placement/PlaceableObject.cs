@@ -42,7 +42,7 @@ public class PlaceableObject : MonoBehaviour
 
     private BoxCollider2D mCollider;
     // 같은 오브젝트의 빵 진열대(Table.prefab만). 철거/리셋 시 진열 빵 정리에 쓴다. 없으면 null.
-    private Intaraction_BreadStand mBreadStand;
+    private Intaraction_DessertStand mDessertStand;
     // 들고 있는 동안(IsPlacing)의 색 표시 구독. 내려놓으면 해제한다.
     private CompositeDisposable mHoldDisposables;
 
@@ -84,7 +84,7 @@ public class PlaceableObject : MonoBehaviour
 
     public int FurnitureTid => mFurnitureTid;
     public TilePlacementArea Area => mArea;
-    public Intaraction_BreadStand BreadStand => mBreadStand;
+    public Intaraction_DessertStand DessertStand => mDessertStand;
     public int PlacementId => mPlacementId;
     public bool IsSubFurniture => mIsSubFurniture;
     public int GroupId => mGroupId;
@@ -375,7 +375,7 @@ public class PlaceableObject : MonoBehaviour
     private void Awake()
     {
         mCollider = GetComponent<BoxCollider2D>();
-        mBreadStand = TryGetComponent(out Intaraction_BreadStand breadStand) ? breadStand : null;
+        mDessertStand = TryGetComponent(out Intaraction_DessertStand dessertStand) ? dessertStand : null;
         if (mCollider != null)
             mPlaceablesByCollider[mCollider] = this;
         CacheBaseLayout();

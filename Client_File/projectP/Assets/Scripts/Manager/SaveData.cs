@@ -10,7 +10,7 @@ public class ItemSaveEntry
 }
 
 [Serializable]
-public class BreadSaveEntry
+public class DessertSaveEntry
 {
     public int Tid;
     // 품질 도입 전 세이브 호환용(합계). 품질별 배열이 비어 있으면 이 값을 하급으로 이관한다.
@@ -29,7 +29,7 @@ public class OvenTraySaveEntry
     public int Quantity;
     public List<int> BaseIngredientTids = new List<int>();
     public List<int> ExtraIngredientTids = new List<int>();
-    public eBreadQuality Quality;
+    public eDessertQuality Quality;
     public long BakeEndUnixSeconds;
     public int BakeDurationSeconds;
 }
@@ -43,7 +43,7 @@ public class PlacedFurnitureSaveEntry
     // 층(WaypointGroup.Order) + footprint 기준 셀. 0층이면 Floor/Cell이 없던 구 세이브.
     public int Floor;
     public Vector2Int Cell;
-    public int AssignedBreadTid;
+    public int AssignedDessertTid;
     // true면 CTable.SubFurnitureRow, false면 CTable.FurnitureRow 소속 Tid.
     public bool IsSub;
     // 가구 방향(CTable.eFurnitureDirection, 바닥타일은 그림 회전 단계). 구 세이브는 0(Down).
@@ -96,7 +96,7 @@ public class SaveData
 {
     public List<ItemSaveEntry> Items = new List<ItemSaveEntry>();
     public List<ItemSaveEntry> Ingredients = new List<ItemSaveEntry>();
-    public List<BreadSaveEntry> Breads = new List<BreadSaveEntry>();
+    public List<DessertSaveEntry> Desserts = new List<DessertSaveEntry>();
     public List<PlacedFurnitureSaveEntry> PlacedFurniture = new List<PlacedFurnitureSaveEntry>();
     // 바닥타일은 가구 배치(PlacedFurniture)가 아니라 칸 단위로 저장한다(2026-11-01~). 그 전 세이브의 바닥 배치는 불러올 때 버린다.
     public List<FloorTileSaveEntry> FloorTiles = new List<FloorTileSaveEntry>();

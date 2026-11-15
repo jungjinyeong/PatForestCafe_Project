@@ -92,12 +92,12 @@ public partial class OvenModel
         return true;
     }
 
-    // 기본 재료 등급(BreadIngredient.Grade) 평균을 반올림한 완성 품질.
-    public static eBreadQuality CalcQuality(IEnumerable<int> baseIngredientTids)
+    // 기본 재료 등급(DessertIngredient.Grade) 평균을 반올림한 완성 품질.
+    public static eDessertQuality CalcQuality(IEnumerable<int> baseIngredientTids)
     {
-        var table = GameInstance.Table.GetTable<CTable.BreadIngredientRow>();
+        var table = GameInstance.Table.GetTable<CTable.DessertIngredientRow>();
         var grades = baseIngredientTids.Select(tid => table?.Get(tid)?.Grade ?? 1);
-        return BreadQuality.FromIngredientGrades(grades);
+        return DessertQuality.FromIngredientGrades(grades);
     }
 
     #endregion
@@ -134,7 +134,7 @@ public partial class OvenModel
         {
             if (!GameInstance.Model.Ingredient.HasEnough(pair.Key, pair.Value))
             {
-                shortageName = GameInstance.Table.Get<CTable.BreadIngredientRow>(pair.Key)?.Name ?? pair.Key.ToString();
+                shortageName = GameInstance.Table.Get<CTable.DessertIngredientRow>(pair.Key)?.Name ?? pair.Key.ToString();
                 return false;
             }
         }
@@ -177,7 +177,7 @@ public partial class OvenModel
             if (tray.State != eOvenTrayState.Baking || tray.BakeEndUnixSeconds > now)
                 continue;
 
-            GameInstance.Model.Bread.AddProduced(tray.RecipeTid, tray.Quality, tray.Quantity);
+            GameInstance.Model.Dessert.AddProduced(tray.RecipeTid, tray.Quality, tray.Quantity);
             mOnBakeCompleted.OnNext((tray.RecipeTid, tray.Quality, tray.Quantity));
 
             tray.Clear();

@@ -14,7 +14,7 @@ public enum eBusinessState
 public class BusinessStats
 {
     public int Gold;
-    public int BreadSold;
+    public int DessertSold;
     public int DrinkSold;
     public int Delivered;
     public int Visitors;
@@ -57,8 +57,8 @@ public partial class BusinessModel : IModelBase
     public IReadOnlyReactiveProperty<int> TodayGold => mTodayGold;
     private readonly ReactiveProperty<int> mTodayGold = new ReactiveProperty<int>(0);
 
-    public IReadOnlyReactiveProperty<int> TodayBreadSold => mTodayBreadSold;
-    private readonly ReactiveProperty<int> mTodayBreadSold = new ReactiveProperty<int>(0);
+    public IReadOnlyReactiveProperty<int> TodayDessertSold => mTodayDessertSold;
+    private readonly ReactiveProperty<int> mTodayDessertSold = new ReactiveProperty<int>(0);
 
     public IReadOnlyReactiveProperty<int> TodayDrinkSold => mTodayDrinkSold;
     private readonly ReactiveProperty<int> mTodayDrinkSold = new ReactiveProperty<int>(0);

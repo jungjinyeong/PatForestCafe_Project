@@ -49,12 +49,12 @@ public partial class NoticeModel
             .AddTo(mSourceDisposables);
 
         // 진열 수량이 있다가 0이 되면(마지막 빵이 팔리면) 재고 부족 알림.
-        foreach (var bread in model.Bread.GetAll())
+        foreach (var dessert in model.Dessert.GetAll())
         {
-            int tid = bread.TId;
-            bread.Count.Pairwise()
+            int tid = dessert.TId;
+            dessert.Count.Pairwise()
                 .Where(p => p.Previous > 0 && p.Current == 0)
-                .Subscribe(_ => Push(eNoticeType.BreadStock, $"빵 진열대 재고 부족 · {GetMenuName(tid)}"))
+                .Subscribe(_ => Push(eNoticeType.DessertStock, $"빵 진열대 재고 부족 · {GetMenuName(tid)}"))
                 .AddTo(mSourceDisposables);
         }
     }

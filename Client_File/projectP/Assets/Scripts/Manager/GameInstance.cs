@@ -36,6 +36,14 @@ public partial class GameInstance : MonoBehaviour
             }
         }
 
+        // 씬에 이미 있는 UIManager가 아직 Awake 전이면(Awake 순서 미보장) 지금 초기화한다 — 아래 SceneManager.Init이 UI를 연다.
+        if (UI == null)
+        {
+            var sceneUIManager = FindFirstObjectByType<UIManager>();
+            if (sceneUIManager != null)
+                sceneUIManager.EnsureInstance();
+        }
+
         mSoundMgr = this.GetOrAddComponent<SoundManager>();
         mSoundMgr.Init();
 

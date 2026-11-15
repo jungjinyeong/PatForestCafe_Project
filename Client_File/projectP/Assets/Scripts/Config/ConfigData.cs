@@ -3,11 +3,11 @@ using UnityEngine;
 
 public enum eConfigType
 {
-    BreadMaxCount,
+    DessertMaxCount,
     DefaultDrinkTid,
     MaxSpecialOrderNpc,
-    BreadUnavailablePauseMs,
-    DefaultBreadRecipeTid,  // 처음부터 발견된 빵 레시피(오븐 제작에서 바로 구울 수 있음)
+    DessertUnavailablePauseMs,
+    DefaultDessertRecipeTid,  // 처음부터 발견된 빵 레시피(오븐 제작에서 바로 구울 수 있음)
 }
 
 #if UNITY_EDITOR

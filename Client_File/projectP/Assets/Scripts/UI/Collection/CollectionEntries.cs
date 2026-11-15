@@ -25,10 +25,10 @@ public static class CollectionEntries
                 list.Add(new UIScrollCollectionData { Tid = row.Tid, IsDrink = true });
         }
 
-        var breadTable = GameInstance.Table.GetTable<CTable.BreadRow>();
-        if (breadTable != null)
+        var dessertTable = GameInstance.Table.GetTable<CTable.DessertRow>();
+        if (dessertTable != null)
         {
-            foreach (var row in breadTable.All.Values.OrderBy(r => r.Tid))
+            foreach (var row in dessertTable.All.Values.OrderBy(r => r.Tid))
                 list.Add(new UIScrollCollectionData { Tid = row.Tid, IsDrink = false });
         }
 

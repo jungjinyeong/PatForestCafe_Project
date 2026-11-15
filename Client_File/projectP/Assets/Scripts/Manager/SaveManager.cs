@@ -24,10 +24,10 @@ public class SaveManager : MonoBehaviour
     private int mPendingOfflineGold;
     private double mPendingOfflineSeconds;
 
-    // BreadModel 항목은 GameInstance.Init() 시점(Load 호출 시점)이 아니라
-    // GameModeLobby+FSM.InitBreadStands()에서 씬의 진열대가 Register()한 뒤에야 존재하므로,
-    // 로드 시점엔 바로 적용하지 못하고 캐싱해뒀다가 InitBreadStands() 이후 ApplyPendingBreadData()로 적용한다.
-    private List<BreadSaveEntry> mPendingBreadSaveEntries;
+    // DessertModel 항목은 GameInstance.Init() 시점(Load 호출 시점)이 아니라
+    // GameModeLobby+FSM.InitDessertStands()에서 씬의 진열대가 Register()한 뒤에야 존재하므로,
+    // 로드 시점엔 바로 적용하지 못하고 캐싱해뒀다가 InitDessertStands() 이후 ApplyPendingDessertData()로 적용한다.
+    private List<DessertSaveEntry> mPendingDessertSaveEntries;
 
     // false면 Save()가 아무것도 쓰지 않는다. 가구 테스트 씬(GameModeFurnitureTest)처럼 실제 세이브를 덮어쓰면 안 되는 곳에서 끈다.
     private bool mIsSaveEnabled = true;
@@ -39,13 +39,13 @@ public class SaveManager : MonoBehaviour
         StartAutoSave();
     }
 
-    // 세이브가 없거나(신규) 예전 세이브라도 기본 빵 레시피(ConfigData.DefaultBreadRecipeTid)는 항상 발견된 상태로 시작한다.
+    // 세이브가 없거나(신규) 예전 세이브라도 기본 빵 레시피(ConfigData.DefaultDessertRecipeTid)는 항상 발견된 상태로 시작한다.
     // RecipeBook.SetDiscovered()가 로드 시 목록을 통째로 덮어쓰므로 Load() 이후에 보장해야 한다.
     private void EnsureDefaultRecipes()
     {
-        int defaultBreadTid = GameInstance.Config != null ? GameInstance.Config.GetValue(eConfigType.DefaultBreadRecipeTid) : 0;
-        if (defaultBreadTid > 0)
-            GameInstance.Model.RecipeBook.Discover(defaultBreadTid);
+        int defaultDessertTid = GameInstance.Config != null ? GameInstance.Config.GetValue(eConfigType.DefaultDessertRecipeTid) : 0;
+        if (defaultDessertTid > 0)
+            GameInstance.Model.RecipeBook.Discover(defaultDessertTid);
     }
 
     public void StartAutoSave()
@@ -97,46 +97,46 @@ public class SaveManager : MonoBehaviour
         foreach (var ingredient in GameInstance.Model.Ingredient.GetAll())
             data.Ingredients.Add(new ItemSaveEntry { Tid = ingredient.Tid, Count = ingredient.Count.Value });
 
-        // 빵 세이브가 아직 적용 전(로비 FSM의 ApplyPendingBreadData() 이전)에 저장되면 — 자동 저장/OnApplicationPause —
-        // BreadModel엔 복원 전 값(0 또는 그 사이 오븐 완료분)만 있어 저장된 재고가 통째로 사라진다.
+        // 빵 세이브가 아직 적용 전(로비 FSM의 ApplyPendingDessertData() 이전)에 저장되면 — 자동 저장/OnApplicationPause —
+        // DessertModel엔 복원 전 값(0 또는 그 사이 오븐 완료분)만 있어 저장된 재고가 통째로 사라진다.
         // 복원은 "더하기"이므로 대기 중인 세이브 값을 현재 값에 더해 저장하면 적용 후 결과와 같다.
-        var pendingBreads = new Dictionary<int, BreadSaveEntry>();
-        if (mPendingBreadSaveEntries != null)
+        var pendingDesserts = new Dictionary<int, DessertSaveEntry>();
+        if (mPendingDessertSaveEntries != null)
         {
-            foreach (var pending in mPendingBreadSaveEntries)
-                pendingBreads[pending.Tid] = pending;
+            foreach (var pending in mPendingDessertSaveEntries)
+                pendingDesserts[pending.Tid] = pending;
         }
 
-        foreach (var bread in GameInstance.Model.Bread.GetAll())
+        foreach (var dessert in GameInstance.Model.Dessert.GetAll())
         {
             int[] pendingCounts = null, pendingProduced = null;
-            if (pendingBreads.TryGetValue(bread.TId, out var pendingEntry))
+            if (pendingDesserts.TryGetValue(dessert.TId, out var pendingEntry))
             {
                 GetQualityCounts(pendingEntry, out pendingCounts, out pendingProduced);
-                pendingBreads.Remove(bread.TId);
+                pendingDesserts.Remove(dessert.TId);
             }
 
-            var entry = new BreadSaveEntry();
-            entry.Tid = bread.TId;
-            for (int i = 0; i < BreadQuality.COUNT; i++)
+            var entry = new DessertSaveEntry();
+            entry.Tid = dessert.TId;
+            for (int i = 0; i < DessertQuality.COUNT; i++)
             {
-                var quality = (eBreadQuality)(i + 1);
-                entry.CountByQuality.Add(bread.GetCount(quality) + (pendingCounts?[i] ?? 0));
-                entry.ProducedByQuality.Add(bread.GetProduced(quality) + (pendingProduced?[i] ?? 0));
+                var quality = (eDessertQuality)(i + 1);
+                entry.CountByQuality.Add(dessert.GetCount(quality) + (pendingCounts?[i] ?? 0));
+                entry.ProducedByQuality.Add(dessert.GetProduced(quality) + (pendingProduced?[i] ?? 0));
             }
             entry.Count = entry.CountByQuality.Sum();
             entry.ProducedCount = entry.ProducedByQuality.Sum();
-            data.Breads.Add(entry);
+            data.Desserts.Add(entry);
         }
 
-        // BreadModel에 없는 Tid(테이블에서 빠진 빵 등)의 대기 세이브도 그대로 보존한다.
-        data.Breads.AddRange(pendingBreads.Values);
+        // DessertModel에 없는 Tid(테이블에서 빠진 빵 등)의 대기 세이브도 그대로 보존한다.
+        data.Desserts.AddRange(pendingDesserts.Values);
 
         foreach (var kvp in GameInstance.Model.Placement.GetAllOwned())
             data.OwnedFurniture.Add(new OwnedFurnitureSaveEntry { Tid = kvp.Key.tid, IsSub = kvp.Key.isSub, Count = kvp.Value });
 
         foreach (var kvp in GameInstance.Model.Placement.GetAllPlacements())
-            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, Floor = kvp.Value.Floor, Cell = kvp.Value.Cell, AssignedBreadTid = kvp.Value.AssignedBreadTid, IsSub = kvp.Value.IsSub, Direction = (int)kvp.Value.Direction, FlipX = kvp.Value.FlipX });
+            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, Floor = kvp.Value.Floor, Cell = kvp.Value.Cell, AssignedDessertTid = kvp.Value.AssignedDessertTid, IsSub = kvp.Value.IsSub, Direction = (int)kvp.Value.Direction, FlipX = kvp.Value.FlipX });
 
         foreach (var (floor, cell, tid) in GameInstance.Model.Placement.GetAllFloorTiles())
             data.FloorTiles.Add(new FloorTileSaveEntry { Floor = floor, Cell = cell, Tid = tid });
@@ -189,7 +189,7 @@ public class SaveManager : MonoBehaviour
         foreach (var entry in data.Ingredients)
             GameInstance.Model.Ingredient.SetByTid(entry.Tid, entry.Count);
 
-        mPendingBreadSaveEntries = data.Breads;
+        mPendingDessertSaveEntries = data.Desserts;
 
         MigrateFloorLayout(data);
 
@@ -204,7 +204,7 @@ public class SaveManager : MonoBehaviour
             }
 
             GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position, entry.Floor, entry.Cell,
-                (CTable.eFurnitureDirection)entry.Direction, entry.FlipX, entry.AssignedBreadTid, entry.IsSub);
+                (CTable.eFurnitureDirection)entry.Direction, entry.FlipX, entry.AssignedDessertTid, entry.IsSub);
         }
         if (droppedPlacements > 0)
             Logger.Log($"[SaveManager] 구 바닥타일/표에 없는 가구 배치 {droppedPlacements}건을 버렸습니다.");
@@ -285,29 +285,29 @@ public class SaveManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 로드해둔 빵 진열/생산 재고를 BreadModel에 적용한다.
-    /// BreadModel 항목은 씬의 Intaraction_BreadStand가 Register()해야 생기므로,
-    /// GameModeLobby+FSM.InitBreadStands()에서 모든 진열대를 등록한 직후 호출해야 한다.
+    /// 로드해둔 빵 진열/생산 재고를 DessertModel에 적용한다.
+    /// DessertModel 항목은 씬의 Intaraction_DessertStand가 Register()해야 생기므로,
+    /// GameModeLobby+FSM.InitDessertStands()에서 모든 진열대를 등록한 직후 호출해야 한다.
     /// </summary>
-    public void ApplyPendingBreadData()
+    public void ApplyPendingDessertData()
     {
-        if (mPendingBreadSaveEntries == null) return;
+        if (mPendingDessertSaveEntries == null) return;
 
-        foreach (var entry in mPendingBreadSaveEntries)
+        foreach (var entry in mPendingDessertSaveEntries)
         {
             GetQualityCounts(entry, out var counts, out var produced);
-            GameInstance.Model.Bread.RestoreFromSave(entry.Tid, counts, produced);
+            GameInstance.Model.Dessert.RestoreFromSave(entry.Tid, counts, produced);
         }
 
-        mPendingBreadSaveEntries = null;
+        mPendingDessertSaveEntries = null;
     }
 
     // 품질 도입 전 세이브는 품질별 배열이 비어 있다 — 합계를 전부 하급으로 이관한다.
-    private static void GetQualityCounts(BreadSaveEntry entry, out int[] counts, out int[] produced)
+    private static void GetQualityCounts(DessertSaveEntry entry, out int[] counts, out int[] produced)
     {
-        bool hasQuality = entry.CountByQuality != null && entry.CountByQuality.Count == BreadQuality.COUNT;
+        bool hasQuality = entry.CountByQuality != null && entry.CountByQuality.Count == DessertQuality.COUNT;
         counts = hasQuality ? entry.CountByQuality.ToArray() : new[] { entry.Count, 0, 0 };
-        produced = hasQuality && entry.ProducedByQuality != null && entry.ProducedByQuality.Count == BreadQuality.COUNT
+        produced = hasQuality && entry.ProducedByQuality != null && entry.ProducedByQuality.Count == DessertQuality.COUNT
             ? entry.ProducedByQuality.ToArray()
             : new[] { entry.ProducedCount, 0, 0 };
     }
@@ -441,7 +441,7 @@ public class SaveManager : MonoBehaviour
                     Quantity = entry.Quantity,
                     BaseIngredientTids = entry.BaseIngredientTids ?? new List<int>(),
                     ExtraIngredientTids = entry.ExtraIngredientTids ?? new List<int>(),
-                    Quality = entry.Quality == 0 ? eBreadQuality.Low : entry.Quality,
+                    Quality = entry.Quality == 0 ? eDessertQuality.Low : entry.Quality,
                     BakeEndUnixSeconds = entry.BakeEndUnixSeconds,
                     BakeDurationSeconds = entry.BakeDurationSeconds,
                 });

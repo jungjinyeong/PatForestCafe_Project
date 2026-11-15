@@ -8,7 +8,7 @@ using Extension;
 // 창고(프리팹 UI_Popup_Warehouse, 로비 하단 [창고]). ForestCafe UI Lab 창고 시안 기준.
 // 왼쪽: 분류 탭(가공섬 재료 / 디저트) + 보관 품목 그리드. 오른쪽: 선택한 품목 상세.
 // - 가공섬 재료 = IngredientModel(음료 재료 + 빵 재료) 중 보유 수량이 있는 것.
-// - 디저트 = 오븐에서 구워 창고에 보관 중인(진열 전) 빵 재고(BreadData.ProducedCount).
+// - 디저트 = 오븐에서 구워 창고에 보관 중인(진열 전) 빵 재고(DessertData.ProducedCount).
 // 보관 용량/확장은 기획 미정이라 아직 없다(총 보관 수량만 표시).
 public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
 {
@@ -186,33 +186,33 @@ public class UIPopupWarehouse : UIWndBase, IUIParam<UIPopupWarehouse.Param>
 
         if (entry.IsDessert)
         {
-            var bread = GameInstance.Model.Bread.Get(entry.Tid);
-            var row = GameInstance.Table.Get<CTable.BreadRow>(entry.Tid);
+            var dessert = GameInstance.Model.Dessert.Get(entry.Tid);
+            var row = GameInstance.Table.Get<CTable.DessertRow>(entry.Tid);
             category = "디저트";
             desc = row?.Desc ?? string.Empty;
             tags = row.GetTags();
             infos.Add(("분류", "오븐 완성 디저트"));
             infos.Add(("보관 수량", $"{entry.Count}개"));
-            if (bread != null)
+            if (dessert != null)
             {
-                var qualities = BreadQuality.HIGH_TO_LOW
-                    .Where(q => bread.GetProduced(q) > 0)
-                    .Select(q => $"<color={BreadQuality.GetColorHex(q)}>{BreadQuality.GetName(q)}</color> {bread.GetProduced(q)}");
+                var qualities = DessertQuality.HIGH_TO_LOW
+                    .Where(q => dessert.GetProduced(q) > 0)
+                    .Select(q => $"<color={DessertQuality.GetColorHex(q)}>{DessertQuality.GetName(q)}</color> {dessert.GetProduced(q)}");
                 infos.Add(("품질", string.Join(" · ", qualities)));
             }
         }
         else
         {
-            var breadIngredient = GameInstance.Table.GetTable<CTable.BreadIngredientRow>()?.Get(entry.Tid);
-            if (breadIngredient != null)
+            var dessertIngredient = GameInstance.Table.GetTable<CTable.DessertIngredientRow>()?.Get(entry.Tid);
+            if (dessertIngredient != null)
             {
-                var quality = BreadQuality.FromGrade(breadIngredient.Grade);
+                var quality = DessertQuality.FromGrade(dessertIngredient.Grade);
                 category = "빵 재료";
-                desc = breadIngredient.Desc;
-                tags = breadIngredient.GetTags();
-                infos.Add(("분류", $"빵 재료 · {breadIngredient.Category}"));
+                desc = dessertIngredient.Desc;
+                tags = dessertIngredient.GetTags();
+                infos.Add(("분류", $"빵 재료 · {dessertIngredient.Category}"));
                 infos.Add(("보관 수량", $"{entry.Count}개"));
-                infos.Add(("등급", $"<color={BreadQuality.GetColorHex(quality)}>{BreadQuality.GetName(quality)}</color>"));
+                infos.Add(("등급", $"<color={DessertQuality.GetColorHex(quality)}>{DessertQuality.GetName(quality)}</color>"));
             }
             else
             {

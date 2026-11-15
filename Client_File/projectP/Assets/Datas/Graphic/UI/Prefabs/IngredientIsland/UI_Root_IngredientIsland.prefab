@@ -265,8 +265,8 @@ MonoBehaviour:
   mBtnBgClose: {fileID: 0}
   mScrollEx: {fileID: 6244356091996940592}
   mIngredientGatherRowPrefab: {fileID: 6651064892677976993}
-  mBtnOpenBreadMinigame: {fileID: 8882857400067665024}
-  mBtnOpenBreadProduction: {fileID: 4958216367544919831}
+  mBtnOpenDessertMinigame: {fileID: 8882857400067665024}
+  mBtnOpenDessertProduction: {fileID: 4958216367544919831}
   mBtnOpenWorkshop: {fileID: 8225324767601666858}
   mBtnOpenRecipeLab: {fileID: 3206593491095276628}
   mBtnOpenShop: {fileID: 1625791569517805771}

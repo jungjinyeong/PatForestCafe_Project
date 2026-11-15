@@ -11,8 +11,8 @@ public class PlacedFurnitureRecord
     public int Floor;
     public Vector2Int Cell;
 
-    // Intaraction_BreadStand처럼 배치 후 첫 사용 시점에 종류가 정해지는 가구 전용 필드. 0이면 미지정.
-    public int AssignedBreadTid;
+    // Intaraction_DessertStand처럼 배치 후 첫 사용 시점에 종류가 정해지는 가구 전용 필드. 0이면 미지정.
+    public int AssignedDessertTid;
 
     // true면 Tid가 CTable.SubFurnitureRow, false면 CTable.FurnitureRow를 가리킨다.
     public bool IsSub;

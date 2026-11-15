@@ -732,7 +732,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 9001, guid: 3f1568d978f149e4991ef70a49cf1182, type: 3}
       propertyPath: m_Name
-      value: UI_Popup_BreadProduction
+      value: UI_Popup_DessertProduction
       objectReference: {fileID: 0}
     - target: {fileID: 9001, guid: 3f1568d978f149e4991ef70a49cf1182, type: 3}
       propertyPath: m_IsActive
@@ -838,7 +838,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: af895acc52184030a2ed92816b3813c2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIPopupBreadProduction
+  m_EditorClassIdentifier: Assembly-CSharp::UIPopupDessertProduction
 --- !u!1001 &701255449924495400
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2309,7 +2309,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3645635071310063255, guid: 011cb714fb2317e458c32557a8fdc697, type: 3}
       propertyPath: m_Name
-      value: UI_Popup_BreadSelect
+      value: UI_Popup_DessertSelect
       objectReference: {fileID: 0}
     - target: {fileID: 3645635071310063255, guid: 011cb714fb2317e458c32557a8fdc697, type: 3}
       propertyPath: m_IsActive
@@ -2415,7 +2415,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2012106e01f1e1c4e85b6e0f097127ad, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIPopupBreadSelect
+  m_EditorClassIdentifier: Assembly-CSharp::UIPopupDessertSelect
 --- !u!1001 &5660431388935628916
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2853,7 +2853,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8374417769125506556, guid: 1b9c2b137dc6e054f92d0b2867bf9c58, type: 3}
       propertyPath: m_Name
-      value: UI_Popup_BreadRecipeShop
+      value: UI_Popup_DessertRecipeShop
       objectReference: {fileID: 0}
     - target: {fileID: 8374417769125506556, guid: 1b9c2b137dc6e054f92d0b2867bf9c58, type: 3}
       propertyPath: m_IsActive
@@ -2874,7 +2874,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be8bf952f75ade94aaf089f2876ff85b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIPopupBreadRecipeShop
+  m_EditorClassIdentifier: Assembly-CSharp::UIPopupDessertRecipeShop
 --- !u!224 &6463182237433243755 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4181212761609611646, guid: 1b9c2b137dc6e054f92d0b2867bf9c58, type: 3}
@@ -3233,7 +3233,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5001, guid: ca2bc2e745f04fb58df22bfae32f4600, type: 3}
       propertyPath: m_Name
-      value: UI_Popup_BreadMinigame
+      value: UI_Popup_DessertMinigame
       objectReference: {fileID: 0}
     - target: {fileID: 5001, guid: ca2bc2e745f04fb58df22bfae32f4600, type: 3}
       propertyPath: m_IsActive
@@ -3339,7 +3339,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0262e551a8874b698b8eefc43d94c3cc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIPopupBreadMinigame
+  m_EditorClassIdentifier: Assembly-CSharp::UIPopupDessertMinigame
 --- !u!1001 &7851768597364866765
 PrefabInstance:
   m_ObjectHideFlags: 0

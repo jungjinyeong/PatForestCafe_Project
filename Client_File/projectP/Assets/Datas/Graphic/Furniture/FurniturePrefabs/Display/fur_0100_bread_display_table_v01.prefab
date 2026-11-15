@@ -251,10 +251,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec6c4ea78a0a87b46a0ccef94246c067, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Intaraction_BreadStand
+  m_EditorClassIdentifier: Assembly-CSharp::Intaraction_DessertStand
   mTableId: 0
   mRootTransform: {fileID: 1153206752613548648}
-  mBreadPrefab: {fileID: 3164068087852033290, guid: 20c412f2edafebc48ab7d402ddf95141, type: 3}
+  mDessertPrefab: {fileID: 3164068087852033290, guid: 20c412f2edafebc48ab7d402ddf95141, type: 3}
 --- !u!1 &5794123233258286175
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,7 +266,7 @@ GameObject:
   - component: {fileID: 1153206752613548648}
   - component: {fileID: 7782662841429625621}
   m_Layer: 7
-  m_Name: BreadArea
+  m_Name: DessertArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -33,20 +33,20 @@ public partial class PlacementModel
 
     // 세이브 로드 복원 전용 — 저장된 id를 그대로 재사용해야 이후 이동 시 같은 레코드를 갱신한다.
     public void RestorePlacement(int placementId, int tid, Vector3 position, int floor, Vector2Int cell, CTable.eFurnitureDirection direction, bool flipX,
-        int assignedBreadTid = 0, bool isSub = false)
+        int assignedDessertTid = 0, bool isSub = false)
     {
-        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, AssignedBreadTid = assignedBreadTid, IsSub = isSub,
+        mDicPlacedFurniture[placementId] = new PlacedFurnitureRecord { Tid = tid, Position = position, Floor = floor, Cell = cell, AssignedDessertTid = assignedDessertTid, IsSub = isSub,
             Direction = direction, FlipX = flipX };
 
         if (placementId >= mNextPlacementId)
             mNextPlacementId = placementId + 1;
     }
 
-    // Intaraction_BreadStand.TryAssignBreadType()이 최초 배정 시 호출 — 다음 세이브에 그대로 실린다.
-    public void SetAssignedBreadTid(int placementId, int breadTid)
+    // Intaraction_DessertStand.TryAssignDessertType()이 최초 배정 시 호출 — 다음 세이브에 그대로 실린다.
+    public void SetAssignedDessertTid(int placementId, int dessertTid)
     {
         if (mDicPlacedFurniture.TryGetValue(placementId, out var record))
-            record.AssignedBreadTid = breadTid;
+            record.AssignedDessertTid = dessertTid;
     }
 
     // 가구배치 리셋 전용 — 배치 기록을 전부 비우고 placementId 발급 카운터도 처음부터 다시 시작한다.
@@ -205,8 +205,8 @@ public partial class PlacementModel
     // Destroy는 프레임 끝에 일어나므로 먼저 비활성화해 같은 프레임의 클릭 판정(FindTopmostAt)에 다시 걸리지 않게 한다.
     private static void ReleasePlacedObject(PlaceableObject placeable)
     {
-        if (placeable.BreadStand != null)
-            placeable.BreadStand.ReturnDisplayedBreadToStorage();
+        if (placeable.DessertStand != null)
+            placeable.DessertStand.ReturnDisplayedDessertToStorage();
         if (placeable.Area != null)
             placeable.Area.ReleaseByPlacementId(placeable.PlacementId);
         placeable.gameObject.SetActive(false);
@@ -757,9 +757,9 @@ public partial class PlacementModel
 
         placeable.BeginPlacementFromSpawn(area);
 
-        // Table.prefab처럼 가구에 Intaraction_BreadStand가 같이 붙어 있으면(다른 가구는 없음) 여기서 Init() —
-        // 새로 놓는 가구는 mTableId==0(미지정)으로 시작해, 이후 UIPopupBreadSelect에서 처음 넣는 빵으로 종류가 정해진다.
-        instance.GetComponent<Intaraction_BreadStand>()?.Init();
+        // Table.prefab처럼 가구에 Intaraction_DessertStand가 같이 붙어 있으면(다른 가구는 없음) 여기서 Init() —
+        // 새로 놓는 가구는 mTableId==0(미지정)으로 시작해, 이후 UIPopupDessertSelect에서 처음 넣는 빵으로 종류가 정해진다.
+        instance.GetComponent<Intaraction_DessertStand>()?.Init();
         return true;
     }
 
@@ -852,14 +852,14 @@ public partial class PlacementModel
                         placeable.AccessOffsets, placeable.ClearanceOffsets);
             }
 
-            // GameModeLobby+FSM.InitBreadStands()는 이 시점보다 먼저 끝나 있어 BreadModel 재고 복원(ApplyPendingBreadData)이
+            // GameModeLobby+FSM.InitDessertStands()는 이 시점보다 먼저 끝나 있어 DessertModel 재고 복원(ApplyPendingDessertData)이
             // 이미 끝난 뒤다 — 종류 재지정만 반영하고, 진열 수량(SyncDisplayToSavedCount)도 여기서 직접 채워준다.
-            var breadStand = instance.GetComponent<Intaraction_BreadStand>();
-            if (breadStand != null)
+            var dessertStand = instance.GetComponent<Intaraction_DessertStand>();
+            if (dessertStand != null)
             {
-                breadStand.Init();
-                breadStand.RestoreAssignedBreadType(record.AssignedBreadTid);
-                breadStand.SyncDisplayToSavedCount();
+                dessertStand.Init();
+                dessertStand.RestoreAssignedDessertType(record.AssignedDessertTid);
+                dessertStand.SyncDisplayToSavedCount();
             }
         }
 

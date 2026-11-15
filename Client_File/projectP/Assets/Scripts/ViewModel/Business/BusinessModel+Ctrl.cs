@@ -7,11 +7,11 @@ public partial class BusinessModel
     // 영업 중·마감 중(남은 손님 결제 포함)은 오늘 통계에, 영업 종료 중(이미 정산됨)은 다음 날 통계에 쌓는다.
     private bool IsSettled => mState.Value == eBusinessState.Closed;
 
-    public void RecordBreadSale(int gold)
+    public void RecordDessertSale(int gold)
     {
         gold = Mathf.Max(0, gold);
-        if (IsSettled) { mNextDayStats.BreadSold++; mNextDayStats.Gold += gold; return; }
-        mTodayBreadSold.Value++;
+        if (IsSettled) { mNextDayStats.DessertSold++; mNextDayStats.Gold += gold; return; }
+        mTodayDessertSold.Value++;
         mTodayGold.Value += gold;
     }
 
@@ -100,7 +100,7 @@ public partial class BusinessModel
         return new BusinessStats
         {
             Gold = mTodayGold.Value,
-            BreadSold = mTodayBreadSold.Value,
+            DessertSold = mTodayDessertSold.Value,
             DrinkSold = mTodayDrinkSold.Value,
             Delivered = mTodayDelivered.Value,
             Visitors = mTodayVisitors.Value,
@@ -112,7 +112,7 @@ public partial class BusinessModel
     {
         stats = stats ?? new BusinessStats();
         mTodayGold.Value = Mathf.Max(0, stats.Gold);
-        mTodayBreadSold.Value = Mathf.Max(0, stats.BreadSold);
+        mTodayDessertSold.Value = Mathf.Max(0, stats.DessertSold);
         mTodayDrinkSold.Value = Mathf.Max(0, stats.DrinkSold);
         mTodayDelivered.Value = Mathf.Max(0, stats.Delivered);
         mTodayVisitors.Value = Mathf.Max(0, stats.Visitors);

@@ -13,8 +13,8 @@ public class UIRootIngredientIsland : UIWndBase
     [SerializeField, FormerlySerializedAs("mMaterialGatherRowPrefab")] private GameObject mIngredientGatherRowPrefab;
 
     [Header("Buttons")]
-    [SerializeField] private UIButtonEx mBtnOpenBreadMinigame;
-    [SerializeField] private UIButtonEx mBtnOpenBreadProduction;
+    [SerializeField, FormerlySerializedAs("mBtnOpenBreadMinigame")] private UIButtonEx mBtnOpenDessertMinigame;
+    [SerializeField, FormerlySerializedAs("mBtnOpenBreadProduction")] private UIButtonEx mBtnOpenDessertProduction;
     [SerializeField] private UIButtonEx mBtnOpenWorkshop;
     [SerializeField] private UIButtonEx mBtnOpenRecipeLab;
     [SerializeField] private UIButtonEx mBtnOpenShop;
@@ -28,8 +28,8 @@ public class UIRootIngredientIsland : UIWndBase
         mScrollEx.Init(mIngredientGatherRowPrefab);
         mScrollEx.SetOnSelect(OnSelectIngredient);
 
-        mBtnOpenBreadMinigame.OnSubscribeOnClick(OnClickOpenBreadMinigame).AddTo(this);
-        mBtnOpenBreadProduction.OnSubscribeOnClick(OnClickOpenBreadProduction).AddTo(this);
+        mBtnOpenDessertMinigame.OnSubscribeOnClick(OnClickOpenDessertMinigame).AddTo(this);
+        mBtnOpenDessertProduction.OnSubscribeOnClick(OnClickOpenDessertProduction).AddTo(this);
         mBtnOpenWorkshop.OnSubscribeOnClick(OnClickOpenWorkshop).AddTo(this);
         mBtnOpenRecipeLab.OnSubscribeOnClick(OnClickOpenRecipeLab).AddTo(this);
         if (mBtnOpenShop != null) mBtnOpenShop.OnSubscribeOnClick(OnClickOpenShop).AddTo(this);
@@ -56,14 +56,14 @@ public class UIRootIngredientIsland : UIWndBase
         RefreshIngredientList();
     }
 
-    private void OnClickOpenBreadMinigame()
+    private void OnClickOpenDessertMinigame()
     {
-        GameInstance.UI.Open<UIPopupBreadMinigame, UIPopupBreadMinigame.Param>(eUIType.PopupBreadMinigame, new UIPopupBreadMinigame.Param());
+        GameInstance.UI.Open<UIPopupDessertMinigame, UIPopupDessertMinigame.Param>(eUIType.PopupDessertMinigame, new UIPopupDessertMinigame.Param());
     }
 
-    private void OnClickOpenBreadProduction()
+    private void OnClickOpenDessertProduction()
     {
-        GameInstance.UI.Open<UIPopupBreadProduction, UIPopupBreadProduction.Param>(eUIType.PopupBreadProduction, new UIPopupBreadProduction.Param());
+        GameInstance.UI.Open<UIPopupDessertProduction, UIPopupDessertProduction.Param>(eUIType.PopupDessertProduction, new UIPopupDessertProduction.Param());
     }
 
     private void OnClickOpenWorkshop()
@@ -82,7 +82,7 @@ public class UIRootIngredientIsland : UIWndBase
         GameInstance.UI.Open<UIPopupShopStreet, UIPopupShopStreet.Param>(eUIType.PopupShopStreet, new UIPopupShopStreet.Param());
     }
 
-    // 클릭 채집 목록은 음료 재료 전용이다. 빵 재료는 UIPopupBreadMinigame으로만 획득한다.
+    // 클릭 채집 목록은 음료 재료 전용이다. 빵 재료는 UIPopupDessertMinigame으로만 획득한다.
     private void RefreshIngredientList()
     {
         var group = GameInstance.Table.GetTable<CTable.DrinkIngredientRow>();

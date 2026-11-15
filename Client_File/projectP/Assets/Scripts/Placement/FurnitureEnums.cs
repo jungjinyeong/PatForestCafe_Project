@@ -17,7 +17,7 @@ namespace CTable
     // Assets/CTable 밖에 손으로 관리한다.
     public enum eFurnitureType
     {
-        BreadTable, // 빵테이블
+        DessertTable, // 빵테이블
         Counter,    // 계산대
         Door,       // 문
         Stairwell,  // 통합 계단실

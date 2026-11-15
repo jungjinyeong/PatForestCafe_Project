@@ -2,7 +2,7 @@ using System;
 using UniRx;
 
 // 오븐 제작 상태: 오븐 레벨 + 트레이(최대 MAX_TRAY_COUNT칸) 반죽 설정/굽기 진행.
-// 굽기가 끝난 트레이는 1초 틱에서 빵 재고(BreadModel 생산 재고, 품질별)로 자동 보관된다(오프라인 경과 포함).
+// 굽기가 끝난 트레이는 1초 틱에서 빵 재고(DessertModel 생산 재고, 품질별)로 자동 보관된다(오프라인 경과 포함).
 public partial class OvenModel : IModelBase
 {
     public const int MAX_TRAY_COUNT = 3;
@@ -17,8 +17,8 @@ public partial class OvenModel : IModelBase
     private readonly Subject<Unit> mOnTraysChanged = new Subject<Unit>();
 
     // 굽기 완료 → 창고 자동 보관 알림(레시피 Tid, 품질, 수량).
-    public IObservable<(int recipeTid, eBreadQuality quality, int quantity)> OnBakeCompleted => mOnBakeCompleted;
-    private readonly Subject<(int, eBreadQuality, int)> mOnBakeCompleted = new Subject<(int, eBreadQuality, int)>();
+    public IObservable<(int recipeTid, eDessertQuality quality, int quantity)> OnBakeCompleted => mOnBakeCompleted;
+    private readonly Subject<(int, eDessertQuality, int)> mOnBakeCompleted = new Subject<(int, eDessertQuality, int)>();
 
     private IDisposable mTickDisposable;
 

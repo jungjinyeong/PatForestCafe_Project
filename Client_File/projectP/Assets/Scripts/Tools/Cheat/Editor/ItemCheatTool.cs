@@ -15,7 +15,7 @@ public class ItemCheatTool : EditorWindow
         Wealth,
         Item,
         DrinkIngredient,
-        BreadIngredient,
+        DessertIngredient,
     }
 
     private static readonly string[] TAB_NAMES = { "재화", "아이템", "음료 재료", "빵 재료" };
@@ -211,8 +211,8 @@ public class ItemCheatTool : EditorWindow
                 AddIngredientEntries(entries, GameInstance.Table.GetTable<CTable.DrinkIngredientRow>()?.All.Keys);
                 break;
 
-            case eTab.BreadIngredient:
-                AddIngredientEntries(entries, GameInstance.Table.GetTable<CTable.BreadIngredientRow>()?.All.Keys);
+            case eTab.DessertIngredient:
+                AddIngredientEntries(entries, GameInstance.Table.GetTable<CTable.DessertIngredientRow>()?.All.Keys);
                 break;
         }
 

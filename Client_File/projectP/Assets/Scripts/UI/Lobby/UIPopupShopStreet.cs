@@ -29,7 +29,7 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
     [SerializeField] private UIButtonEx mBtnWorkshopDeal;
     [SerializeField] private UIButtonEx mBtnIslandUpgrade;
     [SerializeField] private UIButtonEx mBtnResearchTicket;
-    [SerializeField] private UIButtonEx mBtnBreadRecipe;
+    [SerializeField, FormerlySerializedAs("mBtnBreadRecipe")] private UIButtonEx mBtnDessertRecipe;
     [SerializeField, FormerlySerializedAs("mBtnMaterialShop")] private UIButtonEx mBtnIngredientShop;
 
     [Header("똘이 (기존 기능 연결)")]
@@ -59,7 +59,7 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
         if (mBtnWorkshopDeal != null) mBtnWorkshopDeal.OnSubscribeOnClick(OpenMousePlaceholder).AddTo(this);
         if (mBtnIslandUpgrade != null) mBtnIslandUpgrade.OnSubscribeOnClick(OpenMousePlaceholder).AddTo(this);
         if (mBtnResearchTicket != null) mBtnResearchTicket.OnSubscribeOnClick(OpenMousePlaceholder).AddTo(this);
-        if (mBtnBreadRecipe != null) mBtnBreadRecipe.OnSubscribeOnClick(OnClickBreadRecipe).AddTo(this);
+        if (mBtnDessertRecipe != null) mBtnDessertRecipe.OnSubscribeOnClick(OnClickDessertRecipe).AddTo(this);
         if (mBtnIngredientShop != null) mBtnIngredientShop.OnSubscribeOnClick(OnClickIngredientShop).AddTo(this);
 
         if (mBtnBuyFurniture != null) mBtnBuyFurniture.OnSubscribeOnClick(OnClickBuyFurniture).AddTo(this);
@@ -86,9 +86,9 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
         GameInstance.UI.Open<UIPopupComingSoon, UIPopupComingSoon.Param>(eUIType.PopupComingSoon, new UIPopupComingSoon.Param());
     }
 
-    private void OnClickBreadRecipe()
+    private void OnClickDessertRecipe()
     {
-        GameInstance.UI.Open<UIPopupBreadRecipeShop, UIPopupBreadRecipeShop.Param>(eUIType.PopupBreadRecipeShop, new UIPopupBreadRecipeShop.Param());
+        GameInstance.UI.Open<UIPopupDessertRecipeShop, UIPopupDessertRecipeShop.Param>(eUIType.PopupDessertRecipeShop, new UIPopupDessertRecipeShop.Param());
     }
 
     // 찍찍이 패널 대신 재료 구입 패널을 보여준다. 찍찍이 버튼을 다시 누르면 찍찍이 패널로 돌아간다.

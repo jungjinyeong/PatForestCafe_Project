@@ -120,7 +120,10 @@ MonoBehaviour:
   mSatisfactionIconObj: {fileID: 0}
   mCoinIconDuration: 0.6
   mSatisfactionIconDuration: 0.6
-  mRootBreadTr: {fileID: 141063552543115240}
+  mSweatIconObj: {fileID: 0}
+  mRootDessertTr: {fileID: 141063552543115240}
+  mDrinkOffset: {x: 0.25, y: -0.1, z: 0}
+  mDrinkSize: {x: 0.25, y: 0.25}
 --- !u!1 &3540246200523403470
 GameObject:
   m_ObjectHideFlags: 0
@@ -178,7 +181,7 @@ GameObject:
   - component: {fileID: 141063552543115240}
   - component: {fileID: 6288473690152722135}
   m_Layer: 5
-  m_Name: RootBread
+  m_Name: RootDessert
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

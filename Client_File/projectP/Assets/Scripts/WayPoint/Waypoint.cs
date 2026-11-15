@@ -21,7 +21,7 @@ public class Waypoint : MonoBehaviour
         Exit_Min = eWaypointCategoryType.Exit << 16,
 
         Trigger_Order = eWaypointCategoryType.Trigger << 16,
-        Trigger_Bread,
+        Trigger_Dessert,
 
         Max = eWaypointCategoryType.Max << 16,
     }
@@ -46,7 +46,7 @@ public class Waypoint : MonoBehaviour
         return (eWaypointCategoryType)((int)mWaypointType >> 16);
     }
 
-    // Intaraction_BreadStand가 배치 후 빵 종류를 배정/복원할 때 자기 트리거 웨이포인트에 동기화하기 위해 쓴다.
+    // Intaraction_DessertStand가 배치 후 빵 종류를 배정/복원할 때 자기 트리거 웨이포인트에 동기화하기 위해 쓴다.
     public void SetTableId(int tableId)
     {
         mTableId = tableId;

@@ -26,7 +26,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3f1568d978f149e4991ef70a49cf1182
-    m_Address: UIPrefabs/UI_Popup_BreadProduction
+    m_Address: UIPrefabs/UI_Popup_DessertProduction
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -56,7 +56,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ca2bc2e745f04fb58df22bfae32f4600
-    m_Address: UIPrefabs/UI_Popup_BreadMinigame
+    m_Address: UIPrefabs/UI_Popup_DessertMinigame
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

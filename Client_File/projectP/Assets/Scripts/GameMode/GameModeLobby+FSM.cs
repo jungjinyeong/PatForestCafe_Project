@@ -24,26 +24,26 @@ public partial class GameModeLobby
             .Subscribe(OnWaypointGroupRegist)
             .AddTo(this);
 
-        InitBreadStands();
+        InitDessertStands();
         InitCharStaffs();
 
         mStateMachine.ChangeState(eGameModeLobbyState.OpenLobbyUI);
     }
 
-    private void InitBreadStands()
+    private void InitDessertStands()
     {
-        var breadStands = FindObjectsByType<Intaraction_BreadStand>(FindObjectsSortMode.None);
+        var dessertStands = FindObjectsByType<Intaraction_DessertStand>(FindObjectsSortMode.None);
 
-        foreach (var breadStand in breadStands)
-            breadStand.Init();
+        foreach (var dessertStand in dessertStands)
+            dessertStand.Init();
 
-        // BreadModel.Init()이 모든 BreadRow를 이미 등록해두므로(가구로 아직 스폰되지 않은 진열대의 빵 종류 포함),
+        // DessertModel.Init()이 모든 DessertRow를 이미 등록해두므로(가구로 아직 스폰되지 않은 진열대의 빵 종류 포함),
         // 여기서 별도로 미리 등록해줄 필요가 없다.
-        GameInstance.Save.ApplyPendingBreadData();
+        GameInstance.Save.ApplyPendingDessertData();
 
         // Count(진열 수량)를 세이브 값으로 되돌린 뒤에야 실제 빵 오브젝트 개수를 맞출 수 있으므로 순서 중요.
-        foreach (var breadStand in breadStands)
-            breadStand.SyncDisplayToSavedCount();
+        foreach (var dessertStand in dessertStands)
+            dessertStand.SyncDisplayToSavedCount();
     }
 
     private void InitCharStaffs()

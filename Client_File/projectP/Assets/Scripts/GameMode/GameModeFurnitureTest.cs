@@ -112,7 +112,7 @@ public class GameModeFurnitureTest : GameModeBase
         placeable.BeginPlacementFromSpawn(mArea);
 
         // PlacementModel.TryBeginPlacement와 같이 빵 진열대(Table.prefab)는 여기서 Init한다.
-        instance.GetComponent<Intaraction_BreadStand>()?.Init();
+        instance.GetComponent<Intaraction_DessertStand>()?.Init();
     }
 
     // 회전 방식에서 나올 수 있는 모든 방향(바닥타일 + 좌우반전 포함이면 반전까지)을 진열 줄에 나란히 띄운다. 배치 등록은 하지 않는다.

@@ -1,3 +1,4 @@
+using UnityEngine.Serialization;
 using System;
 using System.Collections.Generic;
 using UniRx;
@@ -13,20 +14,20 @@ public class LobbyCharUI : MonoBehaviour
     [SerializeField] private float mCoinIconDuration = 0.6f;
     [SerializeField] private float mSatisfactionIconDuration = 0.6f;
 
-    [Header("Bread Unavailable")]
+    [Header("Dessert Unavailable")]
     [SerializeField] private GameObject mSweatIconObj;
 
-    [Header("Bread")]
-    [SerializeField] private Transform mRootBreadTr;
-    public Transform RootBreadTr => mRootBreadTr;
+    [Header("Dessert")]
+    [SerializeField, FormerlySerializedAs("mRootBreadTr")] private Transform mRootDessertTr;
+    public Transform RootDessertTr => mRootDessertTr;
 
     [Header("Drink")]
     [SerializeField] private Vector3 mDrinkOffset = new Vector3(0.25f, -0.1f, 0f);
     [SerializeField] private Vector2 mDrinkSize = new Vector2(0.25f, 0.25f);
 
-    private readonly List<Intaraction_Bread> mBreads = new List<Intaraction_Bread>();
-    public IReadOnlyList<Intaraction_Bread> Breads => mBreads;
-    public bool HasBread => mBreads.Count > 0;
+    private readonly List<Intaraction_Dessert> mDesserts = new List<Intaraction_Dessert>();
+    public IReadOnlyList<Intaraction_Dessert> Desserts => mDesserts;
+    public bool HasDessert => mDesserts.Count > 0;
 
     private GameObject mDrinkIconObj;
     private SpriteRenderer mDrinkSpriteRenderer;
@@ -70,34 +71,34 @@ public class LobbyCharUI : MonoBehaviour
             mSweatIconObj.SetActive(isActive);
     }
 
-    public bool CanAttachBread()
+    public bool CanAttachDessert()
     {
-        return mBreads.Count < GameInstance.Config.GetValue(eConfigType.BreadMaxCount);
+        return mDesserts.Count < GameInstance.Config.GetValue(eConfigType.DessertMaxCount);
     }
 
-    public void AttachBread(Intaraction_Bread bread)
+    public void AttachDessert(Intaraction_Dessert dessert)
     {
-        if (mRootBreadTr == null || bread == null || !CanAttachBread()) return;
+        if (mRootDessertTr == null || dessert == null || !CanAttachDessert()) return;
 
-        bread.transform.SetParent(mRootBreadTr);
-        bread.transform.localPosition = Vector3.zero;
-        bread.transform.localScale = Vector3.one;
+        dessert.transform.SetParent(mRootDessertTr);
+        dessert.transform.localPosition = Vector3.zero;
+        dessert.transform.localScale = Vector3.one;
 
-        var breadRt = bread.GetComponent<RectTransform>();
-        if (breadRt != null)
+        var dessertRt = dessert.GetComponent<RectTransform>();
+        if (dessertRt != null)
         {
-            breadRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 0.3f);
-            breadRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0.2f);
+            dessertRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 0.3f);
+            dessertRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0.2f);
         }
 
-        mBreads.Add(bread);
+        mDesserts.Add(dessert);
     }
 
-    public List<Intaraction_Bread> DetachAllBreads()
+    public List<Intaraction_Dessert> DetachAllDesserts()
     {
-        var breads = new List<Intaraction_Bread>(mBreads);
-        mBreads.Clear();
-        return breads;
+        var desserts = new List<Intaraction_Dessert>(mDesserts);
+        mDesserts.Clear();
+        return desserts;
     }
 
     // 계산대에서 구매가 확정된 음료의 스프라이트를 손에 들려준다(MenuItemRow.Atlas/Icon 기준, CharNpc가 조회해 넘겨줌).

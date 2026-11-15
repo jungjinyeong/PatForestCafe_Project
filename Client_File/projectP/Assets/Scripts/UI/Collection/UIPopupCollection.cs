@@ -183,14 +183,14 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
         return $"{GetCategoryName(true)} | {(drinkRow.DrinkTempType == CTable.eDrinkTempType.Ice ? "ICE" : "HOT")}";
     }
 
-    // 디저트는 Bread.csv Desc, 음료는 Drink.csv Desc를 쓴다. 음료 Desc가 비어 있으면 온도·종류로 문장을 만든다.
+    // 디저트는 Dessert.csv Desc, 음료는 Drink.csv Desc를 쓴다. 음료 Desc가 비어 있으면 온도·종류로 문장을 만든다.
     private static string GetNote(UIScrollCollectionData entry)
     {
         if (!entry.IsDrink)
         {
-            var breadRow = GameInstance.Table.Get<CTable.BreadRow>(entry.Tid);
-            var tags = breadRow.GetTags().ToList();
-            string desc = breadRow?.Desc ?? string.Empty;
+            var dessertRow = GameInstance.Table.Get<CTable.DessertRow>(entry.Tid);
+            var tags = dessertRow.GetTags().ToList();
+            string desc = dessertRow?.Desc ?? string.Empty;
             return tags.Count > 0 ? $"{desc}\n맛: {string.Join(", ", tags)}" : desc;
         }
 
@@ -253,8 +253,8 @@ public class UIPopupCollection : UIWndBase, IUIParam<UIPopupCollection.Param>
         }
         else
         {
-            foreach (int tid in GameInstance.Table.Get<CTable.BreadRow>(entry.Tid).GetIngredientTids())
-                result.Add((GameInstance.Table.Get<CTable.BreadIngredientRow>(tid)?.Name ?? tid.ToString(), GetOwned(tid)));
+            foreach (int tid in GameInstance.Table.Get<CTable.DessertRow>(entry.Tid).GetIngredientTids())
+                result.Add((GameInstance.Table.Get<CTable.DessertIngredientRow>(tid)?.Name ?? tid.ToString(), GetOwned(tid)));
         }
 
         return result;
