@@ -18,6 +18,8 @@ public class UIRootIngredientIsland : UIWndBase
     [SerializeField] private UIButtonEx mBtnOpenWorkshop;
     [SerializeField] private UIButtonEx mBtnOpenRecipeLab;
     [SerializeField] private UIButtonEx mBtnOpenShop;
+    [Tooltip("화면 위쪽 [로비로]. 로비 오른쪽 패널 [가공섬] 탭으로 들어온 뒤 돌아가는 유일한 경로.")]
+    [SerializeField] private UIButtonEx mBtnBackToLobby;
 
     public override eUIType GetUIType() => eUIType.RootIngredientIsland;
 
@@ -33,6 +35,7 @@ public class UIRootIngredientIsland : UIWndBase
         mBtnOpenWorkshop.OnSubscribeOnClick(OnClickOpenWorkshop).AddTo(this);
         mBtnOpenRecipeLab.OnSubscribeOnClick(OnClickOpenRecipeLab).AddTo(this);
         if (mBtnOpenShop != null) mBtnOpenShop.OnSubscribeOnClick(OnClickOpenShop).AddTo(this);
+        if (mBtnBackToLobby != null) mBtnBackToLobby.OnSubscribeOnClick(OnClickBackToLobby).AddTo(this);
     }
 
     public override void Open()
@@ -54,6 +57,12 @@ public class UIRootIngredientIsland : UIWndBase
 
         GameInstance.Model.Ingredient.Gather(ingredientRow.CurrentData.Tid);
         RefreshIngredientList();
+    }
+
+    // 메뉴 레이어 창이라 로비 루트를 열면 가공섬 화면은 닫힌다.
+    private void OnClickBackToLobby()
+    {
+        GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.RootLobby, new UIRootLobby.Param());
     }
 
     private void OnClickOpenDessertMinigame()

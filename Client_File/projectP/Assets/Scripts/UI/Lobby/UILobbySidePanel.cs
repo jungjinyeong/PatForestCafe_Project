@@ -116,8 +116,8 @@ public class UILobbySidePanel : MonoBehaviour
             case eSideTab.IngredientIsland:
                 // 배치 모드인 채로 화면을 바꾸지 않는다(들고 있던 가구는 취소). OnEditModeChanged가 직전 탭으로 돌려 둔다.
                 GameInstance.Model.Placement.SetEditMode(false);
-                if (GameInstance.UI.HudController != null)
-                    GameInstance.UI.HudController.ToggleIngredientIsland();
+                // 메뉴 레이어 창이라 열면 로비 루트는 닫힌다.
+                GameInstance.UI.Open<UIRootIngredientIsland, UIRootIngredientIsland.Param>(eUIType.RootIngredientIsland, new UIRootIngredientIsland.Param());
                 break;
             case eSideTab.Floor:
                 if (mFloorList != null)

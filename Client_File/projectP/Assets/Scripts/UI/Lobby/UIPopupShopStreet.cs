@@ -118,9 +118,9 @@ public class UIPopupShopStreet : UIWndBase, IUIParam<UIPopupShopStreet.Param>
     {
         SelfClose();
 
-        var hud = GameInstance.UI.HudController;
-        if (hud != null && hud.IsInIngredientIsland)
-            hud.ToggleIngredientIsland();
+        var island = GameInstance.UI.Get<UIRootIngredientIsland>(eUIType.RootIngredientIsland);
+        if (island != null && island.gameObject.activeInHierarchy)
+            GameInstance.UI.Open<UIRootLobby, UIRootLobby.Param>(eUIType.RootLobby, new UIRootLobby.Param());
 
         var root = GameInstance.UI.Get<UIRootLobby>(eUIType.RootLobby);
         if (root != null)
