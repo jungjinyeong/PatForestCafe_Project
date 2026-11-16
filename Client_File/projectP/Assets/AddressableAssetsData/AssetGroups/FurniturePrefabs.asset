@@ -15,8 +15,28 @@ MonoBehaviour:
   m_GroupName: FurniturePrefabs
   m_GUID: fe5056395125cf64893bd55b8ebc8707
   m_SerializeEntries:
+  - m_GUID: 0117c3b1e09247d41a5c784e67a8e0a6
+    m_Address: FurniturePrefabs/exit_stairs_center_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 029e2aac5ca78484794964dd772406da
+    m_Address: FurniturePrefabs/grass_decor_07
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 068ac21958af9494f84fc6f7462682fe
     m_Address: FurniturePrefabs/flr_0110_ForestGardenStone_Natural_set
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 078a5b49e868cc84d86a8e2b35a81b10
+    m_Address: FurniturePrefabs/vine_flower_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0990855796414094e8a903c64d80249a
+    m_Address: FurniturePrefabs/vine_flower_02
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -25,8 +45,38 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0b520563ffe64d74aa15dc747dbf4e9d
+    m_Address: FurniturePrefabs/fence_part_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0b594631fdcfd4444ad5ed1f7d9cc97f
+    m_Address: FurniturePrefabs/grass_decor_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0c05f3a451d10054d9e8d20bc9f99346
+    m_Address: FurniturePrefabs/kiosk_wall_left_post_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0e4c7b32fed4ec642b4d6c71d1d5de12
+    m_Address: FurniturePrefabs/grass_decor_10
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 15332b237ed918642b57147ee5368fb2
     m_Address: FurniturePrefabs/flr_0120_forest_ground_tile_spring_11
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1661cfe1536d3264da31d6441f0cd04e
+    m_Address: FurniturePrefabs/fence_full_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 18d7994abd2f6de4cad10cd25cdc3846
+    m_Address: FurniturePrefabs/border_grass_07
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -40,13 +90,63 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1cec659615f374a4c9919426e75dd226
+    m_Address: FurniturePrefabs/shop_front_complete_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1d33febdeb5e2754c927b6cfc29bca6f
+    m_Address: FurniturePrefabs/fence_full_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1d6ea93eb32cdbc4591c27d8329d67c4
+    m_Address: FurniturePrefabs/lantern_or_mount_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1fbe4ddf127a1ca4fb6ae37b772bafb6
+    m_Address: FurniturePrefabs/stone_column_piece_10
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 21c876c29963fae4fbd77223c3b9da05
+    m_Address: FurniturePrefabs/sign_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 21d60a513500f4142a7d5dd7251d7645
+    m_Address: FurniturePrefabs/exit_right_column_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 21eb9c1c73540c946b3094f34a31da83
+    m_Address: FurniturePrefabs/border_grass_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2992949f8e39eef4686c66d5d5e34896
     m_Address: FurniturePrefabs/flr_0120_forest_ground_spring
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2a244327634c18245a5ef92e8afd61e2
+    m_Address: FurniturePrefabs/stone_column_piece_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2adc08c18684a844fa8790d474c1305d
     m_Address: FurniturePrefabs/flr_0100_forest_path_stone_tile_5
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2be8465de06622248bdbb54d99355252
+    m_Address: FurniturePrefabs/shop_counter_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 32272ffa2e56b0f4da03eddb2fb024a1
+    m_Address: FurniturePrefabs/kiosk_wall_header_01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -65,8 +165,33 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3c0e44905d86e2040a3cd5fbe9374d20
+    m_Address: FurniturePrefabs/fence_part_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3c830acc29d01da40bdbddae6e7b3ea0
     m_Address: FurniturePrefabs/flr_0100_forest_path_stone_tile_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3cfe6bfe4b7a2d14e92e1fc77394c8b0
+    m_Address: FurniturePrefabs/border_grass_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3f57fbb42751d3a48a3f49f6edf4a100
+    m_Address: FurniturePrefabs/grass_decor_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 41b00b0c6897c7242935c9cef0a64a98
+    m_Address: FurniturePrefabs/kiosk_wall_order_sign_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 478cf0f495449c14bb3579c87fa3a809
+    m_Address: FurniturePrefabs/exit_side_wall_01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -75,8 +200,43 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 49e4a27e2b394f848a2a169f10696c66
+    m_Address: FurniturePrefabs/fence_decor_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4ab2c9734a39ee64f99c581417dfa42c
+    m_Address: FurniturePrefabs/fence_full_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4c1d067bbd3a4704a822655c42452919
     m_Address: FurniturePrefabs/flr_0114_ForestGardenStone_Moonlight_set
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4e2022be8f7d9ba408a8f163f7f7e269
+    m_Address: FurniturePrefabs/stone_column_piece_07
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4f187260807937f4a869689b9b2027b2
+    m_Address: FurniturePrefabs/lantern_or_mount_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 53ec9766e0c208e4bb798e230157ff1d
+    m_Address: FurniturePrefabs/tree_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 558f7ce932054974aad3fd03c2a229b1
+    m_Address: FurniturePrefabs/border_grass_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 55fadba48831086499617dfba8d54cc7
+    m_Address: FurniturePrefabs/lantern_or_mount_03
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -90,8 +250,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5e18c021dc70e47469e26151f1a7a834
+    m_Address: FurniturePrefabs/stone_column_piece_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5e58facd4ff86c440885e30fdb0dd725
     m_Address: FurniturePrefabs/flr_0111_ForestGardenStone_Blossom_set
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 629bffd027a7b5841bf557917a0f5b9c
+    m_Address: FurniturePrefabs/grass_decor_08
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -100,13 +270,58 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 64d74fe11c704b04b8112e1e94562193
+    m_Address: FurniturePrefabs/stone_column_piece_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 64db5e79275293b479941d71c0706a19
     m_Address: FurniturePrefabs/flr_0120_forest_ground_tile_spring_9
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6726c2eb39ad0214cb25bdfb5cb7c4db
+    m_Address: FurniturePrefabs/shop_right_post_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 692f348bc1d45924b8239855cd686bd6
+    m_Address: FurniturePrefabs/border_grass_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6cd28e334b8035740b5b7e3cad6d3c5c
+    m_Address: FurniturePrefabs/grass_decor_09
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6d627045046078a45a99e5d279432a37
     m_Address: FurniturePrefabs/flr_0113_ForestGardenStone_Moss_set
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6dc9a9291d9c0f842b06d9b6bfe4c541
+    m_Address: FurniturePrefabs/grass_decor_11
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f413c03ebf9acf43a6e1ca3ad78544a
+    m_Address: FurniturePrefabs/fence_decor_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6fcb0c31c08b8bf459598a10245de7bc
+    m_Address: FurniturePrefabs/sign_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 71854b3958b4c224f89f8baed7ed94b7
+    m_Address: FurniturePrefabs/stone_column_piece_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 71b3554c5b75e164395491da507f440d
+    m_Address: FurniturePrefabs/stone_column_piece_08
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -125,8 +340,33 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 797016edf882d894cac8b5bb6afeaee5
+    m_Address: FurniturePrefabs/grass_decor_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 80695e19c633f2645af03deaa4a15e5d
     m_Address: FurniturePrefabs/flr_0130_Wood_Floor_Tile_6
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 81313de2c1e15654294e61221465d9f8
+    m_Address: FurniturePrefabs/flower_pot_or_bush_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 815be3cd54973cf47995912344bff4d5
+    m_Address: FurniturePrefabs/fence_full_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 841ca911b17a99c48959c94013652955
+    m_Address: FurniturePrefabs/vine_flower_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 86223f95fc678c541a78d6de9918e001
+    m_Address: FurniturePrefabs/grass_decor_03
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -140,6 +380,31 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8ac6b075067fb9a408b38e68b17c79af
+    m_Address: FurniturePrefabs/fence_full_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8b08689a2770d274e93d0416d0e73d4e
+    m_Address: FurniturePrefabs/exit_left_column_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8c1a2023b1374e24cbae0789cf929955
+    m_Address: FurniturePrefabs/exit_sign_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 96a16fed24fa4254aa81b06752e659c6
+    m_Address: FurniturePrefabs/fence_part_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9830e88813329244b881566167c30cb3
+    m_Address: FurniturePrefabs/flower_pot_or_bush_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 983af7254ad5ce04f8a65dace1335dde
     m_Address: FurniturePrefabs/flr_0120_forest_ground_tile_spring_15
     m_ReadOnly: 0
@@ -150,13 +415,93 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9c60a0cd706b47c47aabcc7361fa03bc
+    m_Address: FurniturePrefabs/exit_stairs_complete_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9e30ab3157400e545a65466674c76f96
+    m_Address: FurniturePrefabs/lantern_or_mount_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9ed51c0a23ee1df4982f45e1648b09af
     m_Address: FurniturePrefabs/fur_0100_bread_display_table_v01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a16c5844c4c446e4e917e8d8bb6d057f
+    m_Address: FurniturePrefabs/kiosk_wall_complete_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a2b29f6c82d32da47b829d3184ab2a62
     m_Address: FurniturePrefabs/flr_0130_Wood_Floor_Tile_5
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a67114d76c09d8347912b115ea182715
+    m_Address: FurniturePrefabs/exit_small_pillar_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ac034fd463bbbfe4fb8a8a23ae8ee06c
+    m_Address: FurniturePrefabs/kiosk_wall_stone_column_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aea273a0c628fc74a8baa5df173c2aac
+    m_Address: FurniturePrefabs/lantern_or_mount_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b0cc3985cf5e69142be4163e0fef898c
+    m_Address: FurniturePrefabs/stair_floor_tile_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b61162dff7561aa4790471ac6a3130e3
+    m_Address: FurniturePrefabs/fence_decor_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b652722cb97110741b489f897a418492
+    m_Address: FurniturePrefabs/fence_decor_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b68e9889532e2a34ab4df5e69be3fe84
+    m_Address: FurniturePrefabs/flower_pot_or_bush_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b75c9a098eabf3248be484eb58cebac6
+    m_Address: FurniturePrefabs/flower_pot_or_bush_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bc9621800f775f74b98c642a034057de
+    m_Address: FurniturePrefabs/shop_flower_canopy_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bd3e70c372977ad478f6c7f3766ea20d
+    m_Address: FurniturePrefabs/stone_column_piece_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c3811a07b1dcc2b4cbf0536ff0d3f45f
+    m_Address: FurniturePrefabs/border_grass_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c502b419e2b8d284eb712e26d75e3afa
+    m_Address: FurniturePrefabs/tree_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c652e22ab0475c84b8b23828ded5450f
+    m_Address: FurniturePrefabs/vine_flower_01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -170,8 +515,43 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cec006ef975348948a6cbe9d751c4433
+    m_Address: FurniturePrefabs/stone_column_piece_09
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d207a7c50b3866849a69f5a26c30ddaf
     m_Address: FurniturePrefabs/flr_0130_Wood_Floor_Tile_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d59a7f62b29c5fb4a8fec4e1ade8cbfa
+    m_Address: FurniturePrefabs/fence_decor_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d5fc8629ba83c8d4e94680b0943a893c
+    m_Address: FurniturePrefabs/vine_flower_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d6a3e209318f21343a3f828c67afe47c
+    m_Address: FurniturePrefabs/vine_flower_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d93561b0248ff804aaddb184631bd513
+    m_Address: FurniturePrefabs/flower_pot_or_bush_07
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d9be022f23856754590d5bedfa346ef8
+    m_Address: FurniturePrefabs/border_grass_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dc2ada5598fb1f248afa831a029ae941
+    m_Address: FurniturePrefabs/lantern_or_mount_05
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -180,13 +560,73 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd3c188dcb121844caf9914c15e4d86d
+    m_Address: FurniturePrefabs/flower_pot_or_bush_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dda3482f94ec657458be06e74c181d06
+    m_Address: FurniturePrefabs/shop_left_post_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e072dda72b110604b9bafcf00f11d292
+    m_Address: FurniturePrefabs/sign_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e1f6b815d59ed5843b7b66e71897a610
+    m_Address: FurniturePrefabs/fence_part_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e215f1f11ed23f7499fb1d43009cc876
+    m_Address: FurniturePrefabs/sign_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e67900d9f0947a949ba3b6b0d2615b6e
+    m_Address: FurniturePrefabs/fence_part_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb3d2b48019bf7c4db8aa98337017c05
+    m_Address: FurniturePrefabs/kiosk_wall_right_post_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ebbde747b5f43ea4e9ef8a605e54fdd8
     m_Address: FurniturePrefabs/CarpetRug
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ef1bc9e90fb8ee0499848bcc4d1672ae
+    m_Address: FurniturePrefabs/tree_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f17f35b061f60a84aa767246fa7c84a1
     m_Address: FurniturePrefabs/flr_0130_Wood_Floor_Tile_4
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f46f55ef3fa008b4ba8a886dfa1ab968
+    m_Address: FurniturePrefabs/stone_column_piece_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f5c34ba42092e4043ac34be3d9a5dd2c
+    m_Address: FurniturePrefabs/flower_pot_or_bush_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fd6bf834ba2b6df4d9aaca98ccd1af33
+    m_Address: FurniturePrefabs/grass_decor_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ffedcd9e1dbbf51499b817543cd086be
+    m_Address: FurniturePrefabs/grass_decor_05
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

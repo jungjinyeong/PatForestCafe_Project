@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a68d77fdd620a74aaa3ef9b8f54637f, type: 3}
+  m_Name: FV_stair_floor_tile_01
+  m_EditorClassIdentifier: Assembly-CSharp::FurnitureVisualData
+  mPrefab:
+    m_AssetGUID: b0cc3985cf5e69142be4163e0fef898c
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  mOrientMode: 0
+  mFront: {fileID: 21300000, guid: bac95ad820df0b84a938cefb79ee50ad, type: 3}
+  mBack: {fileID: 0}
+  mSide: {fileID: 0}
+  mFloorTile: {fileID: 0}

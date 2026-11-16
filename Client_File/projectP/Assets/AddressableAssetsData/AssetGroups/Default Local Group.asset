@@ -25,6 +25,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0cf681e8b74717443ba60ee536e03190
+    m_Address: FurnitureVisual/FV_sign_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0e9defc193eaed9468ffdbc2c5c3064c
+    m_Address: FurnitureVisual/FV_grass_decor_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0efa0a8fa9f380a49bbe292a886c53db
     m_Address: FurnitureVisual/FV_wal_0100_forest_stone_wall_set_0
     m_ReadOnly: 0
@@ -32,6 +42,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0f1450c06b77bc2448c14cce8f61a428
     m_Address: FurnitureVisual/FV_Sub_Table
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 11b1cbc398acb5645b4c71edff46847c
+    m_Address: FurnitureVisual/FV_fence_part_01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -50,6 +65,36 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 14a6e1aabdfdcb9438b95da9d330822f
+    m_Address: FurnitureVisual/FV_border_grass_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 178a200e2b9836e46ade949166faead7
+    m_Address: FurnitureVisual/FV_sign_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1917e7dcb6712a64d985292a955bdb92
+    m_Address: FurnitureVisual/FV_grass_decor_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1f2f37ff9af09014a9d1357fb4b0454d
+    m_Address: FurnitureVisual/FV_stone_column_piece_08
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2163607da7b4aa141a417b41e595559a
+    m_Address: FurnitureVisual/FV_grass_decor_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 25f51b0b7532e6f4b8fb8b8b38e3a9dc
+    m_Address: FurnitureVisual/FV_sign_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 291270ad3b344584d9307109b1b65cf1
     m_Address: FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_11
     m_ReadOnly: 0
@@ -62,6 +107,36 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2b6a9e35ab6f97648a11b4aa9bf1a9c8
     m_Address: FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_14
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2c43421eb8c535045a643982cb353362
+    m_Address: FurnitureVisual/FV_vine_flower_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2d4272b68882c99429f1fa59f8a1c8c9
+    m_Address: FurnitureVisual/FV_stone_column_piece_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2f1d302d43554dc46ba6ab089d777bcc
+    m_Address: FurnitureVisual/FV_border_grass_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 303c8d87f51939d4eac2dfd34213656c
+    m_Address: FurnitureVisual/FV_tree_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 311c377098fcf8b45880034063cb93ed
+    m_Address: FurnitureVisual/FV_stone_column_piece_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 315ac36f8f2acb742a206acff33012bb
+    m_Address: FurnitureVisual/FV_border_grass_01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -80,6 +155,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3872e2512563349448540d0af34b2322
+    m_Address: FurnitureVisual/FV_lantern_or_mount_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3c4b1a3c2ccf08e4ea5201f21d338572
+    m_Address: FurnitureVisual/FV_exit_stairs_complete_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3c85a5d94b1166b48882db08356a47ac
     m_Address: FurnitureVisual/FV_flr_0120_forest_ground_spring_path
     m_ReadOnly: 0
@@ -87,6 +172,16 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3ca00f60a1b98404c90c714402420f3a
     m_Address: FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_15
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3d300ba7d0d334b4090c3f152984e231
+    m_Address: FurnitureVisual/FV_kiosk_wall_right_post_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3db956f000dcfa5449afc8096f459f23
+    m_Address: FurnitureVisual/FV_fence_decor_04
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -100,13 +195,98 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 429ae6cd74d8fc14eb0d333a9c3605b2
+    m_Address: FurnitureVisual/FV_grass_decor_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 445f58d9bb8d16e4689956e5b7e2f04a
+    m_Address: FurnitureVisual/FV_tree_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 46855fbf5655d1240ae5bafb48c11bcb
+    m_Address: FurnitureVisual/FV_exit_right_column_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4db16724fc9fd384d8fa6e39808df279
+    m_Address: FurnitureVisual/FV_kiosk_wall_order_sign_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4fa76567a26952048aab41d49ce06ed0
+    m_Address: FurnitureVisual/FV_exit_side_wall_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 512eb7fd437fa9d42a9f5b20363b7c8f
+    m_Address: FurnitureVisual/FV_stone_column_piece_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 51862154d365eaa49841e0af8a8b0957
     m_Address: Input/PlacementInput
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 53f687302436eb949a4139701c88d98e
+    m_Address: FurnitureVisual/FV_fence_decor_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 53fbf86746490bc4fa74ef31a5ee46ec
+    m_Address: FurnitureVisual/FV_grass_decor_08
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 549e0a11281897d4ba19797113fdfda6
+    m_Address: FurnitureVisual/FV_kiosk_wall_stone_column_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5673e84ef02a39c4eb6b6008f4cdcdb2
+    m_Address: FurnitureVisual/FV_exit_stairs_center_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 579082a5b1ba36543b3de9d3a9140cfa
+    m_Address: FurnitureVisual/FV_grass_decor_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5a8f1903b90702046aa93f56045bf1d2
+    m_Address: FurnitureVisual/FV_stone_column_piece_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5b0470952ab62fe4c872af87e5c0017f
+    m_Address: FurnitureVisual/FV_grass_decor_11
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 63c592db880314f4f8136775c96ae74a
     m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_5
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 64da3fe664386b745b96fce85a5d638c
+    m_Address: FurnitureVisual/FV_grass_decor_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6503cf95c0a807c4ca2a98c4b75fe0fa
+    m_Address: FurnitureVisual/FV_exit_small_pillar_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 655c0dce62355a445a1d333ff5875e2d
+    m_Address: FurnitureVisual/FV_lantern_or_mount_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6765fdacecd5c50468a46500df17feef
+    m_Address: FurnitureVisual/FV_border_grass_04
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -120,8 +300,28 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6c80e3b209dd53547b2a0d61bcad8aee
+    m_Address: FurnitureVisual/FV_vine_flower_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6d80c6dc7ba798d4099502b432cd1497
+    m_Address: FurnitureVisual/FV_flower_pot_or_bush_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f551b332106f774cb94618f250dee42
+    m_Address: FurnitureVisual/FV_fence_part_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 711379a937ca70f4ea7f225e4adf2fbc
     m_Address: FurnitureVisual/FV_wal_0110_forest_vine_wall_set_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 71c1e385731ef584da50cedc7582d315
+    m_Address: FurnitureVisual/FV_shop_counter_01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -135,6 +335,71 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 776aee75050fad7479c9a2e63f96c761
+    m_Address: FurnitureVisual/FV_fence_part_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 77e6d243c08b0024c9083b69cefe42af
+    m_Address: FurnitureVisual/FV_lantern_or_mount_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 797937eab6e70cb4a800e3effe114002
+    m_Address: FurnitureVisual/FV_grass_decor_07
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7be27eca8f8e034438bf2c674a4264b6
+    m_Address: FurnitureVisual/FV_fence_full_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7e77a7b644b7e274986189a577a8efbb
+    m_Address: FurnitureVisual/FV_shop_right_post_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7ea738facb65ac540b06bb4a8e696f7f
+    m_Address: FurnitureVisual/FV_vine_flower_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7fa7d8ae43cdb0a4da755c318f30ceae
+    m_Address: FurnitureVisual/FV_kiosk_wall_header_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 80d40ff0af3e13a4ea947259c500c47d
+    m_Address: FurnitureVisual/FV_tree_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 81852ef1409c59840852ec61833359c3
+    m_Address: FurnitureVisual/FV_fence_full_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 82af0a231ed583d4e8ab1a88fcfed285
+    m_Address: FurnitureVisual/FV_stone_column_piece_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 84a3be10fb577a84c83f5dfd81e4ddc1
+    m_Address: FurnitureVisual/FV_flower_pot_or_bush_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 84f11bc20f2cad14ebcea51d630f5814
+    m_Address: FurnitureVisual/FV_kiosk_wall_left_post_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 87c1229cb1a3d1740af72b8e9fcfebdb
+    m_Address: FurnitureVisual/FV_lantern_or_mount_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 88723fbef3bb18b4e9f44eb0b17bab20
     m_Address: FurnitureVisual/FV_flr_0110_ForestGardenStone_Natural_set
     m_ReadOnly: 0
@@ -145,13 +410,83 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8d18f2768c859c449bb79048441b9eb1
+    m_Address: FurnitureVisual/FV_stair_floor_tile_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 90a8b28ca5f3101489b793dc45ec2747
     m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_6
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 92682bf96549aea46b17d1fe943a3609
+    m_Address: FurnitureVisual/FV_border_grass_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 94c4311469353154382ffe31d5f21267
+    m_Address: FurnitureVisual/FV_flower_pot_or_bush_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 964d03cd6539d8b4aa382dbbb698f3d7
+    m_Address: FurnitureVisual/FV_lantern_or_mount_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9935e8d6e58c6e74cae3bd3b05424afa
+    m_Address: FurnitureVisual/FV_shop_flower_canopy_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9b8e94fced3550146b9333c711af7b89
+    m_Address: FurnitureVisual/FV_kiosk_wall_complete_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9d572abc167bc444c92b6b109bf348b9
+    m_Address: FurnitureVisual/FV_fence_decor_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9d91f6a7d052f3e46b00f83f8166d066
+    m_Address: FurnitureVisual/FV_stone_column_piece_07
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a1f68d471dc525f44a0e2941a0f19cb2
+    m_Address: FurnitureVisual/FV_stone_column_piece_10
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a4de82bef1b36ae4a89c81106c266684
     m_Address: FurnitureVisual/FV_wal_0110_forest_vine_wall_set_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a4eaa0080f3f4304c9461395fa21ed88
+    m_Address: FurnitureVisual/FV_fence_part_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a7eba2e72217a704d9545467255f2e22
+    m_Address: FurnitureVisual/FV_flower_pot_or_bush_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aa2a376f11f18094da1dd58d6aa72ce3
+    m_Address: FurnitureVisual/FV_flower_pot_or_bush_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ae2e9466dd18bde4bad591d003b2f8ee
+    m_Address: FurnitureVisual/FV_shop_left_post_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b0d02f7900ea67340ac75fdeb56ee86a
+    m_Address: FurnitureVisual/FV_stone_column_piece_09
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -180,8 +515,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bcc931caac6d76e4ab4950a3f6bc31af
+    m_Address: FurnitureVisual/FV_vine_flower_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c530742180445e745b55b3cf83d63671
     m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c8df7755cc008e648863027a29635a7b
+    m_Address: FurnitureVisual/FV_shop_front_complete_01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -190,8 +535,23 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cf24fe6ecf5490b428bf4da02e340dd0
+    m_Address: FurnitureVisual/FV_border_grass_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cf94a882517bbca48ae3be2e68dc95b5
     m_Address: FurnitureVisual/FV_fur_0100_bread_display_table_v01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d3c541fd14190944d8d6c654173f870d
+    m_Address: FurnitureVisual/FV_fence_full_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d603ecfb9dfd78b47966fd4b626054fd
+    m_Address: FurnitureVisual/FV_fence_decor_01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -200,8 +560,68 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d78a692ccc3304d4ebcd0d8b8c09ae4c
+    m_Address: FurnitureVisual/FV_fence_full_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d9f23a716eec1b24594b5e910de36d6c
+    m_Address: FurnitureVisual/FV_fence_full_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2074ee3d6571614aa2e289b41c1a17e
+    m_Address: FurnitureVisual/FV_fence_decor_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e254268db2a67934e8acae9b9f87198d
     m_Address: FurnitureVisual/FV_flr_0130_Wood_Floor_Tile_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e5cb82084981dc74985f5f6a631c7b0d
+    m_Address: FurnitureVisual/FV_exit_left_column_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e7386a28e3d6ec44cb4a0983476bc3ab
+    m_Address: FurnitureVisual/FV_fence_part_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ea2a6664690ebc748bbe0840c396ff6d
+    m_Address: FurnitureVisual/FV_flower_pot_or_bush_07
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ea5412167b5bd5046af2e534bada3540
+    m_Address: FurnitureVisual/FV_sign_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ec517d531b1ac7848a278d47159a4898
+    m_Address: FurnitureVisual/FV_grass_decor_10
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ec6a2df1e36ca944dbdba83b71e1e86b
+    m_Address: FurnitureVisual/FV_lantern_or_mount_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ed32d51b867f65949a1d05f26d4e769c
+    m_Address: FurnitureVisual/FV_vine_flower_06
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eef4b5110b001d54c970e7f8baad2998
+    m_Address: FurnitureVisual/FV_vine_flower_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: efaea62a2f389de49b41dd59fd9fa558
+    m_Address: FurnitureVisual/FV_stone_column_piece_01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -215,6 +635,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f4b1c877a80850b41bfd3efc60e8c2f7
+    m_Address: FurnitureVisual/FV_border_grass_07
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fa9e106eff496214cb422fc26ea8a250
+    m_Address: FurnitureVisual/FV_flower_pot_or_bush_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fba0afea51059824c81039dcb65c831e
     m_Address: DessertAtlas
     m_ReadOnly: 0
@@ -222,6 +652,16 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fba950d588f20c14186a2ab2874f82c6
     m_Address: FurnitureVisual/FV_flr_0120_forest_ground_tile_spring_12
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fbe8ae337351a9b4bacc46006febfd93
+    m_Address: FurnitureVisual/FV_exit_sign_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fc3812a8405532642b72540718ad9a15
+    m_Address: FurnitureVisual/FV_grass_decor_09
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
