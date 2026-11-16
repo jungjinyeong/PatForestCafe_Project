@@ -130,6 +130,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 75a0a010eb5b5414d8082f301b32f4c9
+    m_Address: FurnitureVisual/FV_fur_temp_chair
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 88723fbef3bb18b4e9f44eb0b17bab20
     m_Address: FurnitureVisual/FV_flr_0110_ForestGardenStone_Natural_set
     m_ReadOnly: 0

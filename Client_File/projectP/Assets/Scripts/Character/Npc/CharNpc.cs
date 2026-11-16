@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-using UnityEngine.U2D;
 
-public class CharNpc : CharBase, IDessertPickup
+// 손님 NPC — 이동·층 이동·생애주기(이 파일), 행동 단계(CharNpc+Behavior), 결제(CharNpc+Payment).
+// 흐름: 로비 1층 출입구에서 나타남 → 계단실로 목표 매장층 이동 → 행동 세트(NpcBehaviorRuleSet) 단계를 차례로 실행
+// → 테라스에 들르거나 1층 출구로 퇴장. 이동은 MoveTo(목표, 도착 콜백) 하나로 처리한다.
+public partial class CharNpc : CharBase
 {
+    private const float BLOCKED_PASS_THROUGH_SECONDS = 1f;
+
     [Header("Movement")]
     [SerializeField] private float mMoveSpeed = 3f;
     [SerializeField] private float mArrivalThreshold = 0.1f;
@@ -22,51 +26,129 @@ public class CharNpc : CharBase, IDessertPickup
     [Header("Dessert Unavailable")]
     [SerializeField] private float mSweatDisplaySeconds = 1.2f;
 
-    private bool mIsMoving = true;
-    private bool mHasLingeredInTerrace;
+    private bool mIsMoving;
+    private float mBlockedSeconds;
 
+    // 이번 방문 번호. 풀에서 재사용되면 바뀌므로, 늦게 도착한 콜백(카운터 대기열·연출 타이머)이 다음 손님에게 실행되지 않게 막는다.
+    private int mVisitId;
+
+    private WaypointGroup mEntranceGroup;
     private WaypointGroup mCurrentGroup;
     private Waypoint mCurrentWaypoint;
-    private Waypoint mPausedWaypoint;
-    private IDisposable mPauseDisposable;
+    private IDisposable mWaitDisposable;
 
     private List<Waypoint> mSubPath;
     private int mSubPathIndex;
+    private Action mArriveAction;
+    // 웨이포인트가 아닌 지점(결제 대기 줄 칸 등)으로 곧장 걸어갈 때.
+    private bool mHasPointTarget;
+    private Vector3 mPointTarget;
 
     private Queue<eNpcBehaviorStepType> mBehaviorQueue;
+    private LobbyCharUI mLobbyCharUI;
 
     public Waypoint CurrentWaypoint => mCurrentWaypoint;
     public bool IsMoving => mIsMoving;
 
-    public LobbyCharUI GetLobbyCharUI => GetComponentInChildren<LobbyCharUI>();
+    // SpawnManager가 Init 뒤에 붙이므로 처음 필요할 때 찾는다.
+    private LobbyCharUI LobbyUI
+    {
+        get
+        {
+            if (mLobbyCharUI == null)
+                mLobbyCharUI = GetComponentInChildren<LobbyCharUI>();
+            return mLobbyCharUI;
+        }
+    }
 
     private void Update()
     {
-        if (!mIsMoving || mSubPath == null || mSubPathIndex >= mSubPath.Count) return;
+        if (!mIsMoving) return;
+
+        if (mHasPointTarget)
+        {
+            MoveTowardsPoint();
+            return;
+        }
+
+        if (mSubPath == null || mSubPathIndex >= mSubPath.Count) return;
 
         MoveTowardsSubTarget();
     }
 
-    public void Init(WaypointGroup group, Waypoint spawnPoint)
+    // entrance: 로비 1층(나타나는 층), spawnPoint: 1층 출입구, targetGroup: 쇼핑할 매장층(1층일 수도 있음).
+    public void Init(WaypointGroup entrance, Waypoint spawnPoint, WaypointGroup targetGroup)
     {
+        mVisitId++;
         mBehaviorQueue = NpcBehaviorRuleSet.GetRandomQueue();
-        mHasLingeredInTerrace = false;
-        EnterGroup(group, spawnPoint);
+        ResetCart();
+
+        mEntranceGroup = entrance;
+        PlaceAt(entrance, spawnPoint);
+
+        TravelTo(targetGroup, AdvanceBehaviorQueue);
     }
 
-    private void EnterGroup(WaypointGroup group, Waypoint entryPoint)
+    // 영업 마감 대기 시간 초과 등으로 손님을 즉시 내보낸다. 고른 디저트는 결제 없이 진열대(없으면 창고)로 돌아간다.
+    public void ForceLeave()
     {
-        mCurrentGroup = group;
+        mBehaviorQueue?.Clear();
+        DespawnToPool();
+    }
 
-        transform.position = entryPoint.transform.position;
-        mCurrentWaypoint = entryPoint;
+    #region Movement
+
+    // target까지 웨이포인트 경로로 걸어가 도착하면 onArrive를 부른다. 가는 도중 목표가 사라지면(가구 철거) 다음 행동으로 넘어간다.
+    private void MoveTo(Waypoint target, Action onArrive)
+    {
+        StopWait();
+
+        if (target == null)
+        {
+            AdvanceBehaviorQueue();
+            return;
+        }
+
+        mArriveAction = onArrive;
+        mHasPointTarget = false;
         mIsMoving = true;
+        mBlockedSeconds = 0f;
+        PlayAnimation("Run");
+        BeginSegmentTo(target);
+    }
+
+    // 웨이포인트가 아닌 지점까지 곧장 걸어간다(장애물 회피는 웨이포인트 이동과 같다). 도착하면 onArrive.
+    private void MoveToPoint(Vector3 point, Action onArrive)
+    {
+        StopWait();
+
         mSubPath = null;
+        // 웨이포인트를 떠나므로 다음 경로 탐색은 지금 위치에서 곧장 시작하게 한다(BeginSegmentTo의 null 처리).
+        mCurrentWaypoint = null;
+        mArriveAction = onArrive;
+        mPointTarget = new Vector3(point.x, point.y, transform.position.z);
+        mHasPointTarget = true;
+        mIsMoving = true;
+        mBlockedSeconds = 0f;
+        PlayAnimation("Run");
+    }
 
-        if (mAnimator2D != null)
-            mAnimator2D.PlayAnimation("Run");
+    private void MoveTowardsPoint()
+    {
+        Vector3 toTarget = mPointTarget - transform.position;
+        if (toTarget.magnitude <= mArrivalThreshold)
+        {
+            transform.position = mPointTarget;
+            mHasPointTarget = false;
+            mIsMoving = false;
 
-        OnReachedRouteWaypoint(entryPoint);
+            var action = mArriveAction;
+            mArriveAction = null;
+            action?.Invoke();
+            return;
+        }
+
+        StepTowards(toTarget.normalized);
     }
 
     private void MoveTowardsSubTarget()
@@ -75,6 +157,8 @@ public class CharNpc : CharBase, IDessertPickup
         if (mSubPath[mSubPathIndex] == null)
         {
             mSubPath = null;
+            mArriveAction = null;
+            mIsMoving = false;
             AdvanceBehaviorQueue();
             return;
         }
@@ -89,19 +173,45 @@ public class CharNpc : CharBase, IDessertPickup
             mSubPathIndex++;
 
             if (mSubPathIndex >= mSubPath.Count)
-                OnReachedRouteWaypoint(mSubPath[mSubPath.Count - 1]);
+                OnArrived(mSubPath[mSubPath.Count - 1]);
 
             return;
         }
 
+        StepTowards(desiredDirection);
+    }
+
+    // 한 프레임 이동. 앞·좌·우가 모두 막히면 잠시 멈췄다가(가구 사이에 끼는 경우) 일정 시간 뒤에는 장애물을 무시하고 곧장 간다.
+    private void StepTowards(Vector3 desiredDirection)
+    {
         Vector3 moveDirection = GetAvoidanceDirection(desiredDirection);
         if (moveDirection == Vector3.zero)
-            return;
+        {
+            mBlockedSeconds += Time.deltaTime;
+            if (mBlockedSeconds < BLOCKED_PASS_THROUGH_SECONDS)
+                return;
+            moveDirection = desiredDirection;
+        }
+        else
+        {
+            mBlockedSeconds = 0f;
+        }
 
         if (mSpriteRenderer != null && moveDirection.x != 0)
             mSpriteRenderer.flipX = moveDirection.x < 0;
 
         transform.position += moveDirection * (mMoveSpeed * Time.deltaTime);
+    }
+
+    private void OnArrived(Waypoint arrived)
+    {
+        mCurrentWaypoint = arrived;
+        mSubPath = null;
+        mIsMoving = false;
+
+        var action = mArriveAction;
+        mArriveAction = null;
+        action?.Invoke();
     }
 
     private Vector3 GetAvoidanceDirection(Vector3 desiredDirection)
@@ -142,81 +252,73 @@ public class CharNpc : CharBase, IDessertPickup
         mSubPathIndex = 1;
     }
 
-    private void OnReachedRouteWaypoint(Waypoint arrived)
+    #endregion
+
+    #region Floor Travel
+
+    // 다른 층으로 갈 때: 지금 층 계단실까지 걸어가 → 목표 층 계단실에서 나온다(층 사이는 순간 이동).
+    // 이미 그 층이면 바로 onArrived. 계단실이 없는 층은 WaypointGroup이 SpawnPoint로 대신 돌려준다.
+    private void TravelTo(WaypointGroup target, Action onArrived)
     {
-        mCurrentWaypoint = arrived;
-
-        bool isPaused = ProcessArrivalCategoryLogic(arrived);
-        if (!isPaused)
-            AdvanceBehaviorQueue();
-    }
-
-    private bool ProcessArrivalCategoryLogic(Waypoint arrived)
-    {
-        if (arrived == null)
-            return false;
-
-        var category = arrived.GetCategoryType();
-
-        if (category == Waypoint.eWaypointCategoryType.Exit)
+        if (target == null || target == mCurrentGroup)
         {
-            if (!TryMoveToNextGroup())
-                DespawnToPool();
-            return true;
+            onArrived?.Invoke();
+            return;
         }
 
-        if (category == Waypoint.eWaypointCategoryType.Trigger)
+        var stairwell = mCurrentGroup != null ? mCurrentGroup.GetStairwellPoint() : null;
+        if (stairwell == null)
         {
-            TriggerPause(arrived);
-            return true;
+            PlaceAt(target, target.GetStairwellPoint());
+            onArrived?.Invoke();
+            return;
         }
 
-        return false;
-    }
-
-    // 손님 동선: 매장층(B3~1F) 방문을 마치면 열린 테라스층(T1~T3) 중 무작위 한 곳으로 향한다(순차 Order 체인이 아님).
-    // 이미 테라스에 있다면 더 갈 곳이 없어 false(호출 측에서 디스폰 처리).
-    private bool TryMoveToNextGroup()
-    {
-        if (mCurrentGroup == null || GameInstance.WayPoint == null || mCurrentGroup.IsTerraceZone)
-            return false;
-
-        var nextGroup = GameInstance.WayPoint.GetTerraceGroup();
-        if (nextGroup == null)
-            return false;
-
-        var spawnPoint = nextGroup.GetSpawnPoint();
-        if (spawnPoint == null)
-            return false;
-
-        EnterGroup(nextGroup, spawnPoint);
-        return true;
-    }
-
-    // 영업 마감 대기 시간 초과 등으로 손님을 즉시 내보낸다. 들고 있던 빵은 결제 없이 치우고(진열 재고는 이미 차감됨),
-    // 정상 퇴장과 같은 정리(DespawnToPool)를 거쳐 풀로 돌려보내 재사용 시 이전 상태가 남지 않게 한다.
-    public void ForceLeave()
-    {
-        var lobbyUI = GetComponentInChildren<LobbyCharUI>();
-        if (lobbyUI != null)
+        MoveTo(stairwell, () =>
         {
-            foreach (var dessert in lobbyUI.DetachAllDesserts())
-                dessert.Despawn();
-        }
-
-        mBehaviorQueue?.Clear();
-        DespawnToPool();
+            PlaceAt(target, target.GetStairwellPoint());
+            onArrived?.Invoke();
+        });
     }
+
+    private void PlaceAt(WaypointGroup group, Waypoint point)
+    {
+        mCurrentGroup = group;
+        mCurrentWaypoint = point;
+        mSubPath = null;
+        mHasPointTarget = false;
+        mIsMoving = false;
+
+        if (point != null)
+            transform.position = point.transform.position;
+    }
+
+    #endregion
+
+    #region Lifecycle
 
     private void DespawnToPool()
     {
+        mVisitId++;
+        StopWait();
         mIsMoving = false;
+        mSubPath = null;
+        mHasPointTarget = false;
+        mArriveAction = null;
 
-        mPauseDisposable?.Dispose();
-        mPauseDisposable = null;
-        mPausedWaypoint = null;
+        LeavePaymentLine();
+        ReleaseTerraceSeat();
 
-        GetComponentInChildren<LobbyCharUI>()?.ClearDrink();
+        // 결제하지 못하고 떠나는 손님(결제 시설이 없는 층, 영업 마감 강제 퇴장 등)의 디저트는 진열대(없으면 창고)로 돌려놓는다.
+        ReturnCartToStand();
+
+        var lobbyUI = LobbyUI;
+        if (lobbyUI != null)
+        {
+            lobbyUI.ClearDrink();
+            lobbyUI.SetSweatIconActive(false);
+            lobbyUI.StopPaymentEffect();
+        }
 
         if (GameInstance.Spawn != null)
             GameInstance.Spawn.ReturnToPool(this);
@@ -224,244 +326,57 @@ public class CharNpc : CharBase, IDessertPickup
             gameObject.SetActive(false);
     }
 
-    private void TriggerPause(Waypoint triggerWaypoint)
+    // 이번 방문이 아직 진행 중인지(풀로 돌아갔다가 재사용된 손님이 아닌지).
+    private Func<bool> MakeVisitGuard()
     {
-        Logger.Log($"[CharNpc] TriggerPause: {triggerWaypoint.name} ({triggerWaypoint.WaypointType})");
+        int visitId = mVisitId;
+        return () => this != null && mVisitId == visitId && gameObject.activeInHierarchy;
+    }
 
-        mIsMoving = false;
-        mPausedWaypoint = triggerWaypoint;
-
-        if (mAnimator2D != null)
-            mAnimator2D.PlayAnimation("Idle");
-
-        MessageBroker.Default.Publish(new CEvent.Waypoint(triggerWaypoint.WaypointType));
-
-        if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Trigger_Dessert)
+    private Action<T> Guarded<T>(Action<T> action)
+    {
+        var isValid = MakeVisitGuard();
+        return value =>
         {
-            bool hasStock = (GameInstance.Model.Dessert.GetCount(triggerWaypoint.TableId)?.Value ?? 0) > 0;
-            if (hasStock)
-            {
-                MessageBroker.Default.Publish(new CEvent.DessertPickup(triggerWaypoint.TableId, this));
-            }
-            else
-            {
-                BeginDessertUnavailableFlow();
-                return;
-            }
-        }
-        else if (triggerWaypoint.WaypointType == Waypoint.eWaypointType.Trigger_Order)
-        {
-            var staff = triggerWaypoint.GetComponentInParent<CharStaff>();
-            if (staff != null)
-                staff.BeginPickup(ProcessOrderPayment);
-            else
-                ProcessOrderPayment();
-            return;
-        }
+            if (isValid())
+                action?.Invoke(value);
+        };
+    }
 
-        mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(1.5f))
-            .Subscribe(_ => ResumeFromPause())
+    // 이번 방문 중에만 action을 실행하도록 감싼다(연출 타이머·대기열 콜백용).
+    private Action Guarded(Action action)
+    {
+        var isValid = MakeVisitGuard();
+        return () =>
+        {
+            if (isValid())
+                action?.Invoke();
+        };
+    }
+
+    private void Wait(float seconds, Action onDone)
+    {
+        StopWait();
+        mWaitDisposable = Observable.Timer(TimeSpan.FromSeconds(Mathf.Max(0f, seconds)))
+            .Subscribe(_ =>
+            {
+                mWaitDisposable = null;
+                onDone?.Invoke();
+            })
             .AddTo(this);
     }
 
-    // 진열대에 빵 재고가 없으면(DessertModel.GetCount == 0) 잠시 더 둘러보다가(Idle 대기, eConfigType.DessertUnavailablePauseMs)
-    // 땀방울 아이콘을 띄운 뒤, 남은 행동 큐(예: 음료 주문)를 포기하고 곧장 매장을 퇴장한다.
-    private void BeginDessertUnavailableFlow()
+    private void StopWait()
     {
-        float lookAroundSeconds = GameInstance.Config.GetValue(eConfigType.DessertUnavailablePauseMs) / 1000f;
-
-        mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(lookAroundSeconds))
-            .Subscribe(_ => ShowSweatThenExit())
-            .AddTo(this);
+        mWaitDisposable?.Dispose();
+        mWaitDisposable = null;
     }
 
-    private void ShowSweatThenExit()
-    {
-        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
-        lobbyCharUI?.SetSweatIconActive(true);
-
-        mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(mSweatDisplaySeconds))
-            .Subscribe(_ => ExitEarlyDueToNoDessert(lobbyCharUI))
-            .AddTo(this);
-    }
-
-    private void ExitEarlyDueToNoDessert(LobbyCharUI lobbyCharUI)
-    {
-        lobbyCharUI?.SetSweatIconActive(false);
-
-        mBehaviorQueue?.Clear();
-        ResumeFromPause();
-    }
-
-    private void ProcessOrderPayment()
-    {
-        TryReceiveDessertGold();
-        ReceiveRandomUnlockedDrinkGold();
-
-        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
-        if (lobbyCharUI == null)
-        {
-            ResumeFromPause();
-            return;
-        }
-
-        lobbyCharUI.PlayPaymentEffect(ResumeFromPause);
-    }
-
-    private void ResumeFromPause()
-    {
-        mPauseDisposable?.Dispose();
-        mPauseDisposable = null;
-
-        mPausedWaypoint = null;
-        mIsMoving = true;
-        AdvanceBehaviorQueue();
-    }
-
-    private void TryReceiveDessertGold()
-    {
-        var lobbyUI = GetComponentInChildren<LobbyCharUI>();
-        if (lobbyUI == null || !lobbyUI.HasDessert) return;
-
-        foreach (var dessert in lobbyUI.DetachAllDesserts())
-        {
-            var dessertData = GameInstance.Model.Dessert.Get(dessert.TableId);
-            if (dessertData?.MenuItemRow != null)
-            {
-                // 판매가 = 메뉴 가격 × 빵 품질 배율 × 결제 수익 업그레이드 배율 × 계절 판매 배율(Season.csv).
-                int price = Mathf.RoundToInt(dessertData.MenuItemRow.Price * DessertQuality.GetSaleMultiplier(dessert.Quality));
-                int gold = GameInstance.Model.Business.ApplySaleRate(GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier(price));
-                GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
-                GameInstance.Model.Business.RecordDessertSale(gold);
-                GameInstance.Model.Cafe.AddExp(CafeModel.EXP_STORE_PAYMENT);
-            }
-
-            dessert.Despawn();
-        }
-    }
-
-    // 레시피북으로 해금된 레시피(+기본 음료) 중 하나를 DrinkRow.Weight × 계절 온도 인기 배율(Season.csv) 가중치에 따라
-    // 무작위로 "구매"한 것으로 취급해 정산한다. 가중치가 클수록 더 자주 선택된다(Weight 0 이하는 추첨 제외).
-    private void ReceiveRandomUnlockedDrinkGold()
-    {
-        var drinkModel = GameInstance.Model.Drink;
-        var unlockedTids = new List<int>(GameInstance.Model.RecipeBook.GetDiscoveredTids());
-
-        if (drinkModel.DefaultDrink != null && !unlockedTids.Contains(drinkModel.DefaultDrink.TId))
-            unlockedTids.Add(drinkModel.DefaultDrink.TId);
-
-        var business = GameInstance.Model.Business;
-        DrinkData purchasedDrink = null;
-        float totalWeight = 0f;
-
-        foreach (var tid in unlockedTids)
-        {
-            var drinkData = drinkModel.Get(tid);
-            int baseWeight = drinkData?.Row?.Weight ?? 0;
-            if (baseWeight <= 0) continue;
-
-            float weight = baseWeight * business.GetDrinkPopularityRate(drinkData.Row.DrinkTempType);
-            totalWeight += weight;
-            if (UnityEngine.Random.Range(0f, totalWeight) < weight)
-                purchasedDrink = drinkData;
-        }
-
-        if (purchasedDrink?.MenuItemRow == null) return;
-
-        int gold = business.ApplySaleRate(GameInstance.Model.Upgrade.ApplyGoldIncomeMultiplier((int)purchasedDrink.MenuItemRow.Price));
-        GameInstance.Model.Item.GetWealth(CTable.eMoneyType.Gold)?.Add(gold);
-        GameInstance.Model.Business.RecordDrinkSale(gold);
-        GameInstance.Model.Cafe.AddExp(CafeModel.EXP_STORE_PAYMENT);
-
-        var lobbyCharUI = GetComponentInChildren<LobbyCharUI>();
-        lobbyCharUI?.SetDrinkSprite(LoadDrinkSprite(purchasedDrink.MenuItemRow));
-    }
-
-    // MenuItemRow.Atlas/Icon(스프라이트 아틀라스 주소 + 아틀라스 내 스프라이트 이름)로 손에 들 음료 스프라이트를 조회한다.
-    private static Sprite LoadDrinkSprite(CTable.MenuItemRow menuItemRow)
-    {
-        if (menuItemRow == null || string.IsNullOrEmpty(menuItemRow.Atlas) || string.IsNullOrEmpty(menuItemRow.Icon))
-            return null;
-
-        var atlas = GameInstance.Resource.LoadSync<SpriteAtlas>(menuItemRow.Atlas);
-        return atlas != null ? atlas.GetSprite(menuItemRow.Icon) : null;
-    }
-
-    // 큐에서 다음 행동 규칙을 하나씩 꺼내 목표 웨이포인트를 찾고 그쪽으로 이동을 시작한다.
-    // 목표를 찾지 못하면(해당 가구가 아직 존에 배치되지 않은 경우 등) 다음 규칙으로 넘어가고,
-    // 큐가 모두 비면 존의 Exit 웨이포인트로 향해 퇴장한다.
-    private void AdvanceBehaviorQueue()
+    private void PlayAnimation(string name)
     {
         if (mAnimator2D != null)
-            mAnimator2D.PlayAnimation("Run");
-
-        while (mBehaviorQueue != null && mBehaviorQueue.Count > 0)
-        {
-            var step = mBehaviorQueue.Dequeue();
-
-            if (TryGetTargetForStep(step, out var target))
-            {
-                BeginSegmentTo(target);
-                return;
-            }
-        }
-
-        if (mCurrentGroup != null && mCurrentGroup.IsTerraceZone && !mHasLingeredInTerrace)
-        {
-            LingerInTerrace();
-            return;
-        }
-
-        if (mCurrentGroup != null && mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Exit, null, out var exit))
-        {
-            BeginSegmentTo(exit);
-            return;
-        }
-
-        DespawnToPool();
+            mAnimator2D.PlayAnimation(name);
     }
 
-    // 테라스 존(IsTerraceZone) 도착 시 행동 큐가 소진되면 곧장 Exit로 나가지 않고 한 번만 잠시 머무른다.
-    // mHasLingeredInTerrace로 재입장/재확인 시 중복 실행을 막는다.
-    private void LingerInTerrace()
-    {
-        mHasLingeredInTerrace = true;
-        mIsMoving = false;
-
-        if (mAnimator2D != null)
-            mAnimator2D.PlayAnimation("Idle");
-
-        float lingerSeconds = UnityEngine.Random.Range(mTerraceLingerMinSeconds, mTerraceLingerMaxSeconds);
-
-        mPauseDisposable = Observable.Timer(TimeSpan.FromSeconds(lingerSeconds))
-            .Subscribe(_ => ResumeFromTerraceLinger())
-            .AddTo(this);
-    }
-
-    private void ResumeFromTerraceLinger()
-    {
-        mPauseDisposable?.Dispose();
-        mPauseDisposable = null;
-
-        mIsMoving = true;
-        AdvanceBehaviorQueue();
-    }
-
-    private bool TryGetTargetForStep(eNpcBehaviorStepType step, out Waypoint target)
-    {
-        target = null;
-        if (mCurrentGroup == null) return false;
-
-        switch (step)
-        {
-            case eNpcBehaviorStepType.BuyDessert:
-                return mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Trigger, Waypoint.eWaypointType.Trigger_Dessert, out target);
-            case eNpcBehaviorStepType.OrderDrink:
-                return mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Trigger, Waypoint.eWaypointType.Trigger_Order, out target);
-            case eNpcBehaviorStepType.ExitToTerrace:
-                return mCurrentGroup.TryGetRandomWaypoint(Waypoint.eWaypointCategoryType.Exit, null, out target);
-            default:
-                return false;
-        }
-    }
+    #endregion
 }

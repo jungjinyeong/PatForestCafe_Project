@@ -8,7 +8,12 @@ public class UpgradeModel : IModelBase
     private const int BaseUpgradeCost = 100;
     private const float UpgradeCostGrowthRate = 1.5f;
 
+    // 손님 한 명이 한 번에 사는 디저트 최대 수량(1~최대 무작위). 업그레이드로 늘리는 기획이라 여기 둔다 — 지금은 고정값.
+    private const int BASE_DESSERT_BUY_MAX = 5;
+
     public int Level { get; private set; }
+
+    public int DessertBuyMax => BASE_DESSERT_BUY_MAX;
 
     public float GoldIncomeMultiplier => 1f + Level * GoldMultiplierPerLevel;
 

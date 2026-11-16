@@ -19,9 +19,15 @@ public class Waypoint : MonoBehaviour
         SpwanPoint_Min = eWaypointCategoryType.SpwanPoint << 16,
 
         Exit_Min = eWaypointCategoryType.Exit << 16,
+        // 통합계단실 — 손님이 층을 옮길 때 들어가고(현재 층) 나오는(목표 층) 지점. 층에 없으면 SpawnPoint로 대신한다.
+        Exit_Stairwell,
 
+        // 씬·프리팹에 숫자로 저장되므로 새 값은 항상 맨 뒤에 붙인다.
         Trigger_Order = eWaypointCategoryType.Trigger << 16,
         Trigger_Dessert,
+        Trigger_Kiosk,
+        // 테라스 좌석(의자 가구) — 손님이 결제 때 예약하고 앉는 자리. 테라스층에 놓인 수 = 테라스 수용 인원.
+        Trigger_Seat,
 
         Max = eWaypointCategoryType.Max << 16,
     }

@@ -120,6 +120,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 78cb3b47802d77f42953ce45089d7654
+    m_Address: FurniturePrefabs/fur_temp_chair
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 80695e19c633f2645af03deaa4a15e5d
     m_Address: FurniturePrefabs/flr_0130_Wood_Floor_Tile_6
     m_ReadOnly: 0

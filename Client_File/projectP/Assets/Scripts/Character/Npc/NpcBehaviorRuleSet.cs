@@ -1,15 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// NPC 스폰 시 실행할 행동 규칙(빵 구입 -> 음료 주문 -> 테라스 퇴장 등)을 고정 세트로 정의한다.
-// CTable 없이 코드 상수로 관리(사용자 승인된 방식) — 스폰 시 세트 하나를 골라 큐(FIFO)로 반환한다.
+// 손님이 출입구에서 나타날 때 고르는 행동 세트(손님 로직 기획서 — 손님 매장 이용 루트).
+// CTable 없이 코드 상수로 관리한다. 세트 하나를 골라 큐(FIFO)로 넘긴다.
+// - 디저트 + 음료: 디저트 고르기(없으면 바로 카운터) → 카운터 결제 → 테라스 or 퇴장
+// - 음료만: 카운터 결제 → 테라스 or 퇴장
+// - 디저트만: 디저트 고르기(없으면 땀방울 후 퇴장) → 키오스크 결제 → 테라스 or 퇴장
 public static class NpcBehaviorRuleSet
 {
     private static readonly eNpcBehaviorStepType[][] mRuleSets =
     {
-        new[] { eNpcBehaviorStepType.BuyDessert, eNpcBehaviorStepType.OrderDrink, eNpcBehaviorStepType.ExitToTerrace },
-        new[] { eNpcBehaviorStepType.OrderDrink, eNpcBehaviorStepType.ExitToTerrace },
-        new[] { eNpcBehaviorStepType.BuyDessert, eNpcBehaviorStepType.ExitToTerrace },
+        new[] { eNpcBehaviorStepType.BuyDessert, eNpcBehaviorStepType.PayCounter, eNpcBehaviorStepType.GoTerraceOrExit },
+        new[] { eNpcBehaviorStepType.PayCounter, eNpcBehaviorStepType.GoTerraceOrExit },
+        new[] { eNpcBehaviorStepType.BuyDessert, eNpcBehaviorStepType.PayKiosk, eNpcBehaviorStepType.GoTerraceOrExit },
     };
 
     public static Queue<eNpcBehaviorStepType> GetRandomQueue()

@@ -7,22 +7,20 @@
 // 재생하므로 별도 재생 로직이 필요 없다(Animator2D 래퍼 미사용).
 //
 // 2026-08: 음료 픽업 속도(CTable.StaffRow.WorkSpeed) + 픽업 진행 게이지바 추가.
-// 씬에 직접 배치되는 캐릭터라 전용 프리팹이 없으므로, 게이지바는 별도 프리팹/스프라이트
-// 에셋 없이 런타임에 SpriteRenderer 2장(배경/채움)으로 절차적으로 생성한다.
-// 카운터 하나당 게이지 하나뿐이라 동시 도착한 손님은 mPickupQueue에서 FIFO로 대기했다가
-// 앞 손님 게이지가 끝난 뒤 순서대로 처리된다.
+// 게이지(WorldGaugeBar)와 FIFO 대기(TimedServiceQueue)는 키오스크(Intaraction_Kiosk)와 같은 공통 클래스를 쓴다.
 using System;
-using System.Collections.Generic;
-using UniRx;
 using UnityEngine;
 
-public class CharStaff : CharBase
+public class CharStaff : CharBase, IPaymentFacility
 {
     private const float BaseDrinkPickupSeconds = 2f;
-    private static Sprite mSolidSprite;
 
     [Header("ID")]
     [SerializeField] private int mTid = 1;
+
+    [Header("Line")]
+    [Tooltip("카운터 앞 대기 줄의 칸 간격·방향(결제 웨이포인트 기준).")]
+    [SerializeField] private Vector3 mLineSlotStep = new Vector3(0f, -0.6f, 0f);
 
     [Header("Pickup Gauge")]
     [SerializeField] private Vector3 mGaugeOffset = new Vector3(0f, 1.2f, 0f);
@@ -31,13 +29,15 @@ public class CharStaff : CharBase
     [SerializeField] private Color mGaugeFillColor = new Color(0.3f, 0.85f, 0.4f, 1f);
 
     private CTable.StaffRow mStaffRow;
-    private GameObject mGaugeRoot;
-    private Transform mGaugeFillTr;
-    private IDisposable mPickupDisposable;
-    private readonly Queue<Action> mPickupQueue = new Queue<Action>();
-    private bool mIsPickupInProgress;
+    private TimedServiceQueue mPickupQueue;
+    private ServiceLineSet mLines;
 
     public float WorkSpeed => mStaffRow != null && mStaffRow.WorkSpeed > 0f ? mStaffRow.WorkSpeed : 1f;
+
+    private void OnDestroy()
+    {
+        mPickupQueue?.Dispose();
+    }
 
     public void Init()
     {
@@ -45,107 +45,34 @@ public class CharStaff : CharBase
         if (mStaffRow == null)
             Logger.Warning($"[CharStaff] StaffRow를 찾을 수 없습니다. Tid={mTid}");
 
-        BuildGauge();
+        EnsureQueue();
     }
 
-    // 음료 픽업을 요청한다. 이미 픽업 중이면(동시 도착) 대기열에 넣고, 먼저 온 손님의 게이지가
-    // 끝난 뒤 순서대로 처리한다(FIFO) — 카운터 하나에 게이지 하나뿐이라 동시 진행은 불가.
-    // CharNpc.TriggerPause()가 Trigger_Order 도착 시 호출한다.
-    public void BeginPickup(Action onComplete)
+    // 음료 픽업을 요청한다. 이미 픽업 중이면(동시 도착) 대기열에서 차례를 기다린다(FIFO).
+    // isValid: 기다리는 사이 손님이 떠났는지 확인(떠났으면 건너뜀). CharNpc가 Trigger_Order 도착 시 호출한다.
+    public void BeginPickup(Action onComplete, Func<bool> isValid = null)
     {
-        if (mIsPickupInProgress)
-        {
-            mPickupQueue.Enqueue(onComplete);
-            return;
-        }
-
-        StartPickup(onComplete);
+        EnsureQueue();
+        mPickupQueue.Enqueue(onComplete, isValid);
     }
 
-    private void StartPickup(Action onComplete)
+    public ServiceLine GetLine(Waypoint front)
     {
-        mIsPickupInProgress = true;
-        mPickupDisposable?.Dispose();
-
-        float duration = BaseDrinkPickupSeconds / WorkSpeed;
-        float elapsed = 0f;
-
-        SetGaugeVisible(true);
-        SetGaugeFillRatio(0f);
-
-        mPickupDisposable = Observable.EveryUpdate()
-            .Subscribe(_ =>
-            {
-                elapsed += Time.deltaTime;
-                float ratio = duration > 0f ? Mathf.Clamp01(elapsed / duration) : 1f;
-                SetGaugeFillRatio(ratio);
-
-                if (ratio < 1f) return;
-
-                mPickupDisposable?.Dispose();
-                mPickupDisposable = null;
-                mIsPickupInProgress = false;
-                SetGaugeVisible(false);
-
-                if (mPickupQueue.Count > 0)
-                    StartPickup(mPickupQueue.Dequeue());
-
-                onComplete?.Invoke();
-            })
-            .AddTo(this);
+        if (mLines == null)
+            mLines = new ServiceLineSet(mLineSlotStep);
+        return mLines.Get(front);
     }
 
-    private void BuildGauge()
+    public void BeginService(Action onComplete, Func<bool> isValid)
     {
-        if (mGaugeRoot != null) return;
-
-        mGaugeRoot = new GameObject("PickupGaugeBg");
-        mGaugeRoot.transform.SetParent(transform, false);
-        mGaugeRoot.transform.localPosition = mGaugeOffset;
-        mGaugeRoot.transform.localScale = new Vector3(mGaugeSize.x, mGaugeSize.y, 1f);
-
-        var backSr = mGaugeRoot.AddComponent<SpriteRenderer>();
-        backSr.sprite = GetSolidSprite();
-        backSr.color = mGaugeBackgroundColor;
-        backSr.sortingOrder = 10;
-
-        var fillGo = new GameObject("PickupGaugeFill");
-        fillGo.transform.SetParent(mGaugeRoot.transform, false);
-        fillGo.transform.localPosition = Vector3.zero;
-
-        var fillSr = fillGo.AddComponent<SpriteRenderer>();
-        fillSr.sprite = GetSolidSprite();
-        fillSr.color = mGaugeFillColor;
-        fillSr.sortingOrder = 11;
-
-        mGaugeFillTr = fillGo.transform;
-
-        SetGaugeFillRatio(0f);
-        SetGaugeVisible(false);
+        BeginPickup(onComplete, isValid);
     }
 
-    // 배경 기준 스케일 안에서 채움 스프라이트를 가로 방향으로만 늘려 게이지를 표현한다(중앙 기준 스케일 — 러프 버전).
-    private void SetGaugeFillRatio(float ratio)
+    private void EnsureQueue()
     {
-        if (mGaugeFillTr == null) return;
-        mGaugeFillTr.localScale = new Vector3(Mathf.Clamp01(ratio), 1f, 1f);
-    }
+        if (mPickupQueue != null) return;
 
-    private void SetGaugeVisible(bool isVisible)
-    {
-        if (mGaugeRoot != null)
-            mGaugeRoot.SetActive(isVisible);
-    }
-
-    private static Sprite GetSolidSprite()
-    {
-        if (mSolidSprite != null) return mSolidSprite;
-
-        var texture = new Texture2D(1, 1);
-        texture.SetPixel(0, 0, Color.white);
-        texture.Apply();
-
-        mSolidSprite = Sprite.Create(texture, new Rect(0f, 0f, 1f, 1f), new Vector2(0.5f, 0.5f), 1f);
-        return mSolidSprite;
+        var gauge = new WorldGaugeBar(transform, mGaugeOffset, mGaugeSize, mGaugeBackgroundColor, mGaugeFillColor);
+        mPickupQueue = new TimedServiceQueue(gauge, () => BaseDrinkPickupSeconds / WorkSpeed);
     }
 }

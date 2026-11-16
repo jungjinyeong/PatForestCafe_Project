@@ -46,6 +46,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    // 손님은 모두 로비 1층 출입구(SpawnPoint)에서 나타나고, 목표 매장층(열린 B3~1F 중 무작위)으로는 CharNpc가 계단실로 옮겨 간다.
     public void SpawnAll()
     {
         if (mNpcPrefabs == null || mNpcPrefabs.Length == 0)
@@ -54,32 +55,32 @@ public class SpawnManager : MonoBehaviour
             return;
         }
 
-        var group = GameInstance.WayPoint?.GetRandomUnlockedFloorGroup();
-        if (group == null)
+        var entrance = GameInstance.WayPoint?.GetLobbyEntranceGroup();
+        if (entrance == null)
         {
-            Logger.Warning("[SpawnManager] No unlocked floor WaypointGroup registered.");
+            Logger.Warning("[SpawnManager] No lobby entrance WaypointGroup registered.");
             return;
         }
 
-        SpawnInGroup(group);
-    }
-
-    private void SpawnInGroup(WaypointGroup group)
-    {
-        if (group == null) return;
-
-        var spawnPoints = group.GetSpawnPoints();
+        var spawnPoints = entrance.GetSpawnPoints();
         if (spawnPoints == null || spawnPoints.Length == 0)
         {
-            Logger.Warning($"[SpawnManager] '{group.name}' has no SpawnPoint waypoints.");
+            Logger.Warning($"[SpawnManager] '{entrance.name}' has no SpawnPoint waypoints.");
             return;
         }
 
         foreach (var spawnPoint in spawnPoints)
-            SpawnNPC(spawnPoint, group);
+            SpawnNPC(spawnPoint, entrance, PickTargetStoreGroup(entrance));
     }
 
-    private void SpawnNPC(Waypoint spawnPoint, WaypointGroup group)
+    // 목표 층이 없으면(열린 매장층 정보가 아직 없을 때 등) 1층에서 그대로 쇼핑한다.
+    private static WaypointGroup PickTargetStoreGroup(WaypointGroup entrance)
+    {
+        var target = GameInstance.WayPoint?.GetRandomUnlockedStoreGroup();
+        return target != null ? target : entrance;
+    }
+
+    private void SpawnNPC(Waypoint spawnPoint, WaypointGroup entrance, WaypointGroup targetGroup)
     {
         var prefab = mNpcPrefabs[UnityEngine.Random.Range(0, mNpcPrefabs.Length)];
 
@@ -102,7 +103,7 @@ public class SpawnManager : MonoBehaviour
             return;
         }
 
-        npc.Init(group, spawnPoint);
+        npc.Init(entrance, spawnPoint, targetGroup);
 
         if (!mSpawnedNPCs.Contains(npc))
             mSpawnedNPCs.Add(npc);
@@ -160,13 +161,13 @@ public class SpawnManager : MonoBehaviour
         if (mNpcPrefabs == null || mNpcPrefabs.Length == 0)
             return;
 
-        var group = GameInstance.WayPoint?.GetRandomUnlockedFloorGroup();
-        if (group == null) return;
+        var entrance = GameInstance.WayPoint?.GetLobbyEntranceGroup();
+        if (entrance == null) return;
 
-        var spawnPoints = group.GetSpawnPoints();
+        var spawnPoints = entrance.GetSpawnPoints();
         if (spawnPoints == null || spawnPoints.Length == 0) return;
 
-        SpawnNPC(spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Length)], group);
+        SpawnNPC(spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Length)], entrance, PickTargetStoreGroup(entrance));
     }
 
     // 남은 손님을 모두 즉시 내보낸다. CharNpc.ForceLeave()가 들고 있던 빵·음료·대기 타이머를 정리한 뒤

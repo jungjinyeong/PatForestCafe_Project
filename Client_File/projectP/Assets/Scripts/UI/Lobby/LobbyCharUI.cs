@@ -1,12 +1,13 @@
-using UnityEngine.Serialization;
 using System;
-using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using TMPro;
 
 public class LobbyCharUI : MonoBehaviour
 {
     private const int SortingOrder = 0;
+    // 머리 위 디저트 표시는 캐릭터·가구보다 위에 그린다.
+    private const int CART_SORTING_ORDER = 20;
 
     [Header("Payment Effect")]
     [SerializeField] private GameObject mCoinIconObj;
@@ -18,21 +19,26 @@ public class LobbyCharUI : MonoBehaviour
     [SerializeField] private GameObject mSweatIconObj;
 
     [Header("Dessert")]
-    [SerializeField, FormerlySerializedAs("mRootBreadTr")] private Transform mRootDessertTr;
-    public Transform RootDessertTr => mRootDessertTr;
+    // 머리 위 디저트 표시(고른 디저트 아이콘 + "xN"). 손에 든 음료처럼 SpriteRenderer/TextMeshPro로 만들어 캐릭터보다 위에 그린다.
+    [SerializeField] private Vector3 mDessertCartOffset = new Vector3(-0.2f, 1.3f, 0f);
+    [SerializeField] private float mDessertIconWidth = 0.6f;
+    [SerializeField] private float mDessertCountFontSize = 5f;
+    [Tooltip("수량 글꼴(픽셀 글꼴 Galmuri11 권장). 비우면 TMP 기본 글꼴.")]
+    [SerializeField] private TMP_FontAsset mDessertCountFont;
 
     [Header("Drink")]
     [SerializeField] private Vector3 mDrinkOffset = new Vector3(0.25f, -0.1f, 0f);
     [SerializeField] private Vector2 mDrinkSize = new Vector2(0.25f, 0.25f);
 
-    private readonly List<Intaraction_Dessert> mDesserts = new List<Intaraction_Dessert>();
-    public IReadOnlyList<Intaraction_Dessert> Desserts => mDesserts;
-    public bool HasDessert => mDesserts.Count > 0;
+    private GameObject mDessertCartObj;
+    private SpriteRenderer mDessertIconRenderer;
+    private TextMeshPro mDessertCountText;
 
     private GameObject mDrinkIconObj;
     private SpriteRenderer mDrinkSpriteRenderer;
 
     private Camera mMainCamera;
+    private IDisposable mPaymentEffectDisposable;
 
     private void Awake()
     {
@@ -46,17 +52,19 @@ public class LobbyCharUI : MonoBehaviour
 
     public void PlayPaymentEffect(Action onComplete)
     {
+        StopPaymentEffect();
         SetCoinIconActive(true);
 
-        Observable.Timer(TimeSpan.FromSeconds(mCoinIconDuration))
+        mPaymentEffectDisposable = Observable.Timer(TimeSpan.FromSeconds(mCoinIconDuration))
             .Subscribe(_ =>
             {
                 SetCoinIconActive(false);
                 SetSatisfactionIconActive(true);
 
-                Observable.Timer(TimeSpan.FromSeconds(mSatisfactionIconDuration))
+                mPaymentEffectDisposable = Observable.Timer(TimeSpan.FromSeconds(mSatisfactionIconDuration))
                     .Subscribe(__ =>
                     {
+                        mPaymentEffectDisposable = null;
                         SetSatisfactionIconActive(false);
                         onComplete?.Invoke();
                     })
@@ -65,40 +73,46 @@ public class LobbyCharUI : MonoBehaviour
             .AddTo(this);
     }
 
+    // 손님이 풀로 돌아갈 때(강제 퇴장 등) 진행 중인 결제 연출을 멈추고 아이콘을 끈다 — 재사용된 다음 손님에게 남지 않게.
+    public void StopPaymentEffect()
+    {
+        mPaymentEffectDisposable?.Dispose();
+        mPaymentEffectDisposable = null;
+        SetCoinIconActive(false);
+        SetSatisfactionIconActive(false);
+    }
+
     public void SetSweatIconActive(bool isActive)
     {
         if (mSweatIconObj != null)
             mSweatIconObj.SetActive(isActive);
     }
 
-    public bool CanAttachDessert()
+    // 고른 디저트를 머리 위에 아이콘 + "xN"으로 보여 준다. count가 0 이하이면 숨긴다.
+    public void SetDessertCart(Sprite icon, int count)
     {
-        return mDesserts.Count < GameInstance.Config.GetValue(eConfigType.DessertMaxCount);
-    }
-
-    public void AttachDessert(Intaraction_Dessert dessert)
-    {
-        if (mRootDessertTr == null || dessert == null || !CanAttachDessert()) return;
-
-        dessert.transform.SetParent(mRootDessertTr);
-        dessert.transform.localPosition = Vector3.zero;
-        dessert.transform.localScale = Vector3.one;
-
-        var dessertRt = dessert.GetComponent<RectTransform>();
-        if (dessertRt != null)
+        if (count <= 0)
         {
-            dessertRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 0.3f);
-            dessertRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0.2f);
+            ClearDessertCart();
+            return;
         }
 
-        mDesserts.Add(dessert);
+        if (mDessertCartObj == null)
+            BuildDessertCartObj();
+
+        mDessertIconRenderer.sprite = icon;
+        float spriteWidth = icon != null ? icon.bounds.size.x : 0f;
+        float scale = spriteWidth > 0f ? mDessertIconWidth / spriteWidth : 1f;
+        mDessertIconRenderer.transform.localScale = new Vector3(scale, scale, 1f);
+
+        mDessertCountText.text = "x" + count;
+        mDessertCartObj.SetActive(true);
     }
 
-    public List<Intaraction_Dessert> DetachAllDesserts()
+    public void ClearDessertCart()
     {
-        var desserts = new List<Intaraction_Dessert>(mDesserts);
-        mDesserts.Clear();
-        return desserts;
+        if (mDessertCartObj != null)
+            mDessertCartObj.SetActive(false);
     }
 
     // 계산대에서 구매가 확정된 음료의 스프라이트를 손에 들려준다(MenuItemRow.Atlas/Icon 기준, CharNpc가 조회해 넘겨줌).
@@ -122,6 +136,34 @@ public class LobbyCharUI : MonoBehaviour
     {
         if (mDrinkIconObj != null)
             mDrinkIconObj.SetActive(false);
+    }
+
+    // 전용 프리팹 없이 절차적으로 만든다(손에 든 음료 아이콘과 같은 방식). 정렬 순서를 캐릭터보다 높여 머리 위에 보이게 한다.
+    private void BuildDessertCartObj()
+    {
+        mDessertCartObj = new GameObject("DessertCart");
+        mDessertCartObj.transform.SetParent(transform, false);
+        mDessertCartObj.transform.localPosition = mDessertCartOffset;
+
+        var iconObj = new GameObject("Icon");
+        iconObj.transform.SetParent(mDessertCartObj.transform, false);
+        mDessertIconRenderer = iconObj.AddComponent<SpriteRenderer>();
+        mDessertIconRenderer.sortingOrder = CART_SORTING_ORDER;
+
+        var countObj = new GameObject("Count");
+        countObj.transform.SetParent(mDessertCartObj.transform, false);
+        countObj.transform.localPosition = new Vector3(mDessertIconWidth * 0.5f + 0.05f, 0f, 0f);
+        mDessertCountText = countObj.AddComponent<TextMeshPro>();
+        if (mDessertCountFont != null)
+            mDessertCountText.font = mDessertCountFont;
+        mDessertCountText.fontSize = mDessertCountFontSize;
+        mDessertCountText.alignment = TextAlignmentOptions.MidlineLeft;
+        mDessertCountText.enableWordWrapping = false;
+        mDessertCountText.overflowMode = TextOverflowModes.Overflow;
+        mDessertCountText.rectTransform.pivot = new Vector2(0f, 0.5f);
+        mDessertCountText.rectTransform.sizeDelta = new Vector2(1f, 0.4f);
+        mDessertCountText.color = new Color(0.3f, 0.18f, 0.1f, 1f);
+        mDessertCountText.sortingOrder = CART_SORTING_ORDER;
     }
 
     private void BuildDrinkIconObj()

@@ -15,5 +15,6 @@ namespace CTable
         public string Atlas;
         public string Icon;
         public bool IsTopping;
+        public bool IsInfinite;
     }
 }

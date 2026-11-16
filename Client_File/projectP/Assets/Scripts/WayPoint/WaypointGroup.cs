@@ -19,6 +19,8 @@ public class WaypointGroup : MonoBehaviour
 
     private readonly List<Waypoint> mDynamicTriggerWaypoints = new List<Waypoint>();
     private CompositeDisposable mDisposables;
+    private Waypoint mStairwellPoint;
+    private bool mHasSearchedStairwell;
 
     public int Order => mOrder;
     public Waypoint[] StaticWaypoints => mStaticWaypoints;
@@ -87,9 +89,54 @@ public class WaypointGroup : MonoBehaviour
         return spawnPoints.ToArray();
     }
 
+    // 층 이동 지점: 이 층의 통합계단실(Exit_Stairwell) 웨이포인트. 계단실을 아직 두지 않은 층은 SpawnPoint로 대신한다.
+    // 계단실 웨이포인트는 mStaticWaypoints(에디터 FindWaypoint 버튼)에 없어도 찾을 수 있게 자식까지 본다.
+    public Waypoint GetStairwellPoint()
+    {
+        if (mStaticWaypoints != null)
+        {
+            foreach (var wp in mStaticWaypoints)
+            {
+                if (wp != null && wp.WaypointType == Waypoint.eWaypointType.Exit_Stairwell)
+                    return wp;
+            }
+        }
+
+        if (!mHasSearchedStairwell)
+        {
+            mHasSearchedStairwell = true;
+            foreach (var wp in GetComponentsInChildren<Waypoint>(true))
+            {
+                if (wp.WaypointType == Waypoint.eWaypointType.Exit_Stairwell)
+                {
+                    mStairwellPoint = wp;
+                    break;
+                }
+            }
+        }
+
+        return mStairwellPoint != null ? mStairwellPoint : GetSpawnPoint();
+    }
+
+    // 이 층에 놓인 특정 타입의 Trigger 웨이포인트(가구 철거로 파괴된 것 제외)를 result에 더한다. 예: 테라스 좌석.
+    public void CollectTriggerWaypoints(Waypoint.eWaypointType type, List<Waypoint> result)
+    {
+        foreach (var wp in mDynamicTriggerWaypoints)
+        {
+            if (wp != null && wp.WaypointType == type)
+                result.Add(wp);
+        }
+    }
+
     // 자유 배회용 목표 탐색: SpwanPoint/Exit는 씬 고정(mStaticWaypoints)에서,
     // Trigger(가구/주문받는 NPC에 배치된 웨이포인트)는 런타임 동적 스캔 풀(mDynamicTriggerWaypoints)에서 찾는다.
     public bool TryGetRandomWaypoint(Waypoint.eWaypointCategoryType category, Waypoint.eWaypointType? specificType, out Waypoint result)
+    {
+        return TryGetRandomWaypoint(category, specificType, null, out result);
+    }
+
+    // filter: 후보 조건(예: 재고가 있는 진열대만, 방금 들른 진열대 제외). null이면 조건 없음.
+    public bool TryGetRandomWaypoint(Waypoint.eWaypointCategoryType category, Waypoint.eWaypointType? specificType, System.Func<Waypoint, bool> filter, out Waypoint result)
     {
         result = null;
 
@@ -103,6 +150,9 @@ public class WaypointGroup : MonoBehaviour
                 continue;
 
             if (specificType.HasValue && wp.WaypointType != specificType.Value)
+                continue;
+
+            if (filter != null && !filter(wp))
                 continue;
 
             candidates.Add(wp);

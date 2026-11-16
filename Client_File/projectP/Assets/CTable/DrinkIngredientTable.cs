@@ -13,7 +13,7 @@ namespace CTable
                 string line = lines[i];
                 if (string.IsNullOrWhiteSpace(line)) continue;
                 string[] values = line.Split(',');
-                if (values.Length < 8) continue;
+                if (values.Length < 9) continue;
 
                 var row = new DrinkIngredientRow();
                 row.Tid = int.TryParse(values[0].Trim(), out int _Tid) ? _Tid : 0;
@@ -24,6 +24,7 @@ namespace CTable
                 row.Atlas = values[5].Trim();
                 row.Icon = values[6].Trim();
                 row.IsTopping = bool.TryParse(values[7].Trim(), out bool _IsTopping) && _IsTopping;
+                row.IsInfinite = bool.TryParse(values[8].Trim(), out bool _IsInfinite) && _IsInfinite;
 
                 AddRow(row.Tid, row);
             }

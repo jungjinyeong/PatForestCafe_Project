@@ -12,5 +12,6 @@ namespace CTable
         public string Atlas;
         public string Icon;
         public long Price;
+        public string HandIcon;
     }
 }

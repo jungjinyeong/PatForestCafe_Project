@@ -91,6 +91,45 @@ public class DrinkModel : IModelBase
         return mIceCounts.TryGetValue(drinkTid, out int count) ? count : 0;
     }
 
+    // 손님 주문용: 무한 재료(DrinkIngredientRow.IsInfinite — 물·얼음·원두)를 뺀 재료가 창고에 모두 있으면 제작 가능.
+    public bool CanMake(int drinkTid)
+    {
+        if (Get(drinkTid) == null)
+            return false;
+
+        foreach (var pair in GetConsumableIngredientCounts(drinkTid))
+        {
+            if (!GameInstance.Model.Ingredient.HasEnough(pair.Key, pair.Value))
+                return false;
+        }
+        return true;
+    }
+
+    // 손님 결제가 확정될 때 무한 재료를 뺀 재료를 소모한다. CanMake로 확인한 뒤 호출한다.
+    public void ConsumeIngredients(int drinkTid)
+    {
+        foreach (var pair in GetConsumableIngredientCounts(drinkTid))
+            GameInstance.Model.Ingredient.Consume(pair.Key, pair.Value);
+    }
+
+    private Dictionary<int, int> GetConsumableIngredientCounts(int drinkTid)
+    {
+        var counts = CountIngredients(GetBaseIngredientTids(drinkTid));
+        int iceCount = GetIceCount(drinkTid);
+        if (iceCount > 0)
+            counts[ICE_INGREDIENT_TID] = iceCount;
+
+        var result = new Dictionary<int, int>();
+        foreach (var pair in counts)
+        {
+            var row = GameInstance.Table.Get<CTable.DrinkIngredientRow>(pair.Key);
+            if (row != null && row.IsInfinite)
+                continue;
+            result[pair.Key] = pair.Value;
+        }
+        return result;
+    }
+
     private static IEnumerable<int> GetIngredientTids(CTable.DrinkRow row)
     {
         if (row.DrinkIngredient1 != 0) yield return row.DrinkIngredient1;

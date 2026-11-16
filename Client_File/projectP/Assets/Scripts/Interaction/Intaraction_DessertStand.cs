@@ -1,8 +1,6 @@
 using UnityEngine.Serialization;
 using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using UniRx;
 using UnityEngine;
 using Extension;
 
@@ -30,6 +28,8 @@ public class Intaraction_DessertStand : MonoBehaviour
 
     public int TableId => mTableId;
     public bool IsAssigned => mTableId != 0;
+    // 이 진열대에 실제로 놓인 디저트 수. 손님은 이 값이 1 이상인 진열대만 고른다.
+    public int DisplayedCount => mActiveDessertQueue.Count;
 
     public void Init()
     {
@@ -40,7 +40,7 @@ public class Intaraction_DessertStand : MonoBehaviour
         // TryAssignDessertType()이 최초 배치 시 발급된 PlacementId를 PlacementModel에 기록해야 해서 필요하다.
         mPlaceable = GetComponent<PlaceableObject>();
 
-        // 이 진열대 밑의 Trigger_Dessert 웨이포인트(CharNpc가 재고 확인/CEvent.DessertPickup 발행에 쓰는 TableId)를
+        // 이 진열대 밑의 Trigger_Dessert 웨이포인트(CharNpc가 진열대를 찾고 재고를 확인하는 TableId)를
         // 찾아둔다 — mTableId가 나중에 배정/복원될 때 이 웨이포인트에도 같이 반영해야 NPC가 올바른 재고를 본다.
         mDessertTriggerWaypoint = FindDessertTriggerWaypoint();
 
@@ -51,11 +51,6 @@ public class Intaraction_DessertStand : MonoBehaviour
             mDessertTriggerWaypoint?.SetTableId(mTableId);
         }
 
-        MessageBroker.Default
-            .Receive<CEvent.DessertPickup>()
-            .Where(e => e.tableId == mTableId)
-            .Subscribe(e => HandleDessertPickupAsync(e.dessertPickup).Forget())
-            .AddTo(this);
     }
 
     private Waypoint FindDessertTriggerWaypoint()
@@ -137,25 +132,43 @@ public class Intaraction_DessertStand : MonoBehaviour
         GameInstance.Model.Dessert.Add(mTableId, quality);
     }
 
-    private async UniTaskVoid HandleDessertPickupAsync(IDessertPickup dessertPickup)
+    // 손님이 이 진열대에서 count개를 집어 간다. 실제로 가져가는 수 = min(count, 이 진열대에 놓인 개수).
+    // 집은 디저트는 진열 수량에서 빼고 진열 오브젝트는 풀로 돌려보낸다(손님 머리 위에는 아이콘+수량만 보인다).
+    // 반환: 집어 간 디저트의 품질 목록(결제 때 품질별 판매가 배율에 쓴다). 비어 있으면 아무것도 못 집은 것.
+    public List<eDessertQuality> TakeDesserts(int count)
     {
-        if (mActiveDessertQueue.Count == 0) return;
+        var taken = new List<eDessertQuality>();
+        if (mTableId == 0)
+            return taken;
 
-        await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
+        while (taken.Count < count && mActiveDessertQueue.Count > 0)
+        {
+            var dessert = mActiveDessertQueue.Dequeue();
+            if (dessert == null)
+                continue;
 
-        if (mActiveDessertQueue.Count == 0) return;
+            GameInstance.Model.Dessert.Consume(mTableId, dessert.Quality);
+            taken.Add(dessert.Quality);
 
-        if(dessertPickup == null) return;
+            if (GameInstance.Pool != null)
+                dessert.transform.SetParent(GameInstance.Pool.transform, true);
+            dessert.Despawn();
+        }
 
-        var lobbyUI = dessertPickup.GetLobbyCharUI;
-        if (lobbyUI == null || !lobbyUI.CanAttachDessert()) return;
+        return taken;
+    }
 
-        var dessert = mActiveDessertQueue.Dequeue();
-        if (dessert == null) return;
+    // 결제를 포기한 손님이 집었던 디저트를 되돌려 놓는다 — 진열 수량을 다시 늘리고 진열 오브젝트도 다시 만든다.
+    public void ReturnDesserts(IReadOnlyList<eDessertQuality> qualities)
+    {
+        if (mTableId == 0 || qualities == null)
+            return;
 
-        lobbyUI.AttachDessert(dessert);
-
-        GameInstance.Model.Dessert.Consume(mTableId, dessert.Quality);
+        foreach (var quality in qualities)
+        {
+            GameInstance.Model.Dessert.Add(mTableId, quality);
+            SpawnDessert(quality);
+        }
     }
 
     // 진열대가 철거/리셋으로 사라지기 직전에 호출한다. 진열된 빵을 진열 수량에서 빼 같은 품질 그대로 생산 재고(창고)로 되돌리고,
