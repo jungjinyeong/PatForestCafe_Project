@@ -215,7 +215,15 @@ public class Intaraction_DessertStand : MonoBehaviour
         {
             dessert.SetTableId(mTableId);
             dessert.SetQuality(quality);
+            dessert.SetIcon(GetDessertIcon());
             mActiveDessertQueue.Enqueue(dessert);
         }
+    }
+
+    // 이 진열대가 취급하는 디저트의 아이콘(MenuItem.csv의 Atlas + Icon). 아틀라스에 없는 이름이면 null → 디저트 프리팹의 기본 그림을 쓴다.
+    private Sprite GetDessertIcon()
+    {
+        var row = mTableId != 0 ? GameInstance.Model.Dessert.Get(mTableId)?.MenuItemRow : null;
+        return row != null ? ExtensionUI.GetAtlasSprite(row.Atlas, row.Icon) : null;
     }
 }

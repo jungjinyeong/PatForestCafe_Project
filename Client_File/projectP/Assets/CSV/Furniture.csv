@@ -1,6 +1,6 @@
 Tid,Name,Atlas,Icon,VisualPath,Price,Width,Height,GroupId,FixedType,LayoutOrder,FurnitureType,Category
 int,string,string,string,string,long,int,int,int,int,int,int,int
-@아이디,@가구명,@아이템아틀라스,@아이템아이콘,@아트데이터주소(FurnitureVisualData Addressables),@골드비용,@가로칸수,@세로칸수,@가구그룹아이디,@고정타입(0=고정,1=벽고정,2=자유),@레이아웃순서(벽/타일=0,카펫=1,이후 값이 클수록 위/같은값은 배치순),@가구타입(0=빵테이블,1=계산대,2=문,3=통합계단실,4=키오스크,5=벽,6=타일,7=카펫,8=의자),@카테고리(1=진열대 2=테이블 3=의자 4=스탠드 5=장식 6=파티션)
+@아이디,@가구명,@아이템아틀라스,@아이템아이콘,@아트데이터주소(FurnitureVisualData Addressables),@골드비용,@가로칸수,@세로칸수,@가구그룹아이디,@고정타입(0=고정,1=벽고정,2=자유),@레이아웃순서(벽/타일=0,카펫=1,이후 값이 클수록 위/같은값은 배치순),@가구타입(0=빵테이블,1=계산대,2=문,3=통합계단실,4=키오스크,5=벽,6=타일,7=카펫,8=의자,9=장식),@카테고리(1=진열대 2=테이블 3=의자 4=스탠드 5=장식 6=파티션)
 30001,테이블,FurnitureAtlas,TableIcon,FurnitureVisual/FV_fur_0100_bread_display_table_v01,1000,1,1,1,2,2,0,1
 30002,벽지(임시),FurnitureAtlas,WallpaperIcon,FurnitureVisual/FV_wal_0100_forest_stone_wall_set_1,500,1,3,0,1,0,5,5
 30003,정원석 바닥(자연),FurnitureAtlas,FloorTileIcon,FurnitureVisual/FV_flr_0110_ForestGardenStone_Natural_set,300,1,1,0,2,0,6,5
@@ -36,3 +36,91 @@ int,string,string,string,string,long,int,int,int,int,int,int,int
 30044,숲 덩굴벽 2,FurnitureAtlas,WallpaperIcon,FurnitureVisual/FV_wal_0110_forest_vine_wall_set_1,500,1,3,0,1,0,5,5
 30045,숲 덩굴벽 3,FurnitureAtlas,WallpaperIcon,FurnitureVisual/FV_wal_0110_forest_vine_wall_set_2,500,1,3,0,1,0,5,5
 30050,의자(임시),FurnitureAtlas,ChairIcon,FurnitureVisual/FV_fur_temp_chair,300,1,1,0,2,2,8,3
+30101,매장 카운터,FurnitureAtlas,shop_counter_01,FurnitureVisual/FV_shop_counter_01,800,4,1,0,2,2,9,5
+30102,매장 꽃 차양,FurnitureAtlas,shop_flower_canopy_01,FurnitureVisual/FV_shop_flower_canopy_01,1900,6,1,0,1,2,9,5
+30103,매장 정면(완성),FurnitureAtlas,shop_front_complete_01,FurnitureVisual/FV_shop_front_complete_01,3000,6,1,0,2,2,9,5
+30104,매장 왼쪽 기둥,FurnitureAtlas,shop_left_post_01,FurnitureVisual/FV_shop_left_post_01,600,1,1,0,2,2,9,5
+30105,매장 오른쪽 기둥,FurnitureAtlas,shop_right_post_01,FurnitureVisual/FV_shop_right_post_01,650,1,1,0,2,2,9,5
+30111,키오스크 벽(완성),FurnitureAtlas,kiosk_wall_complete_01,FurnitureVisual/FV_kiosk_wall_complete_01,3000,4,1,0,2,2,9,5
+30112,키오스크 상단 장식,FurnitureAtlas,kiosk_wall_header_01,FurnitureVisual/FV_kiosk_wall_header_01,900,3,1,0,1,2,9,5
+30113,키오스크 왼쪽 기둥,FurnitureAtlas,kiosk_wall_left_post_01,FurnitureVisual/FV_kiosk_wall_left_post_01,300,1,1,0,2,2,9,5
+30114,셀프 오더 간판,FurnitureAtlas,kiosk_wall_order_sign_01,FurnitureVisual/FV_kiosk_wall_order_sign_01,250,2,1,0,1,2,9,5
+30115,키오스크 오른쪽 기둥,FurnitureAtlas,kiosk_wall_right_post_01,FurnitureVisual/FV_kiosk_wall_right_post_01,350,1,1,0,2,2,9,5
+30116,키오스크 돌기둥,FurnitureAtlas,kiosk_wall_stone_column_01,FurnitureVisual/FV_kiosk_wall_stone_column_01,550,1,1,0,2,2,9,5
+30121,출구 왼쪽 기둥,FurnitureAtlas,exit_left_column_01,FurnitureVisual/FV_exit_left_column_01,550,1,1,0,2,2,9,5
+30122,출구 오른쪽 기둥,FurnitureAtlas,exit_right_column_01,FurnitureVisual/FV_exit_right_column_01,650,1,1,0,2,2,9,5
+30123,출구 옆벽,FurnitureAtlas,exit_side_wall_01,FurnitureVisual/FV_exit_side_wall_01,450,1,1,0,2,2,9,5
+30124,출구 간판,FurnitureAtlas,exit_sign_01,FurnitureVisual/FV_exit_sign_01,350,2,1,0,1,2,9,5
+30125,출구 작은 기둥,FurnitureAtlas,exit_small_pillar_01,FurnitureVisual/FV_exit_small_pillar_01,550,1,1,0,2,2,9,5
+30126,출구 계단,FurnitureAtlas,exit_stairs_center_01,FurnitureVisual/FV_exit_stairs_center_01,1150,2,1,0,2,2,9,5
+30127,출구 계단(완성),FurnitureAtlas,exit_stairs_complete_01,FurnitureVisual/FV_exit_stairs_complete_01,3000,5,1,0,2,2,9,5
+30131,계단 바닥,FurnitureAtlas,stair_floor_tile_01,FurnitureVisual/FV_stair_floor_tile_01,700,2,1,0,2,1,7,5
+30141,랜턴 1,FurnitureAtlas,lantern_or_mount_01,FurnitureVisual/FV_lantern_or_mount_01,150,1,1,0,1,2,9,5
+30142,랜턴 2,FurnitureAtlas,lantern_or_mount_02,FurnitureVisual/FV_lantern_or_mount_02,100,1,1,0,1,2,9,5
+30143,랜턴 3,FurnitureAtlas,lantern_or_mount_03,FurnitureVisual/FV_lantern_or_mount_03,200,1,1,0,1,2,9,5
+30144,랜턴 4,FurnitureAtlas,lantern_or_mount_04,FurnitureVisual/FV_lantern_or_mount_04,200,1,1,0,1,2,9,5
+30145,랜턴 5,FurnitureAtlas,lantern_or_mount_05,FurnitureVisual/FV_lantern_or_mount_05,150,1,1,0,1,2,9,5
+30146,랜턴 6,FurnitureAtlas,lantern_or_mount_06,FurnitureVisual/FV_lantern_or_mount_06,150,1,1,0,1,2,9,5
+30201,테두리 풀 1,FurnitureAtlas,border_grass_01,FurnitureVisual/FV_border_grass_01,200,1,1,0,2,1,9,5
+30202,테두리 풀 2,FurnitureAtlas,border_grass_02,FurnitureVisual/FV_border_grass_02,100,1,1,0,2,1,9,5
+30203,테두리 풀 3,FurnitureAtlas,border_grass_03,FurnitureVisual/FV_border_grass_03,150,1,1,0,2,1,9,5
+30204,테두리 풀 4,FurnitureAtlas,border_grass_04,FurnitureVisual/FV_border_grass_04,150,1,1,0,2,1,9,5
+30205,테두리 풀 5,FurnitureAtlas,border_grass_05,FurnitureVisual/FV_border_grass_05,100,1,1,0,2,1,9,5
+30206,테두리 풀 6,FurnitureAtlas,border_grass_06,FurnitureVisual/FV_border_grass_06,100,1,1,0,2,1,9,5
+30207,테두리 풀 7,FurnitureAtlas,border_grass_07,FurnitureVisual/FV_border_grass_07,150,1,1,0,2,1,9,5
+30211,장식 울타리 1,FurnitureAtlas,fence_decor_01,FurnitureVisual/FV_fence_decor_01,200,1,1,0,2,2,9,6
+30212,장식 울타리 2,FurnitureAtlas,fence_decor_02,FurnitureVisual/FV_fence_decor_02,200,1,1,0,2,2,9,6
+30213,장식 울타리 3,FurnitureAtlas,fence_decor_03,FurnitureVisual/FV_fence_decor_03,300,1,1,0,2,2,9,6
+30214,장식 울타리 4,FurnitureAtlas,fence_decor_04,FurnitureVisual/FV_fence_decor_04,200,1,1,0,2,2,9,6
+30215,장식 울타리 5,FurnitureAtlas,fence_decor_05,FurnitureVisual/FV_fence_decor_05,350,2,1,0,2,2,9,6
+30221,울타리 1,FurnitureAtlas,fence_full_01,FurnitureVisual/FV_fence_full_01,700,3,1,0,2,2,9,6
+30222,울타리 2,FurnitureAtlas,fence_full_02,FurnitureVisual/FV_fence_full_02,650,2,1,0,2,2,9,6
+30223,울타리 3,FurnitureAtlas,fence_full_03,FurnitureVisual/FV_fence_full_03,550,2,1,0,2,2,9,6
+30224,울타리 4,FurnitureAtlas,fence_full_04,FurnitureVisual/FV_fence_full_04,550,2,1,0,2,2,9,6
+30225,울타리 5,FurnitureAtlas,fence_full_05,FurnitureVisual/FV_fence_full_05,550,2,1,0,2,2,9,6
+30231,울타리 조각 1,FurnitureAtlas,fence_part_01,FurnitureVisual/FV_fence_part_01,250,1,1,0,2,2,9,6
+30232,울타리 조각 2,FurnitureAtlas,fence_part_02,FurnitureVisual/FV_fence_part_02,450,2,1,0,2,2,9,6
+30233,울타리 조각 3,FurnitureAtlas,fence_part_03,FurnitureVisual/FV_fence_part_03,200,1,1,0,2,2,9,6
+30234,울타리 조각 4,FurnitureAtlas,fence_part_04,FurnitureVisual/FV_fence_part_04,200,1,1,0,2,2,9,6
+30235,울타리 조각 5,FurnitureAtlas,fence_part_05,FurnitureVisual/FV_fence_part_05,100,1,1,0,2,2,9,6
+30241,화분 1,FurnitureAtlas,flower_pot_or_bush_01,FurnitureVisual/FV_flower_pot_or_bush_01,250,1,1,0,2,2,9,5
+30242,화분 2,FurnitureAtlas,flower_pot_or_bush_02,FurnitureVisual/FV_flower_pot_or_bush_02,200,1,1,0,2,2,9,5
+30243,화분 3,FurnitureAtlas,flower_pot_or_bush_03,FurnitureVisual/FV_flower_pot_or_bush_03,250,1,1,0,2,2,9,5
+30244,화분 4,FurnitureAtlas,flower_pot_or_bush_04,FurnitureVisual/FV_flower_pot_or_bush_04,300,1,1,0,2,2,9,5
+30245,화분 5,FurnitureAtlas,flower_pot_or_bush_05,FurnitureVisual/FV_flower_pot_or_bush_05,200,1,1,0,2,2,9,5
+30246,화분 6,FurnitureAtlas,flower_pot_or_bush_06,FurnitureVisual/FV_flower_pot_or_bush_06,250,1,1,0,2,2,9,5
+30247,화분 7,FurnitureAtlas,flower_pot_or_bush_07,FurnitureVisual/FV_flower_pot_or_bush_07,200,1,1,0,2,2,9,5
+30251,풀 장식 1,FurnitureAtlas,grass_decor_01,FurnitureVisual/FV_grass_decor_01,100,1,1,0,2,1,9,5
+30252,풀 장식 2,FurnitureAtlas,grass_decor_02,FurnitureVisual/FV_grass_decor_02,100,1,1,0,2,1,9,5
+30253,풀 장식 3,FurnitureAtlas,grass_decor_03,FurnitureVisual/FV_grass_decor_03,100,1,1,0,2,1,9,5
+30254,풀 장식 4,FurnitureAtlas,grass_decor_04,FurnitureVisual/FV_grass_decor_04,100,1,1,0,2,1,9,5
+30255,풀 장식 5,FurnitureAtlas,grass_decor_05,FurnitureVisual/FV_grass_decor_05,100,1,1,0,2,1,9,5
+30256,풀 장식 6,FurnitureAtlas,grass_decor_06,FurnitureVisual/FV_grass_decor_06,100,1,1,0,2,1,9,5
+30257,풀 장식 7,FurnitureAtlas,grass_decor_07,FurnitureVisual/FV_grass_decor_07,100,1,1,0,2,1,9,5
+30258,풀 장식 8,FurnitureAtlas,grass_decor_08,FurnitureVisual/FV_grass_decor_08,100,1,1,0,2,1,9,5
+30259,풀 장식 9,FurnitureAtlas,grass_decor_09,FurnitureVisual/FV_grass_decor_09,100,1,1,0,2,1,9,5
+30260,풀 장식 10,FurnitureAtlas,grass_decor_10,FurnitureVisual/FV_grass_decor_10,100,1,1,0,2,1,9,5
+30261,풀 장식 11,FurnitureAtlas,grass_decor_11,FurnitureVisual/FV_grass_decor_11,100,1,1,0,2,1,9,5
+30271,간판 1,FurnitureAtlas,sign_01,FurnitureVisual/FV_sign_01,250,1,1,0,2,2,9,5
+30272,간판 2,FurnitureAtlas,sign_02,FurnitureVisual/FV_sign_02,100,1,1,0,2,2,9,5
+30273,간판 3,FurnitureAtlas,sign_03,FurnitureVisual/FV_sign_03,250,1,1,0,2,2,9,5
+30274,간판 4,FurnitureAtlas,sign_04,FurnitureVisual/FV_sign_04,500,3,1,0,1,2,9,5
+30281,돌기둥 조각 1,FurnitureAtlas,stone_column_piece_01,FurnitureVisual/FV_stone_column_piece_01,150,1,1,0,2,2,9,5
+30282,돌기둥 조각 2,FurnitureAtlas,stone_column_piece_02,FurnitureVisual/FV_stone_column_piece_02,150,1,1,0,2,2,9,5
+30283,돌기둥 조각 3,FurnitureAtlas,stone_column_piece_03,FurnitureVisual/FV_stone_column_piece_03,200,1,1,0,2,2,9,5
+30284,돌기둥 조각 4,FurnitureAtlas,stone_column_piece_04,FurnitureVisual/FV_stone_column_piece_04,150,1,1,0,2,2,9,5
+30285,돌기둥 조각 5,FurnitureAtlas,stone_column_piece_05,FurnitureVisual/FV_stone_column_piece_05,150,1,1,0,2,2,9,5
+30286,돌기둥 조각 6,FurnitureAtlas,stone_column_piece_06,FurnitureVisual/FV_stone_column_piece_06,100,1,1,0,2,2,9,5
+30287,돌기둥 조각 7,FurnitureAtlas,stone_column_piece_07,FurnitureVisual/FV_stone_column_piece_07,150,1,1,0,2,2,9,5
+30288,돌기둥 조각 8,FurnitureAtlas,stone_column_piece_08,FurnitureVisual/FV_stone_column_piece_08,100,1,1,0,2,2,9,5
+30289,돌기둥 조각 9,FurnitureAtlas,stone_column_piece_09,FurnitureVisual/FV_stone_column_piece_09,150,1,1,0,2,2,9,5
+30290,돌기둥 조각 10,FurnitureAtlas,stone_column_piece_10,FurnitureVisual/FV_stone_column_piece_10,150,1,1,0,2,2,9,5
+30301,나무 1,FurnitureAtlas,tree_01,FurnitureVisual/FV_tree_01,1650,3,1,0,2,2,9,5
+30302,나무 2,FurnitureAtlas,tree_02,FurnitureVisual/FV_tree_02,1350,2,1,0,2,2,9,5
+30303,나무 3,FurnitureAtlas,tree_03,FurnitureVisual/FV_tree_03,850,2,1,0,2,2,9,5
+30311,꽃덩굴 1,FurnitureAtlas,vine_flower_01,FurnitureVisual/FV_vine_flower_01,750,2,1,0,1,2,9,5
+30312,꽃덩굴 2,FurnitureAtlas,vine_flower_02,FurnitureVisual/FV_vine_flower_02,300,1,1,0,1,2,9,5
+30313,꽃덩굴 3,FurnitureAtlas,vine_flower_03,FurnitureVisual/FV_vine_flower_03,300,1,1,0,1,2,9,5
+30314,꽃덩굴 4,FurnitureAtlas,vine_flower_04,FurnitureVisual/FV_vine_flower_04,450,1,1,0,1,2,9,5
+30315,꽃덩굴 5,FurnitureAtlas,vine_flower_05,FurnitureVisual/FV_vine_flower_05,450,1,1,0,1,2,9,5
+30316,꽃덩굴 6,FurnitureAtlas,vine_flower_06,FurnitureVisual/FV_vine_flower_06,1000,3,1,0,1,2,9,5
