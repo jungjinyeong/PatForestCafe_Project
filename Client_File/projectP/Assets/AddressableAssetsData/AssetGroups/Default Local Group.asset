@@ -175,6 +175,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3cebccd0c468a0043b22acd421d0b718
+    m_Address: FurnitureVisual/FV_fur_temp_vending_machine
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3d300ba7d0d334b4090c3f152984e231
     m_Address: FurnitureVisual/FV_kiosk_wall_right_post_01
     m_ReadOnly: 0
@@ -240,6 +245,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 544c1fbfc05de614e95a1e851ec72fb0
+    m_Address: FurnitureVisual/FV_fur_temp_terrace_table
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 549e0a11281897d4ba19797113fdfda6
     m_Address: FurnitureVisual/FV_kiosk_wall_stone_column_01
     m_ReadOnly: 0
@@ -297,6 +307,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 69f7be34e3a093f448419c473eced897
     m_Address: FurnitureVisual/FV_CarpetRug
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6acd4a03eac7c86438019a4db9e300f9
+    m_Address: FurnitureVisual/FV_fur_temp_food_stall
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -487,6 +502,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b0d02f7900ea67340ac75fdeb56ee86a
     m_Address: FurnitureVisual/FV_stone_column_piece_09
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b5a9692baba3f0a4ea9719b7f083125c
+    m_Address: FloorPreset/FP_1
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

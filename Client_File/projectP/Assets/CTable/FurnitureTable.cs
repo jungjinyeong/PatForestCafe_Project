@@ -13,7 +13,7 @@ namespace CTable
                 string line = lines[i];
                 if (string.IsNullOrWhiteSpace(line)) continue;
                 string[] values = line.Split(',');
-                if (values.Length < 13) continue;
+                if (values.Length < 14) continue;
 
                 var row = new FurnitureRow();
                 row.Tid = int.TryParse(values[0].Trim(), out int _Tid) ? _Tid : 0;
@@ -29,6 +29,7 @@ namespace CTable
                 row.LayoutOrder = int.TryParse(values[10].Trim(), out int _LayoutOrder) ? _LayoutOrder : 0;
                 row.FurnitureType = int.TryParse(values[11].Trim(), out int _FurnitureType) ? _FurnitureType : 0;
                 row.Category = int.TryParse(values[12].Trim(), out int _Category) ? _Category : 0;
+                row.UseIncome = int.TryParse(values[13].Trim(), out int _UseIncome) ? _UseIncome : 0;
 
                 AddRow(row.Tid, row);
             }

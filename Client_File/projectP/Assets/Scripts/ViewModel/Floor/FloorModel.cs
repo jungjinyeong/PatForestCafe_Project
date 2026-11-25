@@ -45,6 +45,10 @@ public class FloorModel : IModelBase
     public IReadOnlyReactiveProperty<int> UnlockedCount => mUnlockedCount;
     private readonly ReactiveProperty<int> mUnlockedCount = new ReactiveProperty<int>(0);
 
+    // 플레이 중 층을 새로 해금했을 때 그 층 ID를 발행한다(세이브 복원 때는 발행하지 않음). 층 기본 배치 적용(UIRootLobby)용.
+    public System.IObservable<int> FloorUnlocked => mFloorUnlocked;
+    private readonly Subject<int> mFloorUnlocked = new Subject<int>();
+
     // 로비 카메라가 지금 보고 있는 층(LobbyFloorCameraController가 갱신). 가구 구매 시 이 층에 스폰한다.
     public IReadOnlyReactiveProperty<int> ViewingFloor => mViewingFloor;
     private readonly ReactiveProperty<int> mViewingFloor = new ReactiveProperty<int>(0);
@@ -161,6 +165,7 @@ public class FloorModel : IModelBase
         mFloors.Clear();
         mUnlockedFloors.Clear();
         mUnlockedCount.Dispose();
+        mFloorUnlocked.Dispose();
         mViewingFloor.Dispose();
     }
 
@@ -177,7 +182,10 @@ public class FloorModel : IModelBase
 
     private void Unlock(int floor)
     {
-        if (mUnlockedFloors.Add(floor))
-            mUnlockedCount.Value = mUnlockedFloors.Count;
+        if (!mUnlockedFloors.Add(floor))
+            return;
+
+        mUnlockedCount.Value = mUnlockedFloors.Count;
+        mFloorUnlocked.OnNext(floor);
     }
 }

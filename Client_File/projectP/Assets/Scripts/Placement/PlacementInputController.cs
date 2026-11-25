@@ -245,7 +245,7 @@ public class PlacementInputController : MonoBehaviour
         if (!IsPointerOverUI() && TryGetPointerWorld(out var worldPos))
         {
             hover = PlaceableObject.FindTopmostAt(worldPos);
-            if (hover != null && hover.PlacementId < 0)
+            if (hover != null && (hover.PlacementId < 0 || hover.IsFixed))
                 hover = null;
 
             if ((hover == null || mIsDemolishDragTiles) && placement.TryGetFloorTileAt(worldPos, out var area, out var cell))

@@ -21,6 +21,8 @@ public class PlacedFurnitureRecord
     public CTable.eFurnitureDirection Direction;
     // 좌우반전(벽가구, 반전 허용 바닥타일). 구 세이브는 false.
     public bool FlipX;
+    // 층 기본 배치(FloorPresetData)의 고정 가구. 옮기기/철거 불가, 보유·배치 수에 안 잡히고 가구 리셋에도 남는다.
+    public bool Fixed;
 }
 
 public partial class PlacementModel : IModelBase
@@ -64,6 +66,9 @@ public partial class PlacementModel : IModelBase
     // 가구는 팔 수 없다 — 리셋/취소해도 보유 수는 그대로이고 보관 중으로 돌아간다.
     private readonly Dictionary<(bool isSub, int tid), int> mOwnedFurniture = new();
 
+    // 층 기본 배치(FloorPresetData)를 이미 깐 층. 첫 실행/해금 때 한 번만 깔도록 세이브에 함께 저장한다.
+    private readonly HashSet<int> mAppliedPresetFloors = new();
+
     // 들고 있기(IsPlacing)를 거치지 않고 배치가 바뀌었을 때(철거/리셋) 발행. 손님 동선 재수집(WaypointGroup)용.
     public System.IObservable<Unit> PlacedLayoutChanged => mPlacedLayoutChanged;
     private readonly Subject<Unit> mPlacedLayoutChanged = new Subject<Unit>();
@@ -89,6 +94,7 @@ public partial class PlacementModel : IModelBase
         mDicPlacedFurniture.Clear();
         mFloorTiles.Clear();
         mOwnedFurniture.Clear();
+        mAppliedPresetFloors.Clear();
         mDicVisual.Clear();
     }
 }

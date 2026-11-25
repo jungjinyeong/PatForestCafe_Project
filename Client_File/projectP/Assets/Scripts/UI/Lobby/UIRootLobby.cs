@@ -36,6 +36,7 @@ public class UIRootLobby : UIWndBase
         }
 
         GameInstance.Model.Placement.RespawnSavedFurniture();
+        ApplyFloorPresets();
         SubscribePlacementPopups();
         // 배치 모드 키 입력(R 회전, RMB 취소 등). 프리팹 편집 없이 런타임에 붙인다.
         if (GetComponent<PlacementInputController>() == null)
@@ -46,6 +47,21 @@ public class UIRootLobby : UIWndBase
 
         if (mSidePanel != null)
             mSidePanel.Init(mFloorCamera);
+    }
+
+    // 층 기본 배치(FloorPresetData): 열린 층 중 아직 깔지 않은 층(첫 실행이면 1F/T1)에 깔고, 이후 해금되는 층에도 깐다.
+    // 층 영역이 등록되고 저장된 배치가 복원된 뒤라 여기서 한다.
+    private void ApplyFloorPresets()
+    {
+        var placement = GameInstance.Model.Placement;
+        var floor = GameInstance.Model.Floor;
+
+        foreach (int unlocked in System.Linq.Enumerable.ToList(floor.UnlockedFloors))
+            placement.ApplyPresetIfFirstTime(unlocked);
+
+        floor.FloorUnlocked
+            .Subscribe(placement.ApplyPresetIfFirstTime)
+            .AddTo(this);
     }
 
     // 가구를 들고 있는 동안 → 확정/취소 팝업. 가구 목록은 오른쪽 패널의 [가구 배치] 화면(UISidePlacementView)이 맡는다.

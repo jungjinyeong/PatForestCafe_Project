@@ -111,7 +111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2212ded1e1ffb4746a5a6b6ec281617d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaypointGroup
-  mOrder: 3
+  mOrder: 4
   mStaticWaypoints:
   - {fileID: 8690871292582089764}
   - {fileID: 2376710526872203074}

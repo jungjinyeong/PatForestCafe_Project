@@ -1,0 +1,990 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0beec9acfaea764d81709d4a5122dfe, type: 3}
+  m_Name: FP_1
+  m_EditorClassIdentifier: Assembly-CSharp::FloorPresetData
+  Floor: 1
+  Furniture:
+  - Tid: 30043
+    IsSub: 0
+    Cell: {x: -12, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30044
+    IsSub: 0
+    Cell: {x: -11, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30045
+    IsSub: 0
+    Cell: {x: -10, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30043
+    IsSub: 0
+    Cell: {x: -9, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30044
+    IsSub: 0
+    Cell: {x: -8, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30045
+    IsSub: 0
+    Cell: {x: -7, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30043
+    IsSub: 0
+    Cell: {x: -6, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30044
+    IsSub: 0
+    Cell: {x: -5, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30045
+    IsSub: 0
+    Cell: {x: -4, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30043
+    IsSub: 0
+    Cell: {x: -3, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30044
+    IsSub: 0
+    Cell: {x: -2, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30045
+    IsSub: 0
+    Cell: {x: -1, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30043
+    IsSub: 0
+    Cell: {x: 0, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30044
+    IsSub: 0
+    Cell: {x: 1, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30045
+    IsSub: 0
+    Cell: {x: 2, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30043
+    IsSub: 0
+    Cell: {x: 3, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30044
+    IsSub: 0
+    Cell: {x: 4, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30045
+    IsSub: 0
+    Cell: {x: 5, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30043
+    IsSub: 0
+    Cell: {x: 6, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30044
+    IsSub: 0
+    Cell: {x: 7, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30045
+    IsSub: 0
+    Cell: {x: 8, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30043
+    IsSub: 0
+    Cell: {x: 9, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30044
+    IsSub: 0
+    Cell: {x: 10, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30045
+    IsSub: 0
+    Cell: {x: 11, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30043
+    IsSub: 0
+    Cell: {x: 12, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30044
+    IsSub: 0
+    Cell: {x: 13, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30045
+    IsSub: 0
+    Cell: {x: 14, y: 4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30101
+    IsSub: 0
+    Cell: {x: -4, y: 2}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 1
+  - Tid: 30001
+    IsSub: 0
+    Cell: {x: 5, y: -1}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30141
+    IsSub: 0
+    Cell: {x: -10, y: 5}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30141
+    IsSub: 0
+    Cell: {x: -6, y: 5}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30141
+    IsSub: 0
+    Cell: {x: 8, y: 5}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30141
+    IsSub: 0
+    Cell: {x: 12, y: 5}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30311
+    IsSub: 0
+    Cell: {x: -2, y: 5}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30303
+    IsSub: 0
+    Cell: {x: 9, y: 2}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30302
+    IsSub: 0
+    Cell: {x: -13, y: -3}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30241
+    IsSub: 0
+    Cell: {x: -6, y: 2}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30243
+    IsSub: 0
+    Cell: {x: 7, y: 2}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30271
+    IsSub: 0
+    Cell: {x: 11, y: 0}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30244
+    IsSub: 0
+    Cell: {x: -13, y: -7}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30246
+    IsSub: 0
+    Cell: {x: 11, y: -7}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30201
+    IsSub: 0
+    Cell: {x: -10, y: -7}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30203
+    IsSub: 0
+    Cell: {x: -6, y: -7}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30205
+    IsSub: 0
+    Cell: {x: -2, y: -7}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30207
+    IsSub: 0
+    Cell: {x: 2, y: -7}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30201
+    IsSub: 0
+    Cell: {x: 6, y: -7}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30245
+    IsSub: 0
+    Cell: {x: 7, y: -1}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30242
+    IsSub: 0
+    Cell: {x: 3, y: -1}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30247
+    IsSub: 0
+    Cell: {x: 10, y: -4}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30241
+    IsSub: 0
+    Cell: {x: -7, y: -6}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  - Tid: 30243
+    IsSub: 0
+    Cell: {x: 9, y: -6}
+    Direction: 0
+    FlipX: 0
+    AssignedDessertTid: 0
+    Fixed: 0
+  FloorTiles:
+  - Cell: {x: -13, y: -7}
+    Tid: 30013
+  - Cell: {x: -13, y: -6}
+    Tid: 30013
+  - Cell: {x: -13, y: -5}
+    Tid: 30013
+  - Cell: {x: -13, y: -4}
+    Tid: 30013
+  - Cell: {x: -13, y: -3}
+    Tid: 30013
+  - Cell: {x: -13, y: -2}
+    Tid: 30013
+  - Cell: {x: -13, y: -1}
+    Tid: 30013
+  - Cell: {x: -13, y: 0}
+    Tid: 30011
+  - Cell: {x: -13, y: 1}
+    Tid: 30011
+  - Cell: {x: -13, y: 2}
+    Tid: 30013
+  - Cell: {x: -13, y: 3}
+    Tid: 30013
+  - Cell: {x: -12, y: -7}
+    Tid: 30013
+  - Cell: {x: -12, y: -6}
+    Tid: 30013
+  - Cell: {x: -12, y: -5}
+    Tid: 30013
+  - Cell: {x: -12, y: -4}
+    Tid: 30013
+  - Cell: {x: -12, y: -3}
+    Tid: 30013
+  - Cell: {x: -12, y: -2}
+    Tid: 30013
+  - Cell: {x: -12, y: -1}
+    Tid: 30013
+  - Cell: {x: -12, y: 0}
+    Tid: 30011
+  - Cell: {x: -12, y: 1}
+    Tid: 30011
+  - Cell: {x: -12, y: 2}
+    Tid: 30013
+  - Cell: {x: -12, y: 3}
+    Tid: 30013
+  - Cell: {x: -11, y: -7}
+    Tid: 30013
+  - Cell: {x: -11, y: -6}
+    Tid: 30013
+  - Cell: {x: -11, y: -5}
+    Tid: 30013
+  - Cell: {x: -11, y: -4}
+    Tid: 30013
+  - Cell: {x: -11, y: -3}
+    Tid: 30013
+  - Cell: {x: -11, y: -2}
+    Tid: 30013
+  - Cell: {x: -11, y: -1}
+    Tid: 30013
+  - Cell: {x: -11, y: 0}
+    Tid: 30011
+  - Cell: {x: -11, y: 1}
+    Tid: 30011
+  - Cell: {x: -11, y: 2}
+    Tid: 30013
+  - Cell: {x: -11, y: 3}
+    Tid: 30013
+  - Cell: {x: -10, y: -7}
+    Tid: 30013
+  - Cell: {x: -10, y: -6}
+    Tid: 30013
+  - Cell: {x: -10, y: -5}
+    Tid: 30013
+  - Cell: {x: -10, y: -4}
+    Tid: 30013
+  - Cell: {x: -10, y: -3}
+    Tid: 30013
+  - Cell: {x: -10, y: -2}
+    Tid: 30013
+  - Cell: {x: -10, y: -1}
+    Tid: 30013
+  - Cell: {x: -10, y: 0}
+    Tid: 30011
+  - Cell: {x: -10, y: 1}
+    Tid: 30011
+  - Cell: {x: -10, y: 2}
+    Tid: 30013
+  - Cell: {x: -10, y: 3}
+    Tid: 30013
+  - Cell: {x: -9, y: -7}
+    Tid: 30013
+  - Cell: {x: -9, y: -6}
+    Tid: 30013
+  - Cell: {x: -9, y: -5}
+    Tid: 30013
+  - Cell: {x: -9, y: -4}
+    Tid: 30013
+  - Cell: {x: -9, y: -3}
+    Tid: 30013
+  - Cell: {x: -9, y: -2}
+    Tid: 30013
+  - Cell: {x: -9, y: -1}
+    Tid: 30013
+  - Cell: {x: -9, y: 0}
+    Tid: 30011
+  - Cell: {x: -9, y: 1}
+    Tid: 30011
+  - Cell: {x: -9, y: 2}
+    Tid: 30013
+  - Cell: {x: -9, y: 3}
+    Tid: 30013
+  - Cell: {x: -8, y: -7}
+    Tid: 30013
+  - Cell: {x: -8, y: -6}
+    Tid: 30013
+  - Cell: {x: -8, y: -5}
+    Tid: 30013
+  - Cell: {x: -8, y: -4}
+    Tid: 30013
+  - Cell: {x: -8, y: -3}
+    Tid: 30013
+  - Cell: {x: -8, y: -2}
+    Tid: 30013
+  - Cell: {x: -8, y: -1}
+    Tid: 30013
+  - Cell: {x: -8, y: 0}
+    Tid: 30011
+  - Cell: {x: -8, y: 1}
+    Tid: 30011
+  - Cell: {x: -8, y: 2}
+    Tid: 30013
+  - Cell: {x: -8, y: 3}
+    Tid: 30013
+  - Cell: {x: -7, y: -7}
+    Tid: 30013
+  - Cell: {x: -7, y: -6}
+    Tid: 30013
+  - Cell: {x: -7, y: -5}
+    Tid: 30013
+  - Cell: {x: -7, y: -4}
+    Tid: 30013
+  - Cell: {x: -7, y: -3}
+    Tid: 30013
+  - Cell: {x: -7, y: -2}
+    Tid: 30013
+  - Cell: {x: -7, y: -1}
+    Tid: 30013
+  - Cell: {x: -7, y: 0}
+    Tid: 30011
+  - Cell: {x: -7, y: 1}
+    Tid: 30011
+  - Cell: {x: -7, y: 2}
+    Tid: 30013
+  - Cell: {x: -7, y: 3}
+    Tid: 30013
+  - Cell: {x: -6, y: -7}
+    Tid: 30013
+  - Cell: {x: -6, y: -6}
+    Tid: 30013
+  - Cell: {x: -6, y: -5}
+    Tid: 30013
+  - Cell: {x: -6, y: -4}
+    Tid: 30013
+  - Cell: {x: -6, y: -3}
+    Tid: 30013
+  - Cell: {x: -6, y: -2}
+    Tid: 30013
+  - Cell: {x: -6, y: -1}
+    Tid: 30013
+  - Cell: {x: -6, y: 0}
+    Tid: 30011
+  - Cell: {x: -6, y: 1}
+    Tid: 30011
+  - Cell: {x: -6, y: 2}
+    Tid: 30013
+  - Cell: {x: -6, y: 3}
+    Tid: 30013
+  - Cell: {x: -5, y: -7}
+    Tid: 30013
+  - Cell: {x: -5, y: -6}
+    Tid: 30013
+  - Cell: {x: -5, y: -5}
+    Tid: 30013
+  - Cell: {x: -5, y: -4}
+    Tid: 30013
+  - Cell: {x: -5, y: -3}
+    Tid: 30013
+  - Cell: {x: -5, y: -2}
+    Tid: 30013
+  - Cell: {x: -5, y: -1}
+    Tid: 30013
+  - Cell: {x: -5, y: 0}
+    Tid: 30011
+  - Cell: {x: -5, y: 1}
+    Tid: 30011
+  - Cell: {x: -5, y: 2}
+    Tid: 30013
+  - Cell: {x: -5, y: 3}
+    Tid: 30013
+  - Cell: {x: -4, y: -7}
+    Tid: 30013
+  - Cell: {x: -4, y: -6}
+    Tid: 30013
+  - Cell: {x: -4, y: -5}
+    Tid: 30013
+  - Cell: {x: -4, y: -4}
+    Tid: 30013
+  - Cell: {x: -4, y: -3}
+    Tid: 30013
+  - Cell: {x: -4, y: -2}
+    Tid: 30013
+  - Cell: {x: -4, y: -1}
+    Tid: 30013
+  - Cell: {x: -4, y: 0}
+    Tid: 30011
+  - Cell: {x: -4, y: 1}
+    Tid: 30011
+  - Cell: {x: -4, y: 2}
+    Tid: 30013
+  - Cell: {x: -4, y: 3}
+    Tid: 30013
+  - Cell: {x: -3, y: -7}
+    Tid: 30013
+  - Cell: {x: -3, y: -6}
+    Tid: 30013
+  - Cell: {x: -3, y: -5}
+    Tid: 30013
+  - Cell: {x: -3, y: -4}
+    Tid: 30013
+  - Cell: {x: -3, y: -3}
+    Tid: 30013
+  - Cell: {x: -3, y: -2}
+    Tid: 30013
+  - Cell: {x: -3, y: -1}
+    Tid: 30013
+  - Cell: {x: -3, y: 0}
+    Tid: 30011
+  - Cell: {x: -3, y: 1}
+    Tid: 30011
+  - Cell: {x: -3, y: 2}
+    Tid: 30013
+  - Cell: {x: -3, y: 3}
+    Tid: 30013
+  - Cell: {x: -2, y: -7}
+    Tid: 30013
+  - Cell: {x: -2, y: -6}
+    Tid: 30013
+  - Cell: {x: -2, y: -5}
+    Tid: 30013
+  - Cell: {x: -2, y: -4}
+    Tid: 30013
+  - Cell: {x: -2, y: -3}
+    Tid: 30013
+  - Cell: {x: -2, y: -2}
+    Tid: 30013
+  - Cell: {x: -2, y: -1}
+    Tid: 30013
+  - Cell: {x: -2, y: 0}
+    Tid: 30011
+  - Cell: {x: -2, y: 1}
+    Tid: 30011
+  - Cell: {x: -2, y: 2}
+    Tid: 30013
+  - Cell: {x: -2, y: 3}
+    Tid: 30013
+  - Cell: {x: -1, y: -7}
+    Tid: 30013
+  - Cell: {x: -1, y: -6}
+    Tid: 30013
+  - Cell: {x: -1, y: -5}
+    Tid: 30013
+  - Cell: {x: -1, y: -4}
+    Tid: 30013
+  - Cell: {x: -1, y: -3}
+    Tid: 30013
+  - Cell: {x: -1, y: -2}
+    Tid: 30013
+  - Cell: {x: -1, y: -1}
+    Tid: 30013
+  - Cell: {x: -1, y: 0}
+    Tid: 30011
+  - Cell: {x: -1, y: 1}
+    Tid: 30011
+  - Cell: {x: -1, y: 2}
+    Tid: 30013
+  - Cell: {x: -1, y: 3}
+    Tid: 30013
+  - Cell: {x: 0, y: -7}
+    Tid: 30013
+  - Cell: {x: 0, y: -6}
+    Tid: 30013
+  - Cell: {x: 0, y: -5}
+    Tid: 30013
+  - Cell: {x: 0, y: -4}
+    Tid: 30013
+  - Cell: {x: 0, y: -3}
+    Tid: 30013
+  - Cell: {x: 0, y: -2}
+    Tid: 30013
+  - Cell: {x: 0, y: -1}
+    Tid: 30013
+  - Cell: {x: 0, y: 0}
+    Tid: 30011
+  - Cell: {x: 0, y: 1}
+    Tid: 30011
+  - Cell: {x: 0, y: 2}
+    Tid: 30013
+  - Cell: {x: 0, y: 3}
+    Tid: 30013
+  - Cell: {x: 1, y: -7}
+    Tid: 30013
+  - Cell: {x: 1, y: -6}
+    Tid: 30013
+  - Cell: {x: 1, y: -5}
+    Tid: 30013
+  - Cell: {x: 1, y: -4}
+    Tid: 30013
+  - Cell: {x: 1, y: -3}
+    Tid: 30013
+  - Cell: {x: 1, y: -2}
+    Tid: 30013
+  - Cell: {x: 1, y: -1}
+    Tid: 30013
+  - Cell: {x: 1, y: 0}
+    Tid: 30011
+  - Cell: {x: 1, y: 1}
+    Tid: 30011
+  - Cell: {x: 1, y: 2}
+    Tid: 30013
+  - Cell: {x: 1, y: 3}
+    Tid: 30013
+  - Cell: {x: 2, y: -7}
+    Tid: 30013
+  - Cell: {x: 2, y: -6}
+    Tid: 30013
+  - Cell: {x: 2, y: -5}
+    Tid: 30013
+  - Cell: {x: 2, y: -4}
+    Tid: 30013
+  - Cell: {x: 2, y: -3}
+    Tid: 30013
+  - Cell: {x: 2, y: -2}
+    Tid: 30013
+  - Cell: {x: 2, y: -1}
+    Tid: 30013
+  - Cell: {x: 2, y: 0}
+    Tid: 30011
+  - Cell: {x: 2, y: 1}
+    Tid: 30011
+  - Cell: {x: 2, y: 2}
+    Tid: 30013
+  - Cell: {x: 2, y: 3}
+    Tid: 30013
+  - Cell: {x: 3, y: -7}
+    Tid: 30013
+  - Cell: {x: 3, y: -6}
+    Tid: 30013
+  - Cell: {x: 3, y: -5}
+    Tid: 30013
+  - Cell: {x: 3, y: -4}
+    Tid: 30013
+  - Cell: {x: 3, y: -3}
+    Tid: 30013
+  - Cell: {x: 3, y: -2}
+    Tid: 30013
+  - Cell: {x: 3, y: -1}
+    Tid: 30013
+  - Cell: {x: 3, y: 0}
+    Tid: 30011
+  - Cell: {x: 3, y: 1}
+    Tid: 30011
+  - Cell: {x: 3, y: 2}
+    Tid: 30013
+  - Cell: {x: 3, y: 3}
+    Tid: 30013
+  - Cell: {x: 4, y: -7}
+    Tid: 30013
+  - Cell: {x: 4, y: -6}
+    Tid: 30013
+  - Cell: {x: 4, y: -5}
+    Tid: 30013
+  - Cell: {x: 4, y: -4}
+    Tid: 30013
+  - Cell: {x: 4, y: -3}
+    Tid: 30013
+  - Cell: {x: 4, y: -2}
+    Tid: 30013
+  - Cell: {x: 4, y: -1}
+    Tid: 30013
+  - Cell: {x: 4, y: 0}
+    Tid: 30011
+  - Cell: {x: 4, y: 1}
+    Tid: 30011
+  - Cell: {x: 4, y: 2}
+    Tid: 30013
+  - Cell: {x: 4, y: 3}
+    Tid: 30013
+  - Cell: {x: 5, y: -7}
+    Tid: 30013
+  - Cell: {x: 5, y: -6}
+    Tid: 30013
+  - Cell: {x: 5, y: -5}
+    Tid: 30013
+  - Cell: {x: 5, y: -4}
+    Tid: 30013
+  - Cell: {x: 5, y: -3}
+    Tid: 30013
+  - Cell: {x: 5, y: -2}
+    Tid: 30013
+  - Cell: {x: 5, y: -1}
+    Tid: 30013
+  - Cell: {x: 5, y: 0}
+    Tid: 30011
+  - Cell: {x: 5, y: 1}
+    Tid: 30011
+  - Cell: {x: 5, y: 2}
+    Tid: 30013
+  - Cell: {x: 5, y: 3}
+    Tid: 30013
+  - Cell: {x: 6, y: -7}
+    Tid: 30013
+  - Cell: {x: 6, y: -6}
+    Tid: 30013
+  - Cell: {x: 6, y: -5}
+    Tid: 30013
+  - Cell: {x: 6, y: -4}
+    Tid: 30013
+  - Cell: {x: 6, y: -3}
+    Tid: 30013
+  - Cell: {x: 6, y: -2}
+    Tid: 30013
+  - Cell: {x: 6, y: -1}
+    Tid: 30013
+  - Cell: {x: 6, y: 0}
+    Tid: 30011
+  - Cell: {x: 6, y: 1}
+    Tid: 30011
+  - Cell: {x: 6, y: 2}
+    Tid: 30013
+  - Cell: {x: 6, y: 3}
+    Tid: 30013
+  - Cell: {x: 7, y: -7}
+    Tid: 30013
+  - Cell: {x: 7, y: -6}
+    Tid: 30013
+  - Cell: {x: 7, y: -5}
+    Tid: 30013
+  - Cell: {x: 7, y: -4}
+    Tid: 30013
+  - Cell: {x: 7, y: -3}
+    Tid: 30013
+  - Cell: {x: 7, y: -2}
+    Tid: 30013
+  - Cell: {x: 7, y: -1}
+    Tid: 30013
+  - Cell: {x: 7, y: 0}
+    Tid: 30011
+  - Cell: {x: 7, y: 1}
+    Tid: 30011
+  - Cell: {x: 7, y: 2}
+    Tid: 30013
+  - Cell: {x: 7, y: 3}
+    Tid: 30013
+  - Cell: {x: 8, y: -7}
+    Tid: 30013
+  - Cell: {x: 8, y: -6}
+    Tid: 30013
+  - Cell: {x: 8, y: -5}
+    Tid: 30013
+  - Cell: {x: 8, y: -4}
+    Tid: 30013
+  - Cell: {x: 8, y: -3}
+    Tid: 30013
+  - Cell: {x: 8, y: -2}
+    Tid: 30013
+  - Cell: {x: 8, y: -1}
+    Tid: 30013
+  - Cell: {x: 8, y: 0}
+    Tid: 30011
+  - Cell: {x: 8, y: 1}
+    Tid: 30011
+  - Cell: {x: 8, y: 2}
+    Tid: 30013
+  - Cell: {x: 8, y: 3}
+    Tid: 30013
+  - Cell: {x: 9, y: -7}
+    Tid: 30013
+  - Cell: {x: 9, y: -6}
+    Tid: 30013
+  - Cell: {x: 9, y: -5}
+    Tid: 30013
+  - Cell: {x: 9, y: -4}
+    Tid: 30013
+  - Cell: {x: 9, y: -3}
+    Tid: 30013
+  - Cell: {x: 9, y: -2}
+    Tid: 30013
+  - Cell: {x: 9, y: -1}
+    Tid: 30013
+  - Cell: {x: 9, y: 0}
+    Tid: 30011
+  - Cell: {x: 9, y: 1}
+    Tid: 30011
+  - Cell: {x: 9, y: 2}
+    Tid: 30013
+  - Cell: {x: 9, y: 3}
+    Tid: 30013
+  - Cell: {x: 10, y: -7}
+    Tid: 30013
+  - Cell: {x: 10, y: -6}
+    Tid: 30013
+  - Cell: {x: 10, y: -5}
+    Tid: 30013
+  - Cell: {x: 10, y: -4}
+    Tid: 30013
+  - Cell: {x: 10, y: -3}
+    Tid: 30013
+  - Cell: {x: 10, y: -2}
+    Tid: 30013
+  - Cell: {x: 10, y: -1}
+    Tid: 30013
+  - Cell: {x: 10, y: 0}
+    Tid: 30011
+  - Cell: {x: 10, y: 1}
+    Tid: 30011
+  - Cell: {x: 10, y: 2}
+    Tid: 30013
+  - Cell: {x: 10, y: 3}
+    Tid: 30013
+  - Cell: {x: 11, y: -7}
+    Tid: 30013
+  - Cell: {x: 11, y: -6}
+    Tid: 30013
+  - Cell: {x: 11, y: -5}
+    Tid: 30013
+  - Cell: {x: 11, y: -4}
+    Tid: 30013
+  - Cell: {x: 11, y: -3}
+    Tid: 30013
+  - Cell: {x: 11, y: -2}
+    Tid: 30013
+  - Cell: {x: 11, y: -1}
+    Tid: 30013
+  - Cell: {x: 11, y: 0}
+    Tid: 30011
+  - Cell: {x: 11, y: 1}
+    Tid: 30011
+  - Cell: {x: 11, y: 2}
+    Tid: 30013
+  - Cell: {x: 11, y: 3}
+    Tid: 30013
+  - Cell: {x: 12, y: -7}
+    Tid: 30013
+  - Cell: {x: 12, y: -6}
+    Tid: 30013
+  - Cell: {x: 12, y: -5}
+    Tid: 30013
+  - Cell: {x: 12, y: -4}
+    Tid: 30013
+  - Cell: {x: 12, y: -3}
+    Tid: 30013
+  - Cell: {x: 12, y: -2}
+    Tid: 30013
+  - Cell: {x: 12, y: -1}
+    Tid: 30013
+  - Cell: {x: 12, y: 0}
+    Tid: 30011
+  - Cell: {x: 12, y: 1}
+    Tid: 30011
+  - Cell: {x: 12, y: 2}
+    Tid: 30013
+  - Cell: {x: 12, y: 3}
+    Tid: 30013
+  - Cell: {x: 13, y: -7}
+    Tid: 30013
+  - Cell: {x: 13, y: -6}
+    Tid: 30013
+  - Cell: {x: 13, y: -5}
+    Tid: 30013
+  - Cell: {x: 13, y: -4}
+    Tid: 30013
+  - Cell: {x: 13, y: -3}
+    Tid: 30013
+  - Cell: {x: 13, y: -2}
+    Tid: 30013
+  - Cell: {x: 13, y: -1}
+    Tid: 30013
+  - Cell: {x: 13, y: 0}
+    Tid: 30011
+  - Cell: {x: 13, y: 1}
+    Tid: 30011
+  - Cell: {x: 13, y: 2}
+    Tid: 30013
+  - Cell: {x: 13, y: 3}
+    Tid: 30013
+  - Cell: {x: 14, y: -7}
+    Tid: 30013
+  - Cell: {x: 14, y: -6}
+    Tid: 30013
+  - Cell: {x: 14, y: -5}
+    Tid: 30013
+  - Cell: {x: 14, y: -4}
+    Tid: 30013
+  - Cell: {x: 14, y: -3}
+    Tid: 30013
+  - Cell: {x: 14, y: -2}
+    Tid: 30013
+  - Cell: {x: 14, y: -1}
+    Tid: 30013
+  - Cell: {x: 14, y: 0}
+    Tid: 30011
+  - Cell: {x: 14, y: 1}
+    Tid: 30011
+  - Cell: {x: 14, y: 2}
+    Tid: 30013
+  - Cell: {x: 14, y: 3}
+    Tid: 30013

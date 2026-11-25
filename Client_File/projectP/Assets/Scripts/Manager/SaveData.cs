@@ -50,6 +50,8 @@ public class PlacedFurnitureSaveEntry
     public int Direction;
     // 좌우반전(벽가구, 반전 허용 바닥타일). 구 세이브는 false.
     public bool FlipX;
+    // 층 기본 배치의 고정 가구(옮기기/철거 불가, 보유 수에 안 잡힘).
+    public bool Fixed;
 }
 
 // 칠해진 바닥 칸 1개. 층(WaypointGroup.Order) + 배치 칸 + 바닥타일 종류(FurnitureRow Tid).
@@ -117,6 +119,8 @@ public class SaveData
     public int HighestUnlockedFloor;
     // 열린 층 ID 목록(Floor.csv Tid = WaypointGroup.Order).
     public List<int> UnlockedFloors = new List<int>();
+    // 층 기본 배치(FloorPresetData)를 이미 깐 층 ID 목록. 여기 없는 열린 층은 로비 진입 시 기본 배치가 깔린다.
+    public List<int> AppliedPresetFloors = new List<int>();
     // 층 ID 체계 버전. 2 = 아래→위 1~7(B3 B2 B1 1F T1 T2 T3). 0/1 = 그 이전(B2가 Order 1이던 6층 구성).
     public int FloorLayoutVersion;
     public List<int> HiredStaffTids = new List<int>();

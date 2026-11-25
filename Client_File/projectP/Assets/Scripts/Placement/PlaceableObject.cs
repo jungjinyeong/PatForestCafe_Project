@@ -81,8 +81,11 @@ public class PlaceableObject : MonoBehaviour
     private bool mFlipX;
     // 아트 설정(방향별 스프라이트, 회전 방식). 등록되지 않은 가구면 null — 프리팹 그림 그대로, 회전 없음.
     private FurnitureVisualData mVisual;
+    // 층 기본 배치(FloorPresetData)에서 고정으로 놓인 가구. 집기/철거가 안 되고 보유 수에 잡히지 않는다.
+    private bool mIsFixed;
 
     public int FurnitureTid => mFurnitureTid;
+    public bool IsFixed => mIsFixed;
     public TilePlacementArea Area => mArea;
     public Intaraction_DessertStand DessertStand => mDessertStand;
     public int PlacementId => mPlacementId;
@@ -365,6 +368,11 @@ public class PlaceableObject : MonoBehaviour
         mPlacementId = placementId;
     }
 
+    public void SetFixed(bool isFixed)
+    {
+        mIsFixed = isFixed;
+    }
+
     // 세이브 복원 시 드래그를 시작하지 않고 영역만 채운다. mArea는 원래 BeginPlacementFromSpawn(구매 스폰)에서만
     // 런타임으로 채워지는데, 복원된 가구는 이 경로를 타지 않아 mArea가 비어있으면 이후 재배치 드래그가 막힌다.
     public void SetArea(TilePlacementArea area)
@@ -392,7 +400,7 @@ public class PlaceableObject : MonoBehaviour
     // 이후 커서를 따라다니고, LMB(또는 확정 버튼)로 놓거나 RMB(또는 취소 버튼)로 원위치/보관함으로 돌린다.
     public void BeginPickUp()
     {
-        if (mArea == null)
+        if (mArea == null || mIsFixed)
             return;
 
         GameInstance.Model.Placement.BeginPlacement(transform, mArea, mFootprint);

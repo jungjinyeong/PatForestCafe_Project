@@ -23,6 +23,14 @@ public partial class BusinessModel
         mTodayGold.Value += gold;
     }
 
+    // 테라스 수입 가구(자판기·포장마차) 이용 수입. 개수 통계 없이 오늘 매출 골드에만 더한다.
+    public void RecordTerraceSale(int gold)
+    {
+        gold = Mathf.Max(0, gold);
+        if (IsSettled) { mNextDayStats.Gold += gold; return; }
+        mTodayGold.Value += gold;
+    }
+
     public void RecordDelivery(int gold)
     {
         gold = Mathf.Max(0, gold);

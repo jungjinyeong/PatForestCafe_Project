@@ -29,10 +29,16 @@ public partial class CharNpc
 
     private void ResetCart()
     {
+        ClearCartData();
+        LobbyUI?.ClearDessertCart();
+    }
+
+    // 장바구니 데이터만 비운다(머리 위 디저트 표시는 그대로). 결제한 디저트는 음료처럼 퇴장할 때까지 들고 다닌다.
+    private void ClearCartData()
+    {
         mCartDessertTid = 0;
         mCartStand = null;
         mCartQualities.Clear();
-        LobbyUI?.ClearDessertCart();
     }
 
     private void CompleteCounterPayment(bool includeDrink)
@@ -69,17 +75,12 @@ public partial class CharNpc
         ResetCart();
     }
 
-    // 동전 → 만족 아이콘 연출 후 다음 단계. 연출 아이콘이 없으면 바로 다음 단계.
+    // 결제가 끝나면 바로 다음 단계로 걸어가고, 동전 → 만족 아이콘 연출은 걷는 동안 머리 옆에 띄운다
+    // (기획: 카운터 앞 2초 대기 = 직원 게이지 후 음료를 든 채 이동).
     private void PlayPaymentEffectThenAdvance()
     {
-        var lobbyUI = LobbyUI;
-        if (lobbyUI == null)
-        {
-            AdvanceBehaviorQueue();
-            return;
-        }
-
-        lobbyUI.PlayPaymentEffect(Guarded(AdvanceBehaviorQueue));
+        LobbyUI?.PlayPaymentEffect(null);
+        AdvanceBehaviorQueue();
     }
 
     // 판매가 = 메뉴 가격 × 디저트 품질 배율 × 결제 수익 업그레이드 배율 × 계절 판매 배율(Season.csv). 한 개마다 정산한다.
@@ -102,7 +103,8 @@ public partial class CharNpc
             }
         }
 
-        ResetCart();
+        // 결제 완료 — 포기 시 진열대로 돌려놓을 대상이 아니므로 데이터만 비우고, 머리 위 디저트는 퇴장할 때까지 보여 준다.
+        ClearCartData();
     }
 
     // 음료 1잔: 제작 가능한 음료를 골라 재료를 쓰고 값을 받은 뒤 손에 들려 준다.

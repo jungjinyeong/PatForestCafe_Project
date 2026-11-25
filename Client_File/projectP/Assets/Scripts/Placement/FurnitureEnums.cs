@@ -27,6 +27,9 @@ namespace CTable
         Carpet,     // 카펫
         Chair,      // 의자 — 테라스 좌석(Trigger_Seat 웨이포인트). 테라스층에 놓인 수 = 테라스 수용 인원
         Deco,       // 장식 — 기능 없는 꾸미기 가구(화분·울타리·랜턴·기둥 등)
+        Table,      // 테이블 — 테라스 상호작용 가구(Trigger_TerraceUse 웨이포인트). 테라스 손님이 돌아다니며 이용
+        VendingMachine, // 자판기 — 테라스 전용 수입 가구. 손님이 이용할 때마다 FurnitureRow.UseIncome 골드
+        FoodStall,      // 포장마차 — 테라스 전용 수입 가구. 손님이 이용할 때마다 FurnitureRow.UseIncome 골드
     }
 
     // 배치된 가구가 바라보는 방향. 값 = Down(정면이 아래) 기준 반시계 90° 회전 횟수(칸/손님 위치 계산에 그대로 쓴다).

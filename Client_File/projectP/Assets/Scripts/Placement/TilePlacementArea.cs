@@ -33,6 +33,9 @@ public class TilePlacementArea : MonoBehaviour
     // 벽 가구를 놓을 수 있는 셀을 칠해 둔 보이지 않는 타일맵(PlaceableObjects/PlacementWallTilemap). 비어 있으면 모든 셀을 바닥으로 취급한다.
     [SerializeField] private Tilemap mWallTilemap;
 
+    // 이 영역이 속한 층(WaypointGroup). 처음 필요할 때 찾는다.
+    private WaypointGroup mGroup;
+
     private struct BaseSlot
     {
         public int PlacementId;
@@ -98,8 +101,28 @@ public class TilePlacementArea : MonoBehaviour
     {
         get
         {
-            var group = GetComponentInParent<WaypointGroup>();
+            var group = Group;
             return group != null ? group.Order : 0;
+        }
+    }
+
+    // 테라스층 영역인지(부모 WaypointGroup.IsTerraceZone). 테라스는 쉬는 공간이라 매장 전용 가구(빵 테이블 등)를 놓을 수 없다.
+    public bool IsTerrace
+    {
+        get
+        {
+            var group = Group;
+            return group != null && group.IsTerraceZone;
+        }
+    }
+
+    private WaypointGroup Group
+    {
+        get
+        {
+            if (mGroup == null)
+                mGroup = GetComponentInParent<WaypointGroup>();
+            return mGroup;
         }
     }
 

@@ -196,7 +196,7 @@ public class GameModeFurnitureTest : GameModeBase
         if (!IsReady)
             return;
 
-        GameInstance.Model.Placement.ResetAllPlacedFurniture();
+        GameInstance.Model.Placement.ResetAllPlacedFurniture(reapplyPresets: false);
 
         foreach (var preview in mPreviewObjects)
         {

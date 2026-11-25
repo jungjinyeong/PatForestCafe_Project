@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class InputManager : MonoBehaviour, IManager
@@ -25,11 +26,17 @@ public class InputManager : MonoBehaviour, IManager
         var col = Physics2D.OverlapPoint(worldPos, mInteractableLayerMask);
         if (col is BoxCollider2D boxCollider2D)
         {
-            //TODO: 이 부분은 나중에 NPC와 상호작용하는 로직으로 변경 필요
+            // 손님 클릭: 지금은 키오스크 이벤트(말풍선) 중인 손님만 반응한다(CharNpc.OnClicked).
             var npc = boxCollider2D.GetComponentInParent<CharNpc>();
 
             if (npc != null)
+            {
+                // UI(HUD 버튼·팝업)를 누른 탭이 뒤의 손님까지 누르지 않게 한다.
+                bool isOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+                if (!isOverUI && !GameInstance.Model.Placement.IsEditMode.Value)
+                    npc.OnClicked();
                 return;
+            }
 
             var dessertStand = boxCollider2D.GetComponentInParent<Intaraction_DessertStand>();
             if (dessertStand != null)

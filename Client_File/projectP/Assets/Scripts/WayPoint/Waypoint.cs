@@ -28,6 +28,8 @@ public class Waypoint : MonoBehaviour
         Trigger_Kiosk,
         // 테라스 좌석(의자 가구) — 손님이 결제 때 예약하고 앉는 자리. 테라스층에 놓인 수 = 테라스 수용 인원.
         Trigger_Seat,
+        // 테라스 상호작용 가구(테이블 등) — 테라스 손님이 돌아다니며 이용하는 자리. 한 번에 한 명.
+        Trigger_TerraceUse,
 
         Max = eWaypointCategoryType.Max << 16,
     }

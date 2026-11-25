@@ -40,6 +40,7 @@ public partial class CharNpc : CharBase
     private List<Waypoint> mSubPath;
     private int mSubPathIndex;
     private Action mArriveAction;
+    private Action mLostAction;
     // 웨이포인트가 아닌 지점(결제 대기 줄 칸 등)으로 곧장 걸어갈 때.
     private bool mHasPointTarget;
     private Vector3 mPointTarget;
@@ -81,10 +82,22 @@ public partial class CharNpc : CharBase
     {
         mVisitId++;
         mBehaviorQueue = NpcBehaviorRuleSet.GetRandomQueue();
+        mIsInKioskEvent = false;
         ResetCart();
+        ResetTerraceVisit();
 
         mEntranceGroup = entrance;
         PlaceAt(entrance, spawnPoint);
+
+        // 디저트를 사는 세트는 기획대로 「진열된 빵 테이블 기준」 — 열린 매장층 전체의 빵이 있는 진열대 중 하나를 골라 그 층으로 간다.
+        // 빵이 어디에도 없으면 SpawnManager가 고른 무작위 층으로 간다(그 층에서 디저트 없음 분기).
+        mPreferredStand = null;
+        if (mBehaviorQueue.Count > 0 && mBehaviorQueue.Peek() == eNpcBehaviorStepType.BuyDessert
+            && TryPickStockedStandOnAnyFloor(out var stand, out var standGroup))
+        {
+            mPreferredStand = stand;
+            targetGroup = standGroup;
+        }
 
         TravelTo(targetGroup, AdvanceBehaviorQueue);
     }
@@ -98,18 +111,20 @@ public partial class CharNpc : CharBase
 
     #region Movement
 
-    // target까지 웨이포인트 경로로 걸어가 도착하면 onArrive를 부른다. 가는 도중 목표가 사라지면(가구 철거) 다음 행동으로 넘어간다.
-    private void MoveTo(Waypoint target, Action onArrive)
+    // target까지 웨이포인트 경로로 걸어가 도착하면 onArrive를 부른다. 가는 도중 목표가 사라지면(가구 철거) onLost,
+    // 없으면 다음 행동으로 넘어간다.
+    private void MoveTo(Waypoint target, Action onArrive, Action onLost = null)
     {
         StopWait();
 
         if (target == null)
         {
-            AdvanceBehaviorQueue();
+            (onLost ?? AdvanceBehaviorQueue).Invoke();
             return;
         }
 
         mArriveAction = onArrive;
+        mLostAction = onLost;
         mHasPointTarget = false;
         mIsMoving = true;
         mBlockedSeconds = 0f;
@@ -126,6 +141,7 @@ public partial class CharNpc : CharBase
         // 웨이포인트를 떠나므로 다음 경로 탐색은 지금 위치에서 곧장 시작하게 한다(BeginSegmentTo의 null 처리).
         mCurrentWaypoint = null;
         mArriveAction = onArrive;
+        mLostAction = null;
         mPointTarget = new Vector3(point.x, point.y, transform.position.z);
         mHasPointTarget = true;
         mIsMoving = true;
@@ -156,10 +172,12 @@ public partial class CharNpc : CharBase
         // 가구 철거/리셋으로 목표(또는 경유) 웨이포인트가 파괴됐으면 이번 이동을 포기하고 다음 행동으로 넘어간다.
         if (mSubPath[mSubPathIndex] == null)
         {
+            var lostAction = mLostAction;
             mSubPath = null;
             mArriveAction = null;
+            mLostAction = null;
             mIsMoving = false;
-            AdvanceBehaviorQueue();
+            (lostAction ?? AdvanceBehaviorQueue).Invoke();
             return;
         }
 
@@ -208,6 +226,7 @@ public partial class CharNpc : CharBase
         mCurrentWaypoint = arrived;
         mSubPath = null;
         mIsMoving = false;
+        mLostAction = null;
 
         var action = mArriveAction;
         mArriveAction = null;
@@ -286,6 +305,7 @@ public partial class CharNpc : CharBase
         mCurrentGroup = group;
         mCurrentWaypoint = point;
         mSubPath = null;
+        mLostAction = null;
         mHasPointTarget = false;
         mIsMoving = false;
 
@@ -305,9 +325,12 @@ public partial class CharNpc : CharBase
         mSubPath = null;
         mHasPointTarget = false;
         mArriveAction = null;
+        mLostAction = null;
 
+        mIsInKioskEvent = false;
         LeavePaymentLine();
         ReleaseTerraceSeat();
+        ResetTerraceVisit();
 
         // 결제하지 못하고 떠나는 손님(결제 시설이 없는 층, 영업 마감 강제 퇴장 등)의 디저트는 진열대(없으면 창고)로 돌려놓는다.
         ReturnCartToStand();
@@ -315,8 +338,11 @@ public partial class CharNpc : CharBase
         var lobbyUI = LobbyUI;
         if (lobbyUI != null)
         {
+            // 결제한 디저트·음료는 퇴장할 때까지 들고 있다가 여기서 끈다.
+            lobbyUI.ClearDessertCart();
             lobbyUI.ClearDrink();
             lobbyUI.SetSweatIconActive(false);
+            lobbyUI.SetKioskBubbleActive(false);
             lobbyUI.StopPaymentEffect();
         }
 

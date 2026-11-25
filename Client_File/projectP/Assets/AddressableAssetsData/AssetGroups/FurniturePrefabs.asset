@@ -65,6 +65,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1348ad801d039114daa208c82fe73db1
+    m_Address: FurniturePrefabs/fur_temp_terrace_table
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 15332b237ed918642b57147ee5368fb2
     m_Address: FurniturePrefabs/flr_0120_forest_ground_tile_spring_11
     m_ReadOnly: 0
@@ -222,6 +227,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4f187260807937f4a869689b9b2027b2
     m_Address: FurniturePrefabs/lantern_or_mount_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5322cdaf508ebb6419ed15bfb3196b94
+    m_Address: FurniturePrefabs/fur_temp_vending_machine
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -482,6 +492,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: bc9621800f775f74b98c642a034057de
     m_Address: FurniturePrefabs/shop_flower_canopy_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bc9dc0781c004d64f91690c22593f16c
+    m_Address: FurniturePrefabs/fur_temp_food_stall
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

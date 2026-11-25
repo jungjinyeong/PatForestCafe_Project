@@ -20,5 +20,6 @@ namespace CTable
         public int LayoutOrder;
         public int FurnitureType;
         public int Category;
+        public int UseIncome;
     }
 }

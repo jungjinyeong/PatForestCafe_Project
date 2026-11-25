@@ -136,7 +136,7 @@ public class SaveManager : MonoBehaviour
             data.OwnedFurniture.Add(new OwnedFurnitureSaveEntry { Tid = kvp.Key.tid, IsSub = kvp.Key.isSub, Count = kvp.Value });
 
         foreach (var kvp in GameInstance.Model.Placement.GetAllPlacements())
-            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, Floor = kvp.Value.Floor, Cell = kvp.Value.Cell, AssignedDessertTid = kvp.Value.AssignedDessertTid, IsSub = kvp.Value.IsSub, Direction = (int)kvp.Value.Direction, FlipX = kvp.Value.FlipX });
+            data.PlacedFurniture.Add(new PlacedFurnitureSaveEntry { PlacementId = kvp.Key, Tid = kvp.Value.Tid, Position = kvp.Value.Position, Floor = kvp.Value.Floor, Cell = kvp.Value.Cell, AssignedDessertTid = kvp.Value.AssignedDessertTid, IsSub = kvp.Value.IsSub, Direction = (int)kvp.Value.Direction, FlipX = kvp.Value.FlipX, Fixed = kvp.Value.Fixed });
 
         foreach (var (floor, cell, tid) in GameInstance.Model.Placement.GetAllFloorTiles())
             data.FloorTiles.Add(new FloorTileSaveEntry { Floor = floor, Cell = cell, Tid = tid });
@@ -158,6 +158,7 @@ public class SaveManager : MonoBehaviour
             data.WorkshopSlotIngredientTids.Add(slot.IngredientTid.Value);
 
         data.UnlockedFloors.AddRange(GameInstance.Model.Floor.UnlockedFloors);
+        data.AppliedPresetFloors.AddRange(GameInstance.Model.Placement.GetAppliedPresetFloors());
         data.FloorLayoutVersion = FLOOR_LAYOUT_VERSION;
 
         foreach (var staff in GameInstance.Model.Staff.HiredStaff)
@@ -204,7 +205,7 @@ public class SaveManager : MonoBehaviour
             }
 
             GameInstance.Model.Placement.RestorePlacement(entry.PlacementId, entry.Tid, entry.Position, entry.Floor, entry.Cell,
-                (CTable.eFurnitureDirection)entry.Direction, entry.FlipX, entry.AssignedDessertTid, entry.IsSub);
+                (CTable.eFurnitureDirection)entry.Direction, entry.FlipX, entry.AssignedDessertTid, entry.IsSub, entry.Fixed);
         }
         if (droppedPlacements > 0)
             Logger.Log($"[SaveManager] 구 바닥타일/표에 없는 가구 배치 {droppedPlacements}건을 버렸습니다.");
@@ -238,6 +239,7 @@ public class SaveManager : MonoBehaviour
             GameInstance.Model.Workshop.SetSlotIngredient(i, data.WorkshopSlotIngredientTids[i]);
 
         GameInstance.Model.Floor.RestoreUnlockedFloors(data.UnlockedFloors);
+        GameInstance.Model.Placement.RestoreAppliedPresetFloors(data.AppliedPresetFloors);
 
         if (data.HiredStaffTids != null)
         {

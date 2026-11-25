@@ -124,6 +124,30 @@ public class WayPointManager : MonoBehaviour
             mSeatReservations.Remove(seat);
     }
 
+    // 테라스 상호작용 가구(Trigger_TerraceUse) 이용 예약 — 한 가구는 한 번에 한 명. 좌석 예약과 같은 표를 쓴다(웨이포인트가 서로 달라 겹치지 않음).
+    // 철거된 가구의 예약은 살아 있는 웨이포인트와 겹치지 않으므로 여기서는 정리하지 않는다(좌석 예약 때 정리됨).
+    public bool IsWaypointReserved(Waypoint waypoint)
+    {
+        return waypoint != null && mSeatReservations.ContainsKey(waypoint);
+    }
+
+    public bool TryReserveWaypoint(Waypoint waypoint, object owner)
+    {
+        if (waypoint == null)
+            return false;
+
+        if (mSeatReservations.TryGetValue(waypoint, out var current))
+            return ReferenceEquals(current, owner);
+
+        mSeatReservations[waypoint] = owner;
+        return true;
+    }
+
+    public void ReleaseWaypoint(Waypoint waypoint, object owner)
+    {
+        ReleaseTerraceSeat(waypoint, owner);
+    }
+
     // 철거된 의자의 좌석 예약을 지운다(Unity의 파괴된 오브젝트는 == null).
     private void RemoveDestroyedSeatReservations()
     {
