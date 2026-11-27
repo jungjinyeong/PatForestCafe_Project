@@ -26,8 +26,15 @@ public partial class GameModeLobby
 
         InitDessertStands();
         InitCharStaffs();
+        InitPostProcess();
 
         mStateMachine.ChangeState(eGameModeLobbyState.OpenLobbyUI);
+    }
+
+    private void InitPostProcess()
+    {
+        foreach (var postProcess in FindObjectsByType<LobbyPostProcessController>(FindObjectsSortMode.None))
+            postProcess.Init();
     }
 
     private void InitDessertStands()
