@@ -166,24 +166,22 @@ public class UIManager : MonoBehaviour
         DontDestroyOnLoad(this);
         mUIWndStack = new UIWndStack();
 
-        ConnectMainCamera();
+        SetupCanvasRenderMode();
     }
 
-    private void ConnectMainCamera()
+    // UI 캔버스는 Screen Space - Overlay로 그린다.
+    // 메인 카메라(PixelPerfectCamera, Upscale Render Texture)에 Screen Space - Camera로 붙이면, 로비 휠 줌
+    // (LobbyFloorCameraController가 기준 해상도를 바꾸는 방식)에 UI까지 같이 확대되고 저해상도 RT로 뭉개진다.
+    // Overlay는 카메라와 무관하게 화면 해상도 그대로 그려서 줌 영향을 받지 않는다. 정렬은 각 캔버스 sortingOrder 그대로.
+    private void SetupCanvasRenderMode()
     {
-        var mainCamera = Camera.main;
-        if (mainCamera == null)
-        {
-            Logger.Error("UIManager::ConnectMainCamera - MainCamera를 찾을 수 없습니다.");
-            return;
-        }
-
         foreach (var canvas in mTargetCanvasDic.Values)
         {
             if (canvas == null)
                 continue;
 
-            canvas.worldCamera = mainCamera;
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.worldCamera = null;
         }
     }
 
